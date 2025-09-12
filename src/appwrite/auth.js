@@ -1,21 +1,23 @@
-import conf from "../conf/conf.js";
-import { Client, Account, ID } from "appwrite";
+import conf from '../conf/conf.js';
+import { Client, Account, ID } from 'appwrite';
 
 export class AuthService {
   client = new Client();
   account;
 
   constructor() {
+    // Set Appwrite endpoint and project ID
     this.client
-      .setEndpoint(conf.appwriteUrl)       // Appwrite API endpoint
-      .setProject(conf.appwriteProject);   // Project ID
+      .setEndpoint(conf.appwriteUrl)       // e.g., https://fra.cloud.appwrite.io/v1
+      .setProject(conf.appwriteProject);   // your actual Project ID
 
-    this.account = new Account(this.client); // Account helper
+    this.account = new Account(this.client);
   }
 
-  // Create new account + auto login
+  // Create a new account and auto-login
   async createAccount({ email, password, name }) {
     try {
+      // Create a user in Appwrite
       const userAccount = await this.account.create(
         ID.unique(),
         email,
@@ -23,13 +25,13 @@ export class AuthService {
         name
       );
 
+      // If creation succeeds, auto-login
       if (userAccount) {
-        // Auto login after signup
-        return await this.login({ email, password });
+        return this.login({ email, password });
       }
       return userAccount;
     } catch (error) {
-      console.error("Create account error:", error);
+      console.error('Create account error:', error);
       throw error;
     }
   }
@@ -37,20 +39,23 @@ export class AuthService {
   // Login with email + password
   async login({ email, password }) {
     try {
-      return await this.account.createEmailPasswordSession(email, password);
+      return await this.account.createEmailSession(email, password);
     } catch (error) {
-      console.error("Login error:", error);
+      console.error('Login error:', error);
       throw error;
     }
   }
 
-  // Get currently logged-in user
+  // Get the currently logged-in user
   async getCurrentUser() {
     try {
       return await this.account.get();
     } catch (error) {
-      console.error("Get current user error:", error);
-      return null; // null if no session
+      // 401 → no session / not logged in
+      // 404 → project ID or endpoint incorrect
+      if (error.code === 401 || error.code === 404) return null;
+      console.error('Get current user error:', error);
+      throw error;
     }
   }
 
@@ -59,13 +64,13 @@ export class AuthService {
     try {
       await this.account.deleteSessions();
     } catch (error) {
-      console.error("Logout error:", error);
+      console.error('Logout error:', error);
       throw error;
     }
   }
 }
 
-// Create a single shared instance
+// Singleton instance
 const authService = new AuthService();
 
 export default authService;

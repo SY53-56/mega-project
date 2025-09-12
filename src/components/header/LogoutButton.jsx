@@ -13,6 +13,6 @@ export default function LogoutButton() {
         
     }
   return (
-<button className='inline-bloack px-6 py-2 duration-200 hover:bg-blue-100 rounded-full'>Logout</button>
+<button onClick={logotHandler} className='inline-bloack px-6 py-2 duration-200 hover:bg-blue-100 rounded-full'>Logout</button>
   )
 }
