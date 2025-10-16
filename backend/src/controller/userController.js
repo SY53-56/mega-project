@@ -31,7 +31,7 @@ const userSignup = async (req, res) => {
 
     res.status(201).json({
       success: true,
-      user: { id: user._id, username: user.username },
+      user: { id: user._id, username: user.username },  token:token
     });
   } catch (e) {
     console.error(e);
@@ -62,7 +62,7 @@ const userLogin = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      user: { id: user._id, username: user.username },
+      user: { id: user._id, username: user.username },  token:token
     });
   } catch (e) {
     console.error(e);

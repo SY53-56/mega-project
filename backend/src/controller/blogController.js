@@ -17,6 +17,8 @@ try{
 const {title, description ,image} = req.body 
 if(!title || !description ) return res.status(400).json({message:"title is empty"})
     const authorId = req.user.id
+    console.log("Request body:", req.body);
+  console.log("Author from middleware:", req.user);
   const blog = await Blog.create({title,description,image, author: authorId,})
   res.status(200).json({success:true , blog})
 }catch(e){

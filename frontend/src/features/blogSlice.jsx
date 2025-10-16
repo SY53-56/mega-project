@@ -1,57 +1,45 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
-// Helper to add token to request
+// Helper to read token from Redux state
 const getAuthHeader = (token) => ({ headers: { Authorization: `Bearer ${token}` } });
 
-// Fetch all blogs
+// --- Fetch all blogs ---
 export const fetchGetData = createAsyncThunk(
   "blog/getData",
-  async (token, { rejectWithValue }) => {
+  async (_, { getState, rejectWithValue }) => {
     try {
-      const res = await axios.get("http://localhost:3000/user/", getAuthHeader(token));
+    const token = getState().auth.token || localStorage.getItem("token");
+
+      const res = await axios.get("http://localhost:5000/blog", getAuthHeader(token));
       return res.data;
     } catch (e) {
-      return rejectWithValue(e.response.data);
+      const message =
+        e.response && e.response.data && e.response.data.message
+          ? e.response.data.message
+          : e.message || "Failed to fetch blogs";
+      return rejectWithValue(message);
     }
   }
 );
 
-// Add blog
+// --- Add blog ---
 export const fetchAddData = createAsyncThunk(
   "blog/addData",
-  async ({ token, blogData }, { rejectWithValue }) => {
+  async (blogData, { getState, rejectWithValue }) => {
     try {
-      const res = await axios.post("http://localhost:3000/user/blog", blogData, getAuthHeader(token));
+         const token = getState().auth.token || localStorage.getItem("token");
+      const res = await axios.post("http://localhost:5000/blog", blogData, getAuthHeader(token));
       return res.data;
     } catch (e) {
-      return rejectWithValue(e.response.data);
-    }
-  }
-);
-
-// Update blog
-export const fetchUpdateData = createAsyncThunk(
-  "blog/updateData",
-  async ({ token, id, blogData }, { rejectWithValue }) => {
-    try {
-      const res = await axios.put(`http://localhost:3000/user/blog/${id}`, blogData, getAuthHeader(token));
-      return res.data;
-    } catch (e) {
-      return rejectWithValue(e.response.data);
-    }
-  }
-);
-
-// Delete blog
-export const fetchDeleteData = createAsyncThunk(
-  "blog/deleteData",
-  async ({ token, id }, { rejectWithValue }) => {
-    try {
-      await axios.delete(`http://localhost:3000/user/blog/${id}`, getAuthHeader(token));
-      return id;
-    } catch (e) {
-      return rejectWithValue(e.response.data);
+      if (e.response?.status === 401) {
+        return rejectWithValue("Token expired. Please login again.");
+      }
+      const message =
+        e.response && e.response.data && e.response.data.message
+          ? e.response.data.message
+          : e.message || "Failed to add blog";
+      return rejectWithValue(message);
     }
   }
 );
@@ -61,19 +49,23 @@ const blogSlice = createSlice({
   initialState: { blog: [], status: "idle", error: null },
   extraReducers: (builder) => {
     builder
+      // Fetch blogs
       .addCase(fetchGetData.fulfilled, (state, action) => {
         state.blog = action.payload;
+        state.error = null;
       })
+      .addCase(fetchGetData.rejected, (state, action) => {
+        state.error = action.payload;
+      })
+      // Add blog
       .addCase(fetchAddData.fulfilled, (state, action) => {
-        state.blog.unshift(action.payload); // add new blog to top
+        state.blog.unshift(action.payload);
+        state.error = null;
       })
-      .addCase(fetchUpdateData.fulfilled, (state, action) => {
-        state.blog = state.blog.map(b => b.id === action.payload.id ? action.payload : b);
-      })
-      .addCase(fetchDeleteData.fulfilled, (state, action) => {
-        state.blog = state.blog.filter(b => b.id !== action.payload);
+      .addCase(fetchAddData.rejected, (state, action) => {
+        state.error = action.payload;
       });
-  },
+  }
 });
 
 export default blogSlice.reducer;

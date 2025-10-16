@@ -1,65 +1,88 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
 
 export const fetchSignup = createAsyncThunk(
-  "auth/signupUser",
+  "user/signup",
   async (userData, { rejectWithValue }) => {
     try {
-      const response = await axios.post("http://localhost:3000/user/signup", userData);
-      return response.data;
+      const res = await axios.post("http://localhost:5000/user/signup", userData);
+         console.log("Signup response:", res.data); // you can log here
+           localStorage.setItem("token", res.data.token);
+      return res.data; 
     } catch (e) {
-      return rejectWithValue(e.response.data);
+      const message =
+        e.response && e.response.data && e.response.data.message
+          ? e.response.data.message
+          : e.message || "Failed to fetch";
+      return rejectWithValue(message);
     }
   }
 );
 
 export const fetchLogin = createAsyncThunk(
-  "auth/loginUser",
-  async (credentials, { rejectWithValue }) => {
+  "user/login",
+  async (userData, { rejectWithValue }) => {
     try {
-      const response = await axios.post("http://localhost:3000/user/login", credentials);
-      return response.data;
+      const res = await axios.post("http://localhost:5000/user/login", userData);
+        localStorage.setItem("token", res.data.token);
+      return res.data;
     } catch (e) {
-      return rejectWithValue(e.response.data);
+      const message =
+        e.response && e.response.data && e.response.data.message
+          ? e.response.data.message
+          : e.message || "Failed to fetch";
+      return rejectWithValue(message);
     }
   }
 );
 
 const authSlice = createSlice({
   name: "auth",
-  initialState: { user: null, token: null, status: "idle", error: null },
-  reducers: {
-    logout: (state) => {
+  initialState: {
+    user: null,
+    token: null,
+    error: null,
+    status: "idle",
+  },
+  reducers:{
+  logout: (state) => {
       state.user = null;
       state.token = null;
-      state.status = "idle";
       state.error = null;
-    }
+      state.status = "idle";
+    },
   },
   extraReducers: (builder) => {
     builder
-      .addCase(fetchSignup.pending, (state) => { state.status = "loading"; })
+      .addCase(fetchSignup.pending, (state) => {
+        state.status = "loading";
+        state.error = null;
+      })
       .addCase(fetchSignup.fulfilled, (state, action) => {
         state.status = "succeeded";
         state.user = action.payload.user;
         state.token = action.payload.token;
+        state.error = null;
       })
       .addCase(fetchSignup.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.payload;
       })
-      .addCase(fetchLogin.pending, (state) => { state.status = "loading"; })
+      .addCase(fetchLogin.pending, (state) => {
+        state.status = "loading";
+        state.error = null;
+      })
       .addCase(fetchLogin.fulfilled, (state, action) => {
         state.status = "succeeded";
         state.user = action.payload.user;
         state.token = action.payload.token;
+        state.error = null;
       })
       .addCase(fetchLogin.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.payload;
       });
-  }
+  },
 });
-
-export const { logout } = authSlice.actions;
+export const { logout } = authSlice.actions; 
 export default authSlice.reducer;

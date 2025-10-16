@@ -5,9 +5,9 @@ const routes = express.Router()
 
 
 routes.get("/",getAllBlogs)
-routes.post("/blog",userMiddleware,postBlogData)
-routes.put("/blog/:id",userMiddleware,updateBlogData)
-routes.delete("/blog/delete/:id",userMiddleware,    deleteBlog)
+routes.post("/",userMiddleware,postBlogData)
+routes.put("/:id",userMiddleware,updateBlogData)
+routes.delete("/delete/:id",userMiddleware,    deleteBlog)
 
 
 module.exports =routes
