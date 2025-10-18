@@ -1,9 +1,10 @@
 const Blog= require("../models/blogModel")
-
+const slugify=  require("slugify")
+const {nanoid} = require("nanoid")
 
 const getAllBlogs = async (req, res) => {
   try {
-    const blogs = await Blog.find(); // fetch all documents
+    const blogs = await Blog.find().populate("author","username"); // fetch all documents
     res.status(200).json({ success: true, blogs });
   } catch (err) {
     console.error(err);
@@ -12,18 +13,42 @@ const getAllBlogs = async (req, res) => {
 };
 
 
-const postBlogData =async(req,res)=>{
-try{
-const {title, description ,image} = req.body 
-if(!title || !description ) return res.status(400).json({message:"title is empty"})
-    const authorId = req.user.id
+const postBlogData = async (req, res) => {
+  try {
+    const { title, description, image } = req.body;
+    if (!title || !description)
+      return res.status(400).json({ message: "Title or description is empty" });
+
+    const slug = `${slugify(title, { lower: true, strict: true })}-${nanoid(6)}`;
+    const authorId = req.user.id;
+
     console.log("Request body:", req.body);
-  console.log("Author from middleware:", req.user);
-  const blog = await Blog.create({title,description,image, author: authorId,})
-  res.status(200).json({success:true , blog})
-}catch(e){
+    console.log("Author from middleware:", req.user);
+
+    const blog = await Blog.create({
+      title,
+      description,
+      image,
+      author: authorId,
+      slug, // ✅ include slug here
+    });
+
+    res.status(200).json({ success: true, blog });
+  } catch (e) {
+    console.log(e);
+    res.status(500).json({ success: false, message: e.message });
+  }
+};
+
+const userAccount= async(req ,res)=>{
+ try{
+   const {id} = req.params
+
+   const blog = await Blog.findById(id ).populate("author", "username");
+   res.status(201).json({success:true,blog})
+ }catch(e){
 console.log(e)
-}
+ }
 }
 const updateBlogData = async (req, res) => {
   try {
@@ -66,6 +91,7 @@ module.exports = { deleteBlog };
 module.exports= {
     getAllBlogs,
     postBlogData,
+    userAccount,
     updateBlogData,
     deleteBlog
 }

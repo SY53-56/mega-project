@@ -6,6 +6,7 @@ import Home from './page/Home'
 import AddBlog from "./page/AddBlog"
 import Login from './page/Login'
 import Signup from './page/Signup'
+import UserPage from './page/UserPage'
 function App() {
 
 
@@ -16,6 +17,7 @@ function App() {
       <Route element={<Layouts/>}>
       <Route index element={<Home />} />
       <Route  path="/addblog" element={<AddBlog />}/>
+      <Route path={`/userpage/:id`} element={<UserPage />}/>
       </Route>
       <Route path='/login' element={<Login/>}/>
             <Route path='/signup' element={<Signup/>}/>

@@ -1,34 +1,50 @@
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchGetData } from "../features/blogSlice";
-
+import { useParams } from "react-router-dom";
+import { Link } from "react-router-dom";
 export default function Home() {
   const dispatch = useDispatch();
   const { blog, status, error } = useSelector((state) => state.blog);
-
+const {id}= useParams()
   // Fetch blogs on mount
   useEffect(() => {
     dispatch(fetchGetData());
   }, [dispatch]);
 
   return (
-    <div className="p-6">
-      <h1 className="text-5xl font-bold bg-amber-600 text-white p-4 mb-4">
-        Sahul Yadav
+    <div className="min-h-screen bg-gray-100 p-6 flex flex-col items-center">
+      {/* Header */}
+      <h1 className="text-5xl font-bold bg-amber-500 text-white px-8 py-4 rounded-lg shadow-lg mb-8">
+        Sahul Yadav Blogs
       </h1>
 
-      {status === "loading" && <p className="text-gray-300">Loading blogs...</p>}
+      {/* Loading & Error */}
+      {status === "loading" && <p className="text-gray-500 text-lg mb-4">Loading blogs...</p>}
+      {error && <p className="text-red-500 text-lg mb-4">{error}</p>}
 
-      {error && <p className="text-red-500">Error: {error}</p>}
-
+      {/* Blog List */}
       {Array.isArray(blog) && blog.length > 0 ? (
-        <ul className="list-disc ml-6 space-y-1">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 w-full max-w-6xl">
           {blog.map((item) => (
-            <li key={item.id || item.title}>{item.title}</li>
+            <div
+              key={item._id}
+              className="bg-white rounded-xl shadow-lg overflow-hidden flex flex-col items-center py-2 hover:scale-105 transition-transform duration-300"
+            >
+              {item.image && (
+               <Link to={`/userpage/${item._id}`}>
+               <img className="w-[350px ] h-[290px] rounded-lg object-cover" src={item.image} alt={item.title} />
+               </Link>
+              )}
+              <div className="p-4 flex flex-col items-center text-left ">
+                <h2 className="text-2xl font-bold text-gray-800 mb-2 text-left">title: {item.title}</h2>
+      <p className="text-sm text-gray-500">Author: {item.author?.username || "Unknown"}</p>
+              </div>
+            </div>
           ))}
-        </ul>
+        </div>
       ) : (
-        status !== "loading" && <p className="text-gray-300">No blogs found.</p>
+        status !== "loading" && <p className="text-gray-500 text-lg mt-4">No blogs found.</p>
       )}
     </div>
   );
