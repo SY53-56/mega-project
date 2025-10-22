@@ -45,12 +45,36 @@ export const fetchAddData = createAsyncThunk(
     }
   }
 );
+export const fetchUpdata=createAsyncThunk("blog/updata",async(id, updateData,{getState,rejectWithValue})=>{
+  try{
+    const token =getState().auth.token
+    const res = await axios.put(`http://localhost:5000/blog/${id}`,updateData , getAuthHeader(token))
+    return res.data
+  }catch(e){
+  if(e.response?.state===401)return rejectWithValue("token expired , plase login fisrt ")
+     const message = e.response?.data?.message || e.message || "Failed to update blog";
+    return  rejectWithValue(message)
+  }
+})
+
+export const fetchDelete= createAsyncThunk("blog/delete", async(userID,{getState,rejectWithValue})=>{
+try{
+  let token =getState().auth.token
+const res = await axios.delete(`http://localhost:5000/blog/delete/${userID}`,getAuthHeader(token))
+
+  return res.data
+}catch(e){
+if(e.response?.state===401)return rejectWithValue("token expired , plase login fisrt ")
+       const message = e.response?.data?.message || e.message || "Failed to update blog";
+      return rejectWithValue(message)
+}
+})
 
 const blogSlice = createSlice({
   name: "blog",
   initialState: {
     blog: [],
-    currentBlog: null,
+    currentBlog:null,
     status: "idle",
     error: null,
   },
@@ -92,14 +116,41 @@ const blogSlice = createSlice({
         state.error = null;
       })
       .addCase(fetchUserAccount.fulfilled, (state, action) => {
-        state.status = "succeeded";
+        state.status = "successed";
         state.currentBlog = action.payload.blog || null;
         state.error = null;
       })
       .addCase(fetchUserAccount.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.payload;
-      });
+      }).addCase(fetchUpdata.fulfilled, (state, action) => {
+  // Update current blog if it matches
+  if (state.currentBlog && state.currentBlog.id === action.payload.updatedBlog.id) {
+    state.currentBlog = action.payload.updatedBlog;
+  }
+
+  // Also update blog in the blogs array if it exists
+  state.blog = state.blog.map(blog =>
+    blog.id === action.payload.updatedBlog.id ? action.payload.updatedBlog : blog
+  );
+
+  state.status = "succeeded";
+  state.error = null;
+})
+
+.addCase(fetchDelete.fulfilled, (state, action) => {
+  // Delete current blog if it matches
+  if (state.currentBlog && state.currentBlog.id === action.meta.arg) {
+    state.currentBlog = null;
+  }
+
+  // Also remove blog from blogs array
+  state.blog = state.blog.filter(blog => blog.id !== action.meta.arg);
+
+  state.status = "succeeded";
+  state.error = null;
+})
+
   },
 });
 

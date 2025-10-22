@@ -7,6 +7,7 @@ import AddBlog from "./page/AddBlog"
 import Login from './page/Login'
 import Signup from './page/Signup'
 import UserPage from './page/UserPage'
+import UpdateBlog from './page/UpdateBlog'
 function App() {
 
 
@@ -18,6 +19,7 @@ function App() {
       <Route index element={<Home />} />
       <Route  path="/addblog" element={<AddBlog />}/>
       <Route path={`/userpage/:id`} element={<UserPage />}/>
+      <Route path={'/userUpdate/:id'} element={<UpdateBlog />}/>
       </Route>
       <Route path='/login' element={<Login/>}/>
             <Route path='/signup' element={<Signup/>}/>

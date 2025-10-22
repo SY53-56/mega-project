@@ -47,7 +47,7 @@ export default function Header() {
         >
           Home
         </NavLink>
-        <NavLink
+       {token? <NavLink
           to="/addblog"
           className={({ isActive }) =>
             `px-4 py-2 rounded-md transition font-medium ${
@@ -58,7 +58,7 @@ export default function Header() {
           }
         >
           Add Blog
-        </NavLink>
+        </NavLink>:""}
 
         {/* Auth Buttons */}
         <div className="flex flex-col lg:flex-row gap-4 mt-3 lg:mt-0 items-center">

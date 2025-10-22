@@ -44,7 +44,7 @@ const userAccount= async(req ,res)=>{
  try{
    const {id} = req.params
 
-   const blog = await Blog.findById(id ).populate("author", "username");
+const blog = await Blog.findById(id).populate("author", "username");
    res.status(201).json({success:true,blog})
  }catch(e){
 console.log(e)
@@ -67,6 +67,7 @@ const updateBlogData = async (req, res) => {
     res.status(500).json({ success: false, message: "Server error" });
   }
 };
+
 
 
 const deleteBlog = async (req, res) => {

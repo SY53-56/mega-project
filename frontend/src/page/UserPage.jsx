@@ -1,52 +1,79 @@
-import React, { useEffect } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
-import { useParams } from 'react-router-dom'
-import { fetchUserAccount } from '../features/blogSlice'
+// page/UserPage.jsx
+import React, { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate, useParams } from "react-router-dom";
+import { fetchDelete, fetchUserAccount } from "../features/blogSlice";
+import Button from "../component/Button";
 
 export default function UserPage() {
-  const{currentBlog,error , status}= useSelector(state=>state.blog)
-    const dispatch =useDispatch()
-    const {id} = useParams()
-  useEffect(()=>{
-    if(id){
-      dispatch(fetchUserAccount(id))
-    }
-  },[id,dispatch])
+  const dispatch = useDispatch();
+  const { id } = useParams();
+const navigate= useNavigate()
+  const { currentBlog, error, status,blog } = useSelector((state) => state.blog);
+  const {token} = useSelector(state=>state.auth)
+console.log(currentBlog)
+  useEffect(() => {
+    if (id) dispatch(fetchUserAccount(id))
+  }, [id, dispatch]);
+
+  function deleteBlog(){
+  if(id)dispatch(fetchDelete(id))
+    navigate("/")
+  }
+
   return (
- 
-    <div className="w-full min-h-screen bg-gray-100 p-6">
-      <h1 className="text-4xl font-bold mb-6 text-center">
-        Blogs by User {id}
+    <div className="min-h-screen bg-gradient-to-r from-gray-100 to-gray-200 p-6">
+      <h1 className="text-4xl font-bold mb-8 text-center text-gray-800">
+        Blogs by User <span className="text-indigo-600">{id}</span>
       </h1>
 
-      {status === "loading" && <p>Loading blogs...</p>}
-      {error && <p className="text-red-500">{error}</p>}
+      {/* Loading */}
+      {status === "loading" && (
+        <p className="text-center text-gray-500 text-lg">Loading blogs...</p>
+      )}
 
-      {Array.isArray(currentBlog) && currentBlog.length > 0 ? (
-        <ul className="space-y-4">
-          {currentBlog.map((blog) => (
-          <li
-  key={blog._id}
-  className="p-4 bg-white rounded-xl shadow-md hover:shadow-lg transition transform hover:scale-105"
->
-  <h2 className="text-2xl font-semibold mb-2">{blog.title}</h2>
-  <p className="text-gray-500">{blog.description?.slice(0, 120)}...</p>
-  {blog.image && (
-    <img
-      src={blog.image}
-      alt={blog.title}
-      className="mt-2 w-full h-48 object-cover rounded-lg"
-    />
-  )}
-</li>
+      {/* Error */}
+      {error && <p className="text-red-500 text-center">{error}</p>}
 
-          ))}
-        </ul>
+      {/* Blog Card */}
+      {currentBlog ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="bg-white py-2 px-3 rounded-xl shadow-md hover:shadow-xl transition-transform transform hover:scale-105 overflow-hidden">
+            
+            {/* Blog Image */}
+            {currentBlog.image && (
+              <img
+                src={currentBlog.image}
+                alt={currentBlog.title || "Blog image"}
+                className="w-full h-h-full object-cover"
+              />
+            )}
+
+            {/* Blog Content */}
+            <div className="p-5 text-left">
+              <h2 className="text-2xl font-semibold mb-2 text-gray-800">
+               <span className="font-bold text-1.5xl ">title:</span>  {currentBlog.title}
+              </h2>
+              <p className="text-gray-500 mb-4"><span className="font-bold text-1.5xl text-black">Description:</span> {currentBlog.description}</p>
+             
+              <p className="cursor-pointer"> <span className="font-bold text-1.5xl">Author:</span> {currentBlog.author.username}</p>
+             {token?(
+               <div className="flex gap-5 mt-3">
+              <Button to={`/userUpdate/${currentBlog.id}`} className="bg-sky-600 hover:bg-sky-700 font-bold text-white" name="Updata"/>
+                <Button  onClick={deleteBlog} className="bg-red-600 hover:bg-red-700 font-bold text-white" name="Delete"/>
+              </div>
+             ):""}
+            </div>
+          </div>
+        </div>
       ) : (
-        status !== "loading" && <p>No blogs found for this user.</p>
+        // Empty State
+        status === "succeeded" && (
+          <p className="text-center text-gray-500 text-lg mt-10">
+            No blogs found for this user.
+          </p>
+        )
       )}
     </div>
   );
 }
-
-  
