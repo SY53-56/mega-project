@@ -45,9 +45,9 @@ export const fetchAddData = createAsyncThunk(
     }
   }
 );
-export const fetchUpdata=createAsyncThunk("blog/updata",async(id, updateData,{getState,rejectWithValue})=>{
+export const fetchUpdata=createAsyncThunk("blog/updata",async({id, updateData},{getState,rejectWithValue})=>{
   try{
-    const token =getState().auth.token
+    const token =getState().auth.token || localStorage.getItem("token")
     const res = await axios.put(`http://localhost:5000/blog/${id}`,updateData , getAuthHeader(token))
     return res.data
   }catch(e){
@@ -59,7 +59,7 @@ export const fetchUpdata=createAsyncThunk("blog/updata",async(id, updateData,{ge
 
 export const fetchDelete= createAsyncThunk("blog/delete", async(userID,{getState,rejectWithValue})=>{
 try{
-  let token =getState().auth.token
+  let token =getState().auth.token || localStorage.getItem("token")
 const res = await axios.delete(`http://localhost:5000/blog/delete/${userID}`,getAuthHeader(token))
 
   return res.data
@@ -125,13 +125,13 @@ const blogSlice = createSlice({
         state.error = action.payload;
       }).addCase(fetchUpdata.fulfilled, (state, action) => {
   // Update current blog if it matches
-  if (state.currentBlog && state.currentBlog.id === action.payload.updatedBlog.id) {
-    state.currentBlog = action.payload.updatedBlog;
+  if (state.currentBlog && state.currentBlog.id === action.payload.blog._id) {
+    state.currentBlog = action.payload.blog;
   }
 
   // Also update blog in the blogs array if it exists
   state.blog = state.blog.map(blog =>
-    blog.id === action.payload.updatedBlog.id ? action.payload.updatedBlog : blog
+    blog.id === action.payload.blog_id ? action.payload.blog : blog
   );
 
   state.status = "succeeded";

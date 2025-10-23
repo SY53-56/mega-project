@@ -15,21 +15,17 @@ export default function UpdateBlog() {
     description: '',
     image: ''
   });
-
-  console.log('current data',currentBlog.title)
+console.log("from data",form)
+  console.log('current data',currentBlog)
   // Fetch blog if not loaded
-  useEffect(() => {
-    if (!currentBlog || currentBlog?.id?.toString() !== id) {
-      dispatch(fetchUserAccount(id));
-    }
-  }, [currentBlog, id, dispatch]);
+console.log("Updating blog ID:", id);
 
   // Prefill form when currentBlog is loaded
   useEffect(() => {
-    if (currentBlog && currentBlog?.id?.toString()=== id) {
+    if (currentBlog ) {
       setForm({
-        title: currentBlog.title || '',
-        description: currentBlog.description || '',
+        title: currentBlog?.title || '',
+        description: currentBlog?.description || '',
         image: currentBlog.image || ''
       });
     }
@@ -40,15 +36,14 @@ export default function UpdateBlog() {
     const { name, value } = e.target;
     setForm(prev => ({ ...prev, [name]: value }));
   }
+function handleForm(e) {
+  e.preventDefault();
+  dispatch(fetchUpdata({ id, updateData: form }))
+    .unwrap()
+    .then(() => navigate(`/userpage/${id}`)) // use id from URL
+    .catch(err => console.log(err));
+}
 
-  // Handle form submission
-  function handleForm(e) {
-    e.preventDefault();
-    dispatch(fetchUpdata({ id, updateData: form }))
-      .unwrap()
-      .then(() => navigate('/')) // Redirect after success
-      .catch(err => console.log(err));
-  }
 
   return (
     <div className="w-full min-h-screen flex justify-center items-center bg-gradient-to-br from-blue-900 to-indigo-900 p-4">

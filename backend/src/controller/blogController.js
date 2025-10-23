@@ -13,6 +13,7 @@ const getAllBlogs = async (req, res) => {
 };
 
 
+
 const postBlogData = async (req, res) => {
   try {
     const { title, description, image } = req.body;

@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import Button from "../component/Button";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchLogin } from "../features/authSlice";
-import { useNavigate } from "react-router-dom";
+import { useNavigate,Link } from "react-router-dom";
 
 export default function Login() {
   const [form, setForm] = useState({ email: "", password: "" });
@@ -50,6 +50,7 @@ export default function Login() {
             className="mb-3 px-2 py-0.5 rounded border"
           />
           <Button type="submit" className="bg-amber-500 text-white mt-5" name="Login" />
+          <p className="mt-2">if you want to <Link className="text-blue-600" to="/createaccount">create new account</Link></p>
         </form>
         {error && <p className="text-red-500 mt-2">{error}</p>}
       </div>

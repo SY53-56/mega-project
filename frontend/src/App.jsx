@@ -5,9 +5,10 @@ import Layouts from './Layouts'
 import Home from './page/Home'
 import AddBlog from "./page/AddBlog"
 import Login from './page/Login'
-import Signup from './page/Signup'
+import CreateAccount from './page/CreateAccount'
 import UserPage from './page/UserPage'
 import UpdateBlog from './page/UpdateBlog'
+import UserAccount from './page/UserAccount'
 function App() {
 
 
@@ -20,9 +21,10 @@ function App() {
       <Route  path="/addblog" element={<AddBlog />}/>
       <Route path={`/userpage/:id`} element={<UserPage />}/>
       <Route path={'/userUpdate/:id'} element={<UpdateBlog />}/>
+      <Route path={`/user/:id/blogs`} element={<UserAccount/>}/>
       </Route>
       <Route path='/login' element={<Login/>}/>
-            <Route path='/signup' element={<Signup/>}/>
+            <Route path='/createaccount' element={<CreateAccount/>}/>
     </Routes>
 
     </>

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { NavLink } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 import Button from "./Button";
 import { Menu, X } from "lucide-react";
 import { useSelector, useDispatch } from "react-redux";
@@ -18,16 +18,17 @@ export default function Header() {
   };
 
   return (
-    <header className="w-full bg-gray-400 shadow p-3 flex flex-col lg:flex-row lg:justify-between lg:items-center">
+    <header className="w-full bg-gray-400 mx-0 px-0 lg:px-32 shadow p-3 flex flex-col lg:flex-row lg:justify-between lg:items-center">
       {/* Logo + Hamburger */}
-      <div className="flex justify-between items-center">
-        <h1 className="text-4xl font-bold text-gray-900">BLOG</h1>
-        <Button
-          classname="flex lg:hidden"
-          name={isOpen ? <X size={24} /> : <Menu size={24} />}
-          onClick={toggle}
-        />
-      </div>
+    <div className="flex justify-between items-center">
+  <Link className="text-2xl font-bold" to="/">Dailys blog</Link>
+  
+  <Button
+    className="block lg:hidden"   // ✅ visible on small screens, hidden on lg+
+    name={isOpen ? <X size={24} /> : <Menu size={24} />}
+    onClick={toggle}
+  />
+</div>
 
       {/* Navigation */}
       <nav
@@ -35,18 +36,7 @@ export default function Header() {
           isOpen ? "flex mt-3" : "hidden lg:flex mt-0"
         }`}
       >
-        <NavLink
-          to="/"
-          className={({ isActive }) =>
-            `px-4 py-2 rounded-md transition font-medium ${
-              isActive
-                ? "text-blue-700 bg-blue-50 underline"
-                : "text-gray-600 hover:text-blue-600 hover:bg-gray-100"
-            }`
-          }
-        >
-          Home
-        </NavLink>
+       
        {token? <NavLink
           to="/addblog"
           className={({ isActive }) =>
@@ -79,9 +69,9 @@ export default function Header() {
                 name="Login"
               />
               <Button
-                to="/signup"
+                to="/Createaccount"
                 className="bg-green-600 text-white hover:bg-green-700"
-                name="Signup"
+                name="Create Account"
               />
             </>
           )}

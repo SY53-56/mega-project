@@ -1,7 +1,7 @@
 // page/UserPage.jsx
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams,Link } from "react-router-dom";
 import { fetchDelete, fetchUserAccount } from "../features/blogSlice";
 import Button from "../component/Button";
 
@@ -11,6 +11,7 @@ export default function UserPage() {
 const navigate= useNavigate()
   const { currentBlog, error, status,blog } = useSelector((state) => state.blog);
   const {token} = useSelector(state=>state.auth)
+  console.log("blog :", blog)
 console.log(currentBlog)
   useEffect(() => {
     if (id) dispatch(fetchUserAccount(id))
@@ -37,7 +38,7 @@ console.log(currentBlog)
 
       {/* Blog Card */}
       {currentBlog ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 ml-14 lg:grid-cols-3 gap-6">
           <div className="bg-white py-2 px-3 rounded-xl shadow-md hover:shadow-xl transition-transform transform hover:scale-105 overflow-hidden">
             
             {/* Blog Image */}
@@ -55,11 +56,19 @@ console.log(currentBlog)
                <span className="font-bold text-1.5xl ">title:</span>  {currentBlog.title}
               </h2>
               <p className="text-gray-500 mb-4"><span className="font-bold text-1.5xl text-black">Description:</span> {currentBlog.description}</p>
-             
-              <p className="cursor-pointer"> <span className="font-bold text-1.5xl">Author:</span> {currentBlog.author.username}</p>
+  <p className="cursor-pointer">
+  <span className="font-bold text-xl">Author:</span>{" "}
+  <Link 
+    to={`/user/${currentBlog.author._id}/blogs`} 
+    className="text-blue-600 hover:underline"
+  >
+    {currentBlog.author.username}
+  </Link>
+</p>
+
              {token?(
                <div className="flex gap-5 mt-3">
-              <Button to={`/userUpdate/${currentBlog.id}`} className="bg-sky-600 hover:bg-sky-700 font-bold text-white" name="Updata"/>
+              <Button to={`/userUpdate/${currentBlog._id}`} className="bg-sky-600 hover:bg-sky-700 font-bold text-white" name="Updata"/>
                 <Button  onClick={deleteBlog} className="bg-red-600 hover:bg-red-700 font-bold text-white" name="Delete"/>
               </div>
              ):""}
