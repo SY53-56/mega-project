@@ -2,7 +2,7 @@
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams,Link } from "react-router-dom";
-import { fetchDelete, fetchUserAccount } from "../features/blogSlice";
+import { fetchDelete, fetchGetSingleBlog } from "../features/blogSlice";
 import Button from "../component/Button";
 
 export default function UserPage() {
@@ -10,11 +10,12 @@ export default function UserPage() {
   const { id } = useParams();
 const navigate= useNavigate()
   const { currentBlog, error, status,blog } = useSelector((state) => state.blog);
-  const {token} = useSelector(state=>state.auth)
+  const {token , user} = useSelector(state=>state.auth)
   console.log("blog :", blog)
+  console.log( "user", user)
 console.log(currentBlog)
   useEffect(() => {
-    if (id) dispatch(fetchUserAccount(id))
+    if (id) dispatch(fetchGetSingleBlog(id))
   }, [id, dispatch]);
 
   function deleteBlog(){
@@ -66,12 +67,12 @@ console.log(currentBlog)
   </Link>
 </p>
 
-             {token?(
+             {token && user?.id === currentBlog?.author?._id &&(
                <div className="flex gap-5 mt-3">
               <Button to={`/userUpdate/${currentBlog._id}`} className="bg-sky-600 hover:bg-sky-700 font-bold text-white" name="Updata"/>
                 <Button  onClick={deleteBlog} className="bg-red-600 hover:bg-red-700 font-bold text-white" name="Delete"/>
               </div>
-             ):""}
+             )}
             </div>
           </div>
         </div>

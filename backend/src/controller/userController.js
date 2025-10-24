@@ -66,7 +66,12 @@ const userSignup = async (req, res) => {
   }
 };
 
-// -------------------- LOGIN --------------------
+const userData=async(req, res)=>{
+ const userId = req.params.id
+   const user=await User.find(userId)
+   res.status(201).json({success:false, user})
+}
+//LOGIN --------------------
 const userLogin = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -121,4 +126,5 @@ module.exports = {
   userSignup,
   userLogin,
   userLogout,
+  userData
 };

@@ -21,6 +21,5 @@ const userMiddleware = async (req, res, next) => {
     console.error("JWT error:", e.message);
     res.status(401).json({ message: "Invalid or expired token" });
   }
-};
-
-module.exports = { userMiddleware };
+}
+module.exports =userMiddleware

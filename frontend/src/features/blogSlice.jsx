@@ -1,86 +1,108 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
+// Helper to attach Authorization header
 const getAuthHeader = (token) => ({ headers: { Authorization: `Bearer ${token}` } });
 
+// ------------------- Thunks -------------------
+
+// Fetch all blogs
 export const fetchGetData = createAsyncThunk(
   "blog/getData",
   async (_, { getState, rejectWithValue }) => {
     try {
       const token = getState().auth.token || localStorage.getItem("token");
       const res = await axios.get("http://localhost:5000/blog", getAuthHeader(token));
-      return res.data; // expect: { blogs: [...] }
+      return res.data; // { blogs: [...] }
     } catch (e) {
-      const message = e.response?.data?.message || e.message || "Failed to fetch blogs";
-      return rejectWithValue(message);
+      return rejectWithValue(e.response?.data?.message || e.message || "Failed to fetch blogs");
     }
   }
 );
 
+// Fetch single blog by ID
+export const fetchGetSingleBlog = createAsyncThunk(
+  "blog/singleBlog",
+  async (blogId, { getState, rejectWithValue }) => {
+    try {
+      const token = getState().auth.token || localStorage.getItem("token");
+      const res = await axios.get(`http://localhost:5000/blog/${blogId}`, getAuthHeader(token));
+      return res.data; // { blog: {...} }
+    } catch (e) {
+      return rejectWithValue(e.response?.data?.message || e.message || "Failed to fetch blog");
+    }
+  }
+);
+
+// Fetch all blogs of a specific user
 export const fetchUserAccount = createAsyncThunk(
   "blog/user",
   async (userId, { getState, rejectWithValue }) => {
     try {
       const token = getState().auth.token || localStorage.getItem("token");
-      const res = await axios.get(`http://localhost:5000/blog/${userId}`, getAuthHeader(token));
-      return res.data; // expect: { blog: {...} }
+      const res = await axios.get(`http://localhost:5000/blog/user/${userId}`, getAuthHeader(token));
+      return res.data; // { blog: [...] }
     } catch (e) {
-      const message = e.response?.data?.message || e.message || "Failed to fetch user blog";
-      return rejectWithValue(message);
+      return rejectWithValue(e.response?.data?.message || e.message || "Failed to fetch user blogs");
     }
   }
 );
 
+// Add a new blog
 export const fetchAddData = createAsyncThunk(
   "blog/addData",
   async (blogData, { getState, rejectWithValue }) => {
     try {
       const token = getState().auth.token || localStorage.getItem("token");
       const res = await axios.post("http://localhost:5000/blog", blogData, getAuthHeader(token));
-      return res.data; // expect: { success: true, blog: {...} }
+      return res.data; // { success: true, blog: {...} }
     } catch (e) {
-      if (e.response?.status === 401) return rejectWithValue("Token expired. Please login again.");
-      const message = e.response?.data?.message || e.message || "Failed to add blog";
-      return rejectWithValue(message);
+      return rejectWithValue(e.response?.data?.message || e.message || "Failed to add blog");
     }
   }
 );
-export const fetchUpdata=createAsyncThunk("blog/updata",async({id, updateData},{getState,rejectWithValue})=>{
-  try{
-    const token =getState().auth.token || localStorage.getItem("token")
-    const res = await axios.put(`http://localhost:5000/blog/${id}`,updateData , getAuthHeader(token))
-    return res.data
-  }catch(e){
-  if(e.response?.state===401)return rejectWithValue("token expired , plase login fisrt ")
-     const message = e.response?.data?.message || e.message || "Failed to update blog";
-    return  rejectWithValue(message)
+
+// Update a blog
+export const fetchUpdate = createAsyncThunk(
+  "blog/update",
+  async ({ id, updateData }, { getState, rejectWithValue }) => {
+    try {
+      const token = getState().auth.token || localStorage.getItem("token");
+      const res = await axios.put(`http://localhost:5000/blog/${id}`, updateData, getAuthHeader(token));
+      return res.data; // { blog: {...} }
+    } catch (e) {
+      return rejectWithValue(e.response?.data?.message || e.message || "Failed to update blog");
+    }
   }
-})
+);
 
-export const fetchDelete= createAsyncThunk("blog/delete", async(userID,{getState,rejectWithValue})=>{
-try{
-  let token =getState().auth.token || localStorage.getItem("token")
-const res = await axios.delete(`http://localhost:5000/blog/delete/${userID}`,getAuthHeader(token))
+// Delete a blog
+export const fetchDelete = createAsyncThunk(
+  "blog/delete",
+  async (blogId, { getState, rejectWithValue }) => {
+    try {
+      const token = getState().auth.token || localStorage.getItem("token");
+      const res = await axios.delete(`http://localhost:5000/blog/delete/${blogId}`, getAuthHeader(token));
+      return { blogId, ...res.data };
+    } catch (e) {
+      return rejectWithValue(e.response?.data?.message || e.message || "Failed to delete blog");
+    }
+  }
+);
 
-  return res.data
-}catch(e){
-if(e.response?.state===401)return rejectWithValue("token expired , plase login fisrt ")
-       const message = e.response?.data?.message || e.message || "Failed to update blog";
-      return rejectWithValue(message)
-}
-})
-
+// ------------------- Slice -------------------
 const blogSlice = createSlice({
   name: "blog",
   initialState: {
-    blog: [],
-    currentBlog:null,
-    status: "idle",
+    blog: [],          // all blogs or user blogs
+    currentBlog: null, // single blog
+    status: "idle",    // idle | loading | succeeded | failed
     error: null,
   },
+  reducers: {},
   extraReducers: (builder) => {
     builder
-      // Fetch blogs
+      // Fetch all blogs
       .addCase(fetchGetData.pending, (state) => {
         state.status = "loading";
         state.error = null;
@@ -88,9 +110,36 @@ const blogSlice = createSlice({
       .addCase(fetchGetData.fulfilled, (state, action) => {
         state.status = "succeeded";
         state.blog = action.payload.blogs || [];
-        state.error = null;
       })
       .addCase(fetchGetData.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.payload;
+      })
+
+      // Fetch single blog
+      .addCase(fetchGetSingleBlog.pending, (state) => {
+        state.status = "loading";
+        state.error = null;
+      })
+      .addCase(fetchGetSingleBlog.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        state.currentBlog = action.payload.blog || null;
+      })
+      .addCase(fetchGetSingleBlog.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.payload;
+      })
+
+      // Fetch user blogs
+      .addCase(fetchUserAccount.pending, (state) => {
+        state.status = "loading";
+        state.error = null;
+      })
+      .addCase(fetchUserAccount.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        state.blog = action.payload.blog || [];
+      })
+      .addCase(fetchUserAccount.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.payload;
       })
@@ -103,54 +152,41 @@ const blogSlice = createSlice({
       .addCase(fetchAddData.fulfilled, (state, action) => {
         state.status = "succeeded";
         if (action.payload.blog) state.blog.unshift(action.payload.blog);
-        state.error = null;
       })
       .addCase(fetchAddData.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.payload;
       })
 
-      // Fetch single blog (user)
-      .addCase(fetchUserAccount.pending, (state) => {
-        state.status = "loading";
+      // Update blog
+      .addCase(fetchUpdate.fulfilled, (state, action) => {
+        // Update current blog if matches
+        if (state.currentBlog && state.currentBlog._id === action.payload.blog._id) {
+          state.currentBlog = action.payload.blog;
+        }
+
+        // Update blog in array
+        state.blog = state.blog.map(b =>
+          b._id === action.payload.blog._id ? action.payload.blog : b
+        );
+
+        state.status = "succeeded";
         state.error = null;
       })
-      .addCase(fetchUserAccount.fulfilled, (state, action) => {
-        state.status = "successed";
-        state.currentBlog = action.payload.blog || null;
+
+      // Delete blog
+      .addCase(fetchDelete.fulfilled, (state, action) => {
+        // Remove from currentBlog if matches
+        if (state.currentBlog && state.currentBlog._id === action.payload.blogId) {
+          state.currentBlog = null;
+        }
+
+        // Remove from blog array
+        state.blog = state.blog.filter(b => b._id !== action.payload.blogId);
+
+        state.status = "succeeded";
         state.error = null;
-      })
-      .addCase(fetchUserAccount.rejected, (state, action) => {
-        state.status = "failed";
-        state.error = action.payload;
-      }).addCase(fetchUpdata.fulfilled, (state, action) => {
-  // Update current blog if it matches
-  if (state.currentBlog && state.currentBlog.id === action.payload.blog._id) {
-    state.currentBlog = action.payload.blog;
-  }
-
-  // Also update blog in the blogs array if it exists
-  state.blog = state.blog.map(blog =>
-    blog.id === action.payload.blog_id ? action.payload.blog : blog
-  );
-
-  state.status = "succeeded";
-  state.error = null;
-})
-
-.addCase(fetchDelete.fulfilled, (state, action) => {
-  // Delete current blog if it matches
-  if (state.currentBlog && state.currentBlog.id === action.meta.arg) {
-    state.currentBlog = null;
-  }
-
-  // Also remove blog from blogs array
-  state.blog = state.blog.filter(blog => blog.id !== action.meta.arg);
-
-  state.status = "succeeded";
-  state.error = null;
-})
-
+      });
   },
 });
 

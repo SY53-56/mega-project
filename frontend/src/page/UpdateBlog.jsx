@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom';
-import { fetchUpdata, fetchUserAccount } from '../features/blogSlice';
+import { fetchUpdate,  } from '../features/blogSlice';
 import Button from '../component/Button';
 
 export default function UpdateBlog() {
@@ -38,7 +38,7 @@ console.log("Updating blog ID:", id);
   }
 function handleForm(e) {
   e.preventDefault();
-  dispatch(fetchUpdata({ id, updateData: form }))
+  dispatch(fetchUpdate({ id, updateData: form }))
     .unwrap()
     .then(() => navigate(`/userpage/${id}`)) // use id from URL
     .catch(err => console.log(err));

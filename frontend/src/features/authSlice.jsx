@@ -5,7 +5,7 @@ export const fetchSignup = createAsyncThunk(
   "user/signup",
   async (userData, { rejectWithValue }) => {
     try {
-      const res = await axios.post("http://localhost:5000/user/signup", userData);
+      const res = await axios.post("http://localhost:5000/user/signup", userData ,{withCredentials: true });
          console.log("Signup response:", res.data); // you can log here
            localStorage.setItem("token", res.data.token);
       return res.data; 
@@ -23,7 +23,7 @@ export const fetchLogin = createAsyncThunk(
   "user/login",
   async (userData, { rejectWithValue }) => {
     try {
-      const res = await axios.post("http://localhost:5000/user/login", userData);
+      const res = await axios.post("http://localhost:5000/user/login", userData,{withCredentials: true });
         localStorage.setItem("token", res.data.token);
       return res.data;
     } catch (e) {
@@ -39,8 +39,8 @@ export const fetchLogin = createAsyncThunk(
 const authSlice = createSlice({
   name: "auth",
   initialState: {
-    user: null,
-    token: null,
+    user:JSON.parse(localStorage.getItem("user"))|| null,
+    token: localStorage.getItem("token"),
     error: null,
     status: "idle",
   },
@@ -50,6 +50,8 @@ const authSlice = createSlice({
       state.token = null;
       state.error = null;
       state.status = "idle";
+      localStorage.removeItem("token")
+      localStorage.removeItem("user")
     },
   },
   extraReducers: (builder) => {
@@ -63,6 +65,10 @@ const authSlice = createSlice({
         state.user = action.payload.user;
         state.token = action.payload.token;
         state.error = null;
+     
+        // persist user
+        localStorage.setItem("user", JSON.stringify(action.payload.user));
+        localStorage.setItem("token", action.payload.token);
       })
       .addCase(fetchSignup.rejected, (state, action) => {
         state.status = "failed";
@@ -77,6 +83,8 @@ const authSlice = createSlice({
         state.user = action.payload.user;
         state.token = action.payload.token;
         state.error = null;
+        localStorage.setItem("user",JSON.stringify(action.payload.user))
+        localStorage.setItem("token",action.payload.token)
       })
       .addCase(fetchLogin.rejected, (state, action) => {
         state.status = "failed";
