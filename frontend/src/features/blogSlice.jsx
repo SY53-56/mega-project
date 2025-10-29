@@ -2,7 +2,7 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
 // Helper to attach Authorization header
-const getAuthHeader = (token) => ({ headers: { Authorization: `Bearer ${token}` } });
+const getAuthHeader = (token) => ({ headers: { Authorization: `Bearer ${token}` }  });
 
 // ------------------- Thunks -------------------
 
@@ -94,7 +94,8 @@ export const fetchDelete = createAsyncThunk(
 const blogSlice = createSlice({
   name: "blog",
   initialState: {
-    blog: [],          // all blogs or user blogs
+    blog: [], 
+    user:null,         // all blogs or user blogs
     currentBlog: null, // single blog
     status: "idle",    // idle | loading | succeeded | failed
     error: null,
@@ -138,6 +139,7 @@ const blogSlice = createSlice({
       .addCase(fetchUserAccount.fulfilled, (state, action) => {
         state.status = "succeeded";
         state.blog = action.payload.blog || [];
+        state.user = action.payload.user || null
       })
       .addCase(fetchUserAccount.rejected, (state, action) => {
         state.status = "failed";

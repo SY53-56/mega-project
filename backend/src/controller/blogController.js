@@ -1,7 +1,7 @@
 const Blog= require("../models/blogModel")
 const slugify=  require("slugify")
 const {nanoid} = require("nanoid")
-
+const User = require("../models/userModel")
 const getAllBlogs = async (req, res) => {
   try {
     const blogs = await Blog.find().populate("author","username img _id"); // fetch all documents
@@ -53,16 +53,33 @@ res.status(500).json({ success: false, message: e.message });
  }
 }
 // all post
-const userAccount= async(req ,res)=>{
- try{
-   const {id} = req.params
+const userAccount = async (req, res) => {
+  try {
+    const { id } = req.params;
 
-const blog = await Blog.find({author:id}).populate("author", "username");
-   res.status(201).json({success:true,blog})
- }catch(e){
-console.log(e)
- }
-}
+    // 1️⃣ Fetch the user info first
+    const user = await User.findById(id).select("username email img _id");
+    if (!user)
+      return res.status(404).json({ success: false, message: "User not found" });
+
+    // 2️⃣ Fetch all blogs written by this user
+    const blogs = await Blog.find({ author: id }).populate(
+      "author",
+      "username img _id"
+    );
+
+    // 3️⃣ Send both user + blogs in one response
+    res.status(200).json({
+      success: true,
+      user,
+      blog: blogs,
+    });
+  } catch (e) {
+    console.error("userAccount error:", e);
+    res.status(500).json({ success: false, message: e.message });
+  }
+};
+
 const updateBlogData = async (req, res) => {
   try {
     const { id } = req.params;
@@ -99,14 +116,11 @@ const deleteBlog = async (req, res) => {
     res.status(500).json({ success: false, message: "Server error" });
   }
 };
-
-
-
-module.exports= {
-    getAllBlogs,
-    postBlogData,
-    userAccount,
-    updateBlogData,
-    deleteBlog,
-    getSingleBlog
-}
+module.exports = {
+  getAllBlogs,
+  postBlogData,
+  userAccount,
+  updateBlogData,
+  deleteBlog,
+  getSingleBlog,
+};

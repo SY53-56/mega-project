@@ -14,6 +14,7 @@ const navigate= useNavigate()
   console.log("blog :", blog)
   console.log( "user", user)
 console.log(currentBlog)
+console.log("token",token)
   useEffect(() => {
     if (id) dispatch(fetchGetSingleBlog(id))
   }, [id, dispatch]);

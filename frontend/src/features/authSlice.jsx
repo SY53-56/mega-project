@@ -5,7 +5,7 @@ export const fetchSignup = createAsyncThunk(
   "user/signup",
   async (userData, { rejectWithValue }) => {
     try {
-      const res = await axios.post("http://localhost:5000/user/signup", userData ,{withCredentials: true });
+      const res = await axios.post("http://localhost:5000/user/signup", userData ,);
          console.log("Signup response:", res.data); // you can log here
            localStorage.setItem("token", res.data.token);
       return res.data; 
@@ -23,7 +23,7 @@ export const fetchLogin = createAsyncThunk(
   "user/login",
   async (userData, { rejectWithValue }) => {
     try {
-      const res = await axios.post("http://localhost:5000/user/login", userData,{withCredentials: true });
+      const res = await axios.post("http://localhost:5000/user/login", userData,);
         localStorage.setItem("token", res.data.token);
       return res.data;
     } catch (e) {

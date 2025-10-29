@@ -7,7 +7,7 @@ const routes = express.Router()
 
 routes.get("/",getAllBlogs)
 routes.get("/user/:id/",userMiddleware,userAccount)
-routes.get("/:id",userMiddleware, getSingleBlog)
+routes.get("/:id", getSingleBlog)
 routes.post("/",userMiddleware,postBlogData)
 routes.put("/:id",userMiddleware,checkBlogOwner,updateBlogData)
 routes.delete("/delete/:id",userMiddleware, checkBlogOwner,   deleteBlog)
