@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link, NavLink } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 import Button from "./Button";
 import { Menu, X } from "lucide-react";
 import { useSelector, useDispatch } from "react-redux";
@@ -8,13 +8,14 @@ import { logout } from "../features/authSlice";
 export default function Header() {
   const [isOpen, setIsOpen] = useState(false);
   const toggle = () => setIsOpen(!isOpen);
-
+const navigate = useNavigate()
   const { token, user } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
 
   const handleLogout = () => {
     dispatch(logout());
     setIsOpen(false); // close mobile menu on logout
+    navigate("/")
   };
 
   return (

@@ -19,7 +19,7 @@ export default function Button({ className = '', name, onClick, type = 'button',
     <button
       type={type}
       onClick={onClick}
-      className={`px-4 py-2 rounded-lg transition cursor-pointer ${className}`}
+      className={`px-4 py-1 rounded-lg transition cursor-pointer ${className}`}
     >
       {name}
     </button>

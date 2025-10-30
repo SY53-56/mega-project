@@ -6,6 +6,7 @@ import { Link } from "react-router-dom";
 export default function Home() {
   const dispatch = useDispatch();
   const { blog, status, error } = useSelector((state) => state.blog);
+  console.log(blog)
 const {id}= useParams()
   // Fetch blogs on mount
   useEffect(() => {

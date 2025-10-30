@@ -4,7 +4,7 @@ const UserRoutes = require("./routes/UserRoutes")
 const BlogRoutes =require("./routes/blogRoutes")
 const cookie = require("cookie-parser")
 const cors = require("cors")
-
+const ReviewRoutes= require("./routes/reviewRoutes")
 app.use(express.json());
 app.use(cookie())
 
@@ -15,8 +15,11 @@ app.use(cors({
 app.get("/sahul",(req,res)=>{
     res.send("hello world")
 })
+app.use("/uploads", express.static("uploads"));
+
 app.use("/user",UserRoutes)
 app.use("/blog",BlogRoutes)
+app.use("/review",ReviewRoutes)
 
 module.exports= app
 

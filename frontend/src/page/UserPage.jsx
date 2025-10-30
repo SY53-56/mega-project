@@ -1,90 +1,217 @@
-// page/UserPage.jsx
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate, useParams,Link } from "react-router-dom";
-import { fetchDelete, fetchGetSingleBlog } from "../features/blogSlice";
+import { useNavigate, useParams, Link } from "react-router-dom";
+import {
+  fetchDelete,
+  fetchGetSingleBlog,
+  fetchReview,
+  fetchReviewDelete,
+  fetchReviewPost,
+} from "../features/blogSlice";
 import Button from "../component/Button";
 
 export default function UserPage() {
   const dispatch = useDispatch();
   const { id } = useParams();
-const navigate= useNavigate()
-  const { currentBlog, error, status,blog } = useSelector((state) => state.blog);
-  const {token , user} = useSelector(state=>state.auth)
-  console.log("blog :", blog)
-  console.log( "user", user)
-console.log(currentBlog)
-console.log("token",token)
+  const navigate = useNavigate();
+  const [comment, setComment] = useState("");
+
+  const { currentBlog, error, status, review } = useSelector(
+    (state) => state.blog
+  );
+  const { token, user } = useSelector((state) => state.auth);
+useEffect(()=>{
+  console.log("id", id)
+},[])
+  // ✅ Fetch single blog details
   useEffect(() => {
-    if (id) dispatch(fetchGetSingleBlog(id))
+    if (id) {dispatch(fetchGetSingleBlog(id))
+      dispatch(fetchReview(id))}
   }, [id, dispatch]);
 
-  function deleteBlog(){
-  if(id)dispatch(fetchDelete(id))
-    navigate("/")
+  // ✅ Fetch all reviews for this blog
+
+  // ✅ Delete a blog
+  const deleteBlog = () => {
+    if (id) {
+      dispatch(fetchDelete(id));
+      navigate("/");
+    }
+  };
+
+  // ✅ Handle comment form submission
+  const handleReviewForm = (e) => {
+    e.preventDefault();
+
+    if (!comment.trim()) return alert("Please enter a comment");
+
+    dispatch(fetchReviewPost({ blogId: id, reviewData: { comment } }))
+      .unwrap()
+      .then(() => {
+        setComment(""); // clear input
+        dispatch(fetchReview(id)); // refresh comments
+      })
+      .catch((err) => console.error("Error posting review:", err));
+  };
+  function deleteReview(){
+     if(id) dispatch(fetchReviewDelete(id))
+    navigate(`/userpage/${id}`)
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-r from-gray-100 to-gray-200 p-6">
-      <h1 className="text-4xl font-bold mb-8 text-center text-gray-800">
-        Blogs by User <span className="text-indigo-600">{id}</span>
-      </h1>
+    <div className="min-h-screen bg-gray-100 py-10 px-4">
+      <div className="max-w-5xl mx-auto">
+        {/* Header */}
+        <h1 className="text-4xl font-bold text-center text-gray-800 mb-10">
+          Blog Details
+        </h1>
 
-      {/* Loading */}
-      {status === "loading" && (
-        <p className="text-center text-gray-500 text-lg">Loading blogs...</p>
-      )}
+        {/* Loading State */}
+        {status === "loading" && (
+          <p className="text-center text-gray-500 text-lg">Loading blog...</p>
+        )}
 
-      {/* Error */}
-      {error && <p className="text-red-500 text-center">{error}</p>}
+        {/* Error */}
+        {error && (
+          <p className="text-center text-red-500 text-lg font-medium">
+            {error}
+          </p>
+        )}
 
-      {/* Blog Card */}
-      {currentBlog ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 ml-14 lg:grid-cols-3 gap-6">
-          <div className="bg-white py-2 px-3 rounded-xl shadow-md hover:shadow-xl transition-transform transform hover:scale-105 overflow-hidden">
-            
+        {/* Blog Display */}
+        {currentBlog ? (
+          <div className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-all">
             {/* Blog Image */}
             {currentBlog.image && (
               <img
                 src={currentBlog.image}
                 alt={currentBlog.title || "Blog image"}
-                className="w-full h-h-full object-cover"
+                className="w-full h-[500px] object-cover"
               />
             )}
 
-            {/* Blog Content */}
-            <div className="p-5 text-left">
-              <h2 className="text-2xl font-semibold mb-2 text-gray-800">
-               <span className="font-bold text-1.5xl ">title:</span>  {currentBlog.title}
+            {/* Blog Details */}
+            <div className="p-8">
+              <h2 className="text-3xl font-bold text-gray-900 mb-4">
+                {currentBlog.title}
               </h2>
-              <p className="text-gray-500 mb-4"><span className="font-bold text-1.5xl text-black">Description:</span> {currentBlog.description}</p>
-  <p className="cursor-pointer">
-  <span className="font-bold text-xl">Author:</span>{" "}
-  <Link 
-    to={`/user/${currentBlog.author._id}/blogs`} 
-    className="text-blue-600 hover:underline"
-  >
-    {currentBlog.author.username}
-  </Link>
-</p>
 
-             {token && user?.id === currentBlog?.author?._id &&(
-               <div className="flex gap-5 mt-3">
-              <Button to={`/userUpdate/${currentBlog._id}`} className="bg-sky-600 hover:bg-sky-700 font-bold text-white" name="Updata"/>
-                <Button  onClick={deleteBlog} className="bg-red-600 hover:bg-red-700 font-bold text-white" name="Delete"/>
+              <p className="text-gray-700 text-lg leading-relaxed mb-6">
+                {currentBlog.description}
+              </p>
+
+              {/* Author Section */}
+              <div className="flex items-center justify-between mt-8 border-t pt-6">
+                <div className="flex items-center gap-4">
+                  <img
+                    src={
+                      currentBlog.author?.img ||
+                      "https://cdn-icons-png.flaticon.com/512/847/847969.png"
+                    }
+                    alt={currentBlog.author?.username}
+                    className="w-14 h-14 rounded-full object-cover border-2 border-indigo-500"
+                  />
+                  <div>
+                    <p className="text-lg font-semibold text-gray-800">
+                      {currentBlog.author?.username}
+                    </p>
+                    <Link
+                      to={`/user/${currentBlog.author._id}/blogs`}
+                      className="text-indigo-600 hover:underline text-sm"
+                    >
+                      View more posts
+                    </Link>
+                  </div>
+                </div>
+
+                {/* Edit/Delete Buttons */}
+                {token && user?.id === currentBlog?.author?._id && (
+                  <div className="flex gap-3">
+                    <Button
+                      to={`/userUpdate/${currentBlog._id}`}
+                      className="bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-5 py-2 rounded-lg"
+                      name="Edit"
+                    />
+                    <Button
+                      onClick={deleteBlog}
+                      className="bg-red-600 hover:bg-red-700 text-white font-medium px-5 py-2 rounded-lg"
+                      name="Delete"
+                    />
+                  </div>
+                )}
               </div>
-             )}
             </div>
           </div>
+        ) : (
+          status === "succeeded" && (
+            <p className="text-center text-gray-500 text-lg mt-10">
+              No blog found.
+            </p>
+          )
+        )}
+
+        {/* 📝 Comment Form */}
+        <div className="bg-white mt-10 p-6 rounded-xl shadow-md">
+          <h3 className="text-2xl font-semibold mb-4 text-gray-800">
+            Leave a Comment
+          </h3>
+          <form onSubmit={handleReviewForm} className="flex gap-3 items-center">
+            <input
+              type="text"
+              name="comment"
+              id="comment"
+              value={comment}
+              onChange={(e) => setComment(e.target.value)}
+              placeholder="Write your thoughts..."
+              className="flex-grow border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            />
+            <button
+              type="submit"
+              className="bg-indigo-600 text-white px-5 py-2 rounded-lg cursor-pointer hover:bg-indigo-700 transition"
+            >
+              Post
+            </button>
+          </form>
         </div>
-      ) : (
-        // Empty State
-        status === "succeeded" && (
-          <p className="text-center text-gray-500 text-lg mt-10">
-            No blogs found for this user.
-          </p>
-        )
-      )}
+
+        {/* 💬 Display All Comments */}
+        <div className="mt-8 bg-white p-6 rounded-xl shadow-md">
+          <h3 className="text-2xl font-semibold mb-4 text-gray-800">
+            Comments ({review?.length || 0})
+          </h3>
+
+          {review && review.length > 0 ? (
+            <div className="space-y-4">
+              {review.map((rev) => (
+                <div
+                  key={rev._id}
+                  className="border-b border-gray-200 pb-3 flex justify-between gap-4"
+                >
+               <div className="flex gap-5">
+                  <img
+                    src={
+                      rev.user?.img ||
+                      "https://cdn-icons-png.flaticon.com/512/847/847969.png"
+                    }
+                    alt="user"
+                    className="w-10 h-10 rounded-full object-cover"
+                  />
+                  <div className="">
+                    <p className="text-gray-800 font-medium">
+                      {rev.user?.username || "Anonymous"}
+                    </p>
+                    <p className="text-gray-600">{rev.comment}</p>
+                  </div>
+                </div> 
+                  <Button onClick={deleteReview} className=" text-white px-5 py-1 rounded-2xl bg-red-500  hover:bg-red-600" name="delete"/>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-gray-500">No comments yet. Be the first!</p>
+          )}
+        </div>
+      </div>
     </div>
   );
 }

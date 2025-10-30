@@ -90,12 +90,41 @@ export const fetchDelete = createAsyncThunk(
   }
 );
 
+export const fetchReview = createAsyncThunk("review/data", async(blogId,{getState,rejectWithValue})=>{
+  try{
+  const token = getState().auth.token || localStorage.getItem("token")
+  const res=await axios.get(`http://localhost:5000/review/${blogId}`,getAuthHeader(token))
+   return res.data
+  }catch(e){
+      return rejectWithValue(e.response?.data?.message || e.message || "Failed to show review");
+  }
+})
+export const fetchReviewPost= createAsyncThunk("review/post",async({blogId , reviewData},{getState,rejectWithValue})=>{
+  try{
+     const token = getState().auth.token || localStorage.getItem("token")
+     const res =await axios.post(`http://localhost:5000/review/${blogId}`, reviewData, getAuthHeader(token))
+   return res.data
+  }catch(e){
+    return rejectWithValue(e.response?.data?.message || e.message || "Failed to post review");
+
+  }
+})
+export const fetchReviewDelete= createAsyncThunk("review/delete",async(blogId,{getState,rejectWithValue})=>{
+  try{
+    const token= getState().auth.token || localStorage.getItem('token')
+    const res = await axios.delete(`http://localhost:5000/review/${blogId}`, getAuthHeader(token))
+    return res.data
+  }catch(e){
+    return rejectWithValue(e.response?.data?.message || e.message || "Failed to delete review");
+  }
+})
 // ------------------- Slice -------------------
 const blogSlice = createSlice({
   name: "blog",
   initialState: {
     blog: [], 
-    user:null,         // all blogs or user blogs
+    user:null, 
+    review:[],        // all blogs or user blogs
     currentBlog: null, // single blog
     status: "idle",    // idle | loading | succeeded | failed
     error: null,
@@ -188,7 +217,45 @@ const blogSlice = createSlice({
 
         state.status = "succeeded";
         state.error = null;
-      });
+      })// ------------------- Reviews -------------------
+.addCase(fetchReview.pending, (state) => {
+  state.status = "loading";
+})
+.addCase(fetchReview.fulfilled, (state, action) => {
+  state.status = "succeeded";
+  state.review = action.payload.reviews || []; // store all reviews
+})
+.addCase(fetchReview.rejected, (state, action) => {
+  state.status = "failed";
+  state.error = action.payload;
+})
+.addCase(fetchReviewPost.fulfilled, (state, action) => {
+  state.status = "succeeded";
+  // Add new review at top
+  if (action.payload.review) {
+    state.review.unshift(action.payload.review);
+  }
+})
+.addCase(fetchReviewPost.rejected, (state, action) => {
+  state.status = "failed";
+  state.error = action.payload;
+})
+.addCase(fetchReviewDelete.pending, (state) => {
+  state.status = "loading";
+})
+.addCase(fetchReviewDelete.fulfilled, (state, action) => {
+  state.status = "succeeded";
+  const deletedId = action.payload.reviewId;
+  if (deletedId) {
+    state.review = state.review.filter((r) => r._id !== deletedId);
+  }
+})
+.addCase(fetchReviewDelete.rejected, (state, action) => {
+  state.status = "failed";
+  state.error = action.payload;
+});
+
+
   },
 });
 

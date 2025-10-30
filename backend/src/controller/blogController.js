@@ -2,6 +2,7 @@ const Blog= require("../models/blogModel")
 const slugify=  require("slugify")
 const {nanoid} = require("nanoid")
 const User = require("../models/userModel")
+const Review =require("../models/reviewModel")
 const getAllBlogs = async (req, res) => {
   try {
     const blogs = await Blog.find().populate("author","username img _id"); // fetch all documents
@@ -16,20 +17,20 @@ const getAllBlogs = async (req, res) => {
 
 const postBlogData = async (req, res) => {
   try {
-    const { title, description, image } = req.body;
+    const { title, description, } = req.body;
     if (!title || !description)
       return res.status(400).json({ message: "Title or description is empty" });
 
     const slug = `${slugify(title, { lower: true, strict: true })}-${nanoid(6)}`;
     const authorId = req.user.id;
-
+    const imageUrls = req.files?.map((file) => file.path) || [];
     console.log("Request body:", req.body);
     console.log("Author from middleware:", req.user);
 
     const blog = await Blog.create({
       title,
       description,
-      image,
+      image:imageUrls,
       author: authorId,
       slug, // ✅ include slug here
     });
