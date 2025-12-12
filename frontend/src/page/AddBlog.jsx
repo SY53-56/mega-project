@@ -1,14 +1,13 @@
-// src/page/AddBlog.jsx
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import Button from "../component/Button";
 import { fetchAddData } from "../features/blogSlice";
 
 export default function AddBlog() {
-  const [form, setForm] = useState({ title: "", description: "" });
-  const [files, setFiles] = useState([]); // store selected image files
-  const [previews, setPreviews] = useState([]); // for preview URLs
+  const [form, setForm] = useState({ title: "", description: "" ,});
+  const [files, setFiles] = useState([]);
+  const [previews, setPreviews] = useState([]);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -19,48 +18,56 @@ export default function AddBlog() {
 
   const { error, status } = useSelector((state) => state.blog);
 
-  // handle text input
   const handleFormData = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  // handle file input
   const handleFileChange = (e) => {
     const selectedFiles = Array.from(e.target.files);
     setFiles(selectedFiles);
 
-    // create local preview URLs
-    const filePreviews = selectedFiles.map((file) => URL.createObjectURL(file));
-    setPreviews(filePreviews);
+    const previews = selectedFiles.map((file) => URL.createObjectURL(file));
+    setPreviews(previews);
   };
 
-  // submit form
   const handleForm = async (e) => {
     e.preventDefault();
-    if (!token) return alert("Please login first!");
+    if (!token) {
+      alert("Please login first!");
+      return;
+    }
 
     const formData = new FormData();
     formData.append("title", form.title);
     formData.append("description", form.description);
+    files.forEach((file) => formData.append("images", file));
+console.log("Received files:", files);
 
-    // append all selected files
-    files.forEach((file) => {
-      formData.append("images", file);
-    });
+
+
+    for (const [key, val] of formData.entries()) {
+      console.log("FormData:", key, val);
+    }
 
     try {
       await dispatch(fetchAddData(formData)).unwrap();
-      alert("✅ Blog added successfully!");
+      alert(" Blog added successfully!");
       setForm({ title: "", description: "" });
       setFiles([]);
       setPreviews([]);
       navigate("/");
     } catch (err) {
-      console.error("❌ Error adding blog:", err);
+      console.error(" Error adding blog:", err);
       alert(err || "Failed to add blog");
     }
   };
+
+  useEffect(() => {
+    return () => {
+      previews.forEach((url) => URL.revokeObjectURL(url));
+    };
+  }, [previews]);
 
   return (
     <div className="w-full min-h-screen flex justify-center items-center bg-gradient-to-br from-blue-900 to-indigo-900 p-4">
@@ -70,7 +77,6 @@ export default function AddBlog() {
         </h1>
 
         <form onSubmit={handleForm} className="flex flex-col gap-4">
-          {/* Title */}
           <div className="flex flex-col">
             <label className="text-gray-700 font-semibold mb-1">Title</label>
             <input
@@ -84,7 +90,6 @@ export default function AddBlog() {
             />
           </div>
 
-          {/* Description */}
           <div className="flex flex-col">
             <label className="text-gray-700 font-semibold mb-1">
               Description
@@ -99,7 +104,6 @@ export default function AddBlog() {
             />
           </div>
 
-          {/* Image Upload */}
           <div className="flex flex-col">
             <label className="text-gray-700 font-semibold mb-1">
               Upload Images
@@ -114,7 +118,6 @@ export default function AddBlog() {
             />
           </div>
 
-          {/* Image Preview */}
           {previews.length > 0 && (
             <div className="grid grid-cols-3 gap-2 mt-3">
               {previews.map((src, idx) => (
@@ -128,7 +131,6 @@ export default function AddBlog() {
             </div>
           )}
 
-          {/* Submit Button */}
           <Button
             type="submit"
             name={status === "loading" ? "Adding..." : "Add Blog"}

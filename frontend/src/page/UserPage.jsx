@@ -20,43 +20,53 @@ export default function UserPage() {
     (state) => state.blog
   );
   const { token, user } = useSelector((state) => state.auth);
-useEffect(()=>{
-  console.log("id", id)
-},[])
-  // ✅ Fetch single blog details
+
+  // ✅ Load single blog and its reviews
   useEffect(() => {
-    if (id) {dispatch(fetchGetSingleBlog(id))
-      dispatch(fetchReview(id))}
+    if (id) {
+      dispatch(fetchGetSingleBlog(id));
+      dispatch(fetchReview(id));
+    }
   }, [id, dispatch]);
 
-  // ✅ Fetch all reviews for this blog
-
-  // ✅ Delete a blog
+  // ✅ Delete blog (only if blog author)
   const deleteBlog = () => {
     if (id) {
-      dispatch(fetchDelete(id));
-      navigate("/");
+      dispatch(fetchDelete(id))
+        .unwrap()
+        .then(() => navigate("/"))
+        .catch((err) => console.error("Error deleting blog:", err));
     }
   };
 
-  // ✅ Handle comment form submission
+  // ✅ Post a new comment
   const handleReviewForm = (e) => {
     e.preventDefault();
-
     if (!comment.trim()) return alert("Please enter a comment");
 
     dispatch(fetchReviewPost({ blogId: id, reviewData: { comment } }))
       .unwrap()
       .then(() => {
-        setComment(""); // clear input
-        dispatch(fetchReview(id)); // refresh comments
+        setComment("");
+        dispatch(fetchReview(id)); // refresh after posting
       })
       .catch((err) => console.error("Error posting review:", err));
   };
-  function deleteReview(){
-     if(id) dispatch(fetchReviewDelete(id))
-    navigate(`/userpage/${id}`)
-  }
+
+  // ✅ Delete comment (only if current user === comment author)
+  const deleteReview = (reviewId, reviewUserId) => {
+    if (!reviewId) return;
+
+    if (user?._id !== reviewUserId) {
+      alert("You can only delete your own comment!");
+      return;
+    }
+
+    dispatch(fetchReviewDelete(reviewId))
+      .unwrap()
+      .then(() => dispatch(fetchReview(id))) // refresh comments
+      .catch((err) => console.error("Error deleting review:", err));
+  };
 
   return (
     <div className="min-h-screen bg-gray-100 py-10 px-4">
@@ -84,7 +94,7 @@ useEffect(()=>{
             {/* Blog Image */}
             {currentBlog.image && (
               <img
-                src={currentBlog.image}
+                src={currentBlog.image[0]}
                 alt={currentBlog.title || "Blog image"}
                 className="w-full h-[500px] object-cover"
               />
@@ -116,7 +126,7 @@ useEffect(()=>{
                       {currentBlog.author?.username}
                     </p>
                     <Link
-                      to={`/user/${currentBlog.author._id}/blogs`}
+                      to={`/user/${currentBlog.author?._id}/blogs`}
                       className="text-indigo-600 hover:underline text-sm"
                     >
                       View more posts
@@ -125,10 +135,10 @@ useEffect(()=>{
                 </div>
 
                 {/* Edit/Delete Buttons */}
-                {token && user?.id === currentBlog?.author?._id && (
+                {token && user?._id === currentBlog?.author?._id && (
                   <div className="flex gap-3">
                     <Button
-                      to={`/userUpdate/${currentBlog._id}`}
+                      to={`/userUpdate/${currentBlog?._id}`}
                       className="bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-5 py-2 rounded-lg"
                       name="Edit"
                     />
@@ -187,23 +197,31 @@ useEffect(()=>{
                   key={rev._id}
                   className="border-b border-gray-200 pb-3 flex justify-between gap-4"
                 >
-               <div className="flex gap-5">
-                  <img
-                    src={
-                      rev.user?.img ||
-                      "https://cdn-icons-png.flaticon.com/512/847/847969.png"
-                    }
-                    alt="user"
-                    className="w-10 h-10 rounded-full object-cover"
-                  />
-                  <div className="">
-                    <p className="text-gray-800 font-medium">
-                      {rev.user?.username || "Anonymous"}
-                    </p>
-                    <p className="text-gray-600">{rev.comment}</p>
+                  <div className="flex gap-5">
+                    <img
+                      src={
+                        rev.user?.img ||
+                        "https://cdn-icons-png.flaticon.com/512/847/847969.png"
+                      }
+                      alt="user"
+                      className="w-10 h-10 rounded-full object-cover"
+                    />
+                    <div>
+                      <p className="text-gray-800 font-medium">
+                        {rev.user?.username || "Anonymous"}
+                      </p>
+                      <p className="text-gray-600">{rev.comment}</p>
+                    </div>
                   </div>
-                </div> 
-                  <Button onClick={deleteReview} className=" text-white px-5 py-1 rounded-2xl bg-red-500  hover:bg-red-600" name="delete"/>
+
+                  {/* ✅ Only author of comment can delete */}
+                  {token && user?._id === rev.user?._id && (
+                    <Button
+                      onClick={() => deleteReview(rev._id, rev.user._id)}
+                      className="text-white px-5 py-1 rounded-2xl bg-red-500 hover:bg-red-600"
+                      name="Delete"
+                    />
+                  )}
                 </div>
               ))}
             </div>

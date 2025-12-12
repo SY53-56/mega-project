@@ -11,7 +11,7 @@ const generateToken = (user) => {
   return jwt.sign(
     { id: user._id, username: user.username, email: user.email },
     process.env.JWT_TOKEN,
-    { expiresIn: "7d" } // Token valid for 7 days
+    { expiresIn: "30d" } // Token valid for 7 days
   );
 };
 

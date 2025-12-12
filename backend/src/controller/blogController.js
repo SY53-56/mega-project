@@ -3,6 +3,18 @@ const slugify=  require("slugify")
 const {nanoid} = require("nanoid")
 const User = require("../models/userModel")
 const Review =require("../models/reviewModel")
+const streamifier = require("streamifier");
+const cloudinary = require("../config/cloudinary");
+
+const uploadBufferToCloudinary = (buffer) =>
+  new Promise((resolve, reject) => {
+    const stream = cloudinary.uploader.upload_stream({ folder: "blogs" }, (err, result) => {
+      if (err) return reject(err);
+      resolve(result);
+    });
+    streamifier.createReadStream(buffer).pipe(stream);
+  });
+
 const getAllBlogs = async (req, res) => {
   try {
     const blogs = await Blog.find().populate("author","username img _id"); // fetch all documents
@@ -17,30 +29,36 @@ const getAllBlogs = async (req, res) => {
 
 const postBlogData = async (req, res) => {
   try {
-    const { title, description, } = req.body;
+    const { title, description } = req.body;
     if (!title || !description)
       return res.status(400).json({ message: "Title or description is empty" });
 
     const slug = `${slugify(title, { lower: true, strict: true })}-${nanoid(6)}`;
     const authorId = req.user.id;
-    const imageUrls = req.files?.map((file) => file.path) || [];
-    console.log("Request body:", req.body);
-    console.log("Author from middleware:", req.user);
+
+    // Upload files
+    const files = req.files || [];
+    const uploaded = [];
+    for (let f of files) {
+      const result = await uploadBufferToCloudinary(f.buffer);
+      uploaded.push(result.secure_url);
+    }
 
     const blog = await Blog.create({
       title,
       description,
-      image:imageUrls,
+      image: uploaded,
       author: authorId,
-      slug, // ✅ include slug here
+      slug,
     });
 
     res.status(200).json({ success: true, blog });
   } catch (e) {
-    console.log(e);
+    console.error("Error in postBlogData:", e);
     res.status(500).json({ success: false, message: e.message });
   }
 };
+
 
 const getSingleBlog=async(req,res)=>{
   try{

@@ -34,7 +34,7 @@ const {id}= useParams()
             >
               {item.image && (
                <Link to={`/userpage/${item._id}`}>
-               <img className="w-[350px ] h-[290px] rounded-lg object-cover" src={item.image} alt={item.title} />
+               <img className="w-[350px ] h-[290px] rounded-lg object-cover" src={item.image[0]} alt={item.title} />
                </Link>
               )}
               <div className="p-4 flex flex-col items-center text-left ">

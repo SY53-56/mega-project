@@ -2,7 +2,13 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
 // Helper to attach Authorization header
-const getAuthHeader = (token) => ({ headers: { Authorization: `Bearer ${token}` }  });
+const getAuthHeader = (token , isFrom = false) => ({
+  headers:  isFrom ?  {Authorization: `Bearer ${token}`}: {Authorization: `Bearer ${token}`,
+    "Content-Type": "multipart/form-data"},
+  
+  
+});
+
 
 // ------------------- Thunks -------------------
 
@@ -12,7 +18,7 @@ export const fetchGetData = createAsyncThunk(
   async (_, { getState, rejectWithValue }) => {
     try {
       const token = getState().auth.token || localStorage.getItem("token");
-      const res = await axios.get("http://localhost:5000/blog", getAuthHeader(token));
+      const res = await axios.get("http://localhost:5000/blog", getAuthHeader(token ));
       return res.data; // { blogs: [...] }
     } catch (e) {
       return rejectWithValue(e.response?.data?.message || e.message || "Failed to fetch blogs");
@@ -48,16 +54,27 @@ export const fetchUserAccount = createAsyncThunk(
   }
 );
 
-// Add a new blog
 export const fetchAddData = createAsyncThunk(
   "blog/addData",
   async (blogData, { getState, rejectWithValue }) => {
     try {
       const token = getState().auth.token || localStorage.getItem("token");
-      const res = await axios.post("http://localhost:5000/blog", blogData, getAuthHeader(token));
-      return res.data; // { success: true, blog: {...} }
+
+      const res = await axios.post(
+        "http://localhost:5000/blog",
+        blogData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}` // DON'T set Content-Type
+          }
+        }
+      );
+
+      return res.data;
     } catch (e) {
-      return rejectWithValue(e.response?.data?.message || e.message || "Failed to add blog");
+      return rejectWithValue(
+        e.response?.data?.message || e.message || "Failed to add blog"
+      );
     }
   }
 );
