@@ -7,7 +7,7 @@ const connectDB = require("./src/db/connect")
 const port =process.env.PORT
 const startServer =async ()=>{
     try{
-      await connectDB(process.env.MONGODB_URL)
+      await connectDB(process.env.MONGODB_URI)
         app.listen(port, () => {
       console.log(`🚀 Server running on port sahul ${port}`);
     });
