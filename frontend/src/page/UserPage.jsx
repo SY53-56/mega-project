@@ -44,7 +44,7 @@ export default function UserPage() {
     e.preventDefault();
     if (!comment.trim()) return alert("Please enter a comment");
 
-    dispatch(fetchReviewPost({ blogId: id, reviewData: { comment } }))
+    dispatch(fetchReviewPost({ blogId: id, reviewData:{ comment} }))
       .unwrap()
       .then(() => {
         setComment("");

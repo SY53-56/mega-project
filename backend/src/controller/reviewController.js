@@ -4,6 +4,7 @@ const Blog = require("../models/blogModel");
 // ------------------ POST a Comment/Review ------------------
 const postComment = async (req, res) => {
   try {
+      console.log("RES.BODY DATA ", res.body)
     const { comment, rating } = req.body;
     const { id } = req.params; // blog ID
     const userId = req.user?.id;

@@ -116,16 +116,33 @@ export const fetchReview = createAsyncThunk("review/data", async(blogId,{getStat
       return rejectWithValue(e.response?.data?.message || e.message || "Failed to show review");
   }
 })
-export const fetchReviewPost= createAsyncThunk("review/post",async({blogId , reviewData},{getState,rejectWithValue})=>{
-  try{
-     const token = getState().auth.token || localStorage.getItem("token")
-     const res =await axios.post(`http://localhost:5000/review/${blogId}`, reviewData, getAuthHeader(token))
-   return res.data
-  }catch(e){
-    return rejectWithValue(e.response?.data?.message || e.message || "Failed to post review");
+export const fetchReviewPost = createAsyncThunk(
+  "review/post",
+  async ({ blogId, reviewData }, { getState, rejectWithValue }) => {
+    try {
+      const token =
+        getState().auth.token || localStorage.getItem("token");
 
+      const res = await axios.post(
+        `http://localhost:5000/review/${blogId}`,
+        reviewData, // { comment, rating }
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      return res.data;
+    } catch (e) {
+      return rejectWithValue(
+        e.response?.data?.message || e.message || "Failed to post review"
+      );
+    }
   }
-})
+);
+
 export const fetchReviewDelete= createAsyncThunk("review/delete",async(blogId,{getState,rejectWithValue})=>{
   try{
     const token= getState().auth.token || localStorage.getItem('token')
