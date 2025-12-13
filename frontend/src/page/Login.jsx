@@ -18,8 +18,8 @@ export default function Login() {
   const formHandler = async (e) => {
     e.preventDefault();
     try {
-      const data = await dispatch(fetchLogin(form)).unwrap();
-      console.log("Login successful:", data);
+ await dispatch(fetchLogin(form)).unwrap();
+     
       navigate("/");
     } catch (err) {
       console.error("Login failed:", err);

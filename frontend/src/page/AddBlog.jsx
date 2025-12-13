@@ -42,13 +42,9 @@ export default function AddBlog() {
     formData.append("title", form.title);
     formData.append("description", form.description);
     files.forEach((file) => formData.append("images", file));
-console.log("Received files:", files);
 
 
 
-    for (const [key, val] of formData.entries()) {
-      console.log("FormData:", key, val);
-    }
 
     try {
       await dispatch(fetchAddData(formData)).unwrap();

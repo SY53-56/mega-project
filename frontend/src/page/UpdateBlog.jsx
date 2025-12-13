@@ -1,49 +1,55 @@
-import React, { useState, useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { useNavigate, useParams } from 'react-router-dom';
-import { fetchUpdate,  } from '../features/blogSlice';
-import Button from '../component/Button';
+import React, { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate, useParams } from "react-router-dom";
+import { fetchUpdate, fetchGetSingleBlog } from "../features/blogSlice";
+import Button from "../component/Button";
 
 export default function UpdateBlog() {
   const { id } = useParams(); // blog ID from URL
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { currentBlog, status, error } = useSelector(state => state.blog);
+  const { currentBlog, status, error } = useSelector((state) => state.blog);
 
   const [form, setForm] = useState({
-    title: '',
-    description: '',
-    image: ''
+    title: "",
+    description: "",
+    image: "",
   });
-console.log("from data",form)
-  console.log('current data',currentBlog)
-  // Fetch blog if not loaded
-console.log("Updating blog ID:", id);
 
-  // Prefill form when currentBlog is loaded
+  // 1️⃣ Load the blog if not already loaded
   useEffect(() => {
-    if (currentBlog ) {
+    if (!currentBlog || currentBlog._id !== id) {
+      dispatch(fetchGetSingleBlog(id));
+    } else {
       setForm({
-        title: currentBlog?.title || '',
-        description: currentBlog?.description || '',
-        image: currentBlog.image || ''
+        title: currentBlog.title || "",
+        description: currentBlog.description || "",
+      image: currentBlog.image?.[0] || "",
       });
     }
-  }, [currentBlog, id]);
+  }, [currentBlog, id, dispatch]);
 
-  // Handle input changes
-  function handleFormData(e) {
+  // 2️⃣ Handle form changes
+  const handleFormData = (e) => {
     const { name, value } = e.target;
-    setForm(prev => ({ ...prev, [name]: value }));
-  }
-function handleForm(e) {
-  e.preventDefault();
-  dispatch(fetchUpdate({ id, updateData: form }))
-    .unwrap()
-    .then(() => navigate(`/userpage/${id}`)) // use id from URL
-    .catch(err => console.log(err));
-}
+    setForm((prev) => ({ ...prev, [name]: value }));
+  };
 
+  // 3️⃣ Handle form submission
+  const handleForm = (e) => {
+    e.preventDefault();
+
+    const updatePayload = {
+      title: form.title,
+      description: form.description,
+      image: form.image ? [form.image] : [], // send as array
+    };
+
+    dispatch(fetchUpdate({ id, updateData: updatePayload }))
+      .unwrap()
+      .then(() => navigate(`/userpage/${id}`))
+      .catch((err) => console.error("Update error:", err));
+  };
 
   return (
     <div className="w-full min-h-screen flex justify-center items-center bg-gradient-to-br from-blue-900 to-indigo-900 p-4">
@@ -71,7 +77,6 @@ function handleForm(e) {
               name="image"
               value={form.image}
               onChange={handleFormData}
-              required
               placeholder="https://example.com/image.jpg"
               className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400"
             />

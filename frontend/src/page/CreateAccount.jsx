@@ -21,8 +21,8 @@ export default function CreateAccount() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const data = await dispatch(fetchSignup(form)).unwrap();
-      console.log("Create account successful:", data);
+  await dispatch(fetchSignup(form)).unwrap();
+      
       navigate("/"); // Redirect after signup
     } catch (err) {
       console.error("Create account failed:", err);

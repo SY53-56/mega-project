@@ -3,7 +3,7 @@ const app= require("./src/app")
 const connectDB = require("./src/db/connect")
 
 
-console.log("Mongo URL:", process.env.MONGO_URL);
+
 const port =process.env.PORT
 const startServer =async ()=>{
     try{

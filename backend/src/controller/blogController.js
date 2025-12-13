@@ -104,13 +104,25 @@ const updateBlogData = async (req, res) => {
     const { id } = req.params;
     const updates = req.body;
 
-  
-    const updatedBlog = await Blog.findByIdAndUpdate(id, updates, { new: true });
-    if (!updatedBlog) {
-      return res.status(404).json({ success: false, message: "Blog not found" });
+    // Find blog first
+    const blog = await Blog.findById(id);
+    if (!blog) return res.status(404).json({ success: false, message: "Blog not found" });
+
+    // Check if current user is the author
+    if (blog.author.toString() !== req.user.id) {
+      return res.status(403).json({ success: false, message: "Not authorized to update this blog" });
     }
 
-    res.status(200).json({ success: true, blog: updatedBlog });
+    // Ensure image is an array
+    if (updates.image && !Array.isArray(updates.image)) {
+      updates.image = [updates.image];
+    }
+
+    // Update
+    Object.assign(blog, updates);
+    await blog.save();
+
+    res.status(200).json({ success: true, blog });
   } catch (e) {
     console.error("UpdateBlog error:", e);
     res.status(500).json({ success: false, message: e.message });
