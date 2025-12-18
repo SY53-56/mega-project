@@ -41,7 +41,7 @@ const {id}= useParams()
               )}
               <div className="p-4 flex flex-col items-center text-left ">
                 <h2 className="text-[20px] lg:text-2xl font-bold text-gray-800 mb-2 text-left">title: {item.title}</h2>
-      <p className="text-sm text-gray-500">Author{item.author?.username || "Unknown"}</p>
+      <p className="text-sm text-gray-500">Author: <strong>{item.author?.username || "Unknown"}</strong></p>
               </div>
             </div>
           ))}

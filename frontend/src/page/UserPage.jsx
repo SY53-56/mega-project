@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams, Link } from "react-router-dom";
 import { ArrowLeft, ArrowRight } from "lucide-react";
@@ -16,20 +16,19 @@ export default function UserPage() {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  const [img, setImg] = useState(0);
+  const [imgIndex, setImgIndex] = useState(0);
   const [comment, setComment] = useState("");
 
-  const { currentBlog, error, status, review } = useSelector(
+  const { currentBlog, status, error, review } = useSelector(
     (state) => state.blog
   );
   const { token, user } = useSelector((state) => state.auth);
 
   /* ================= FETCH BLOG & REVIEWS ================= */
   useEffect(() => {
-    if (id) {
-      dispatch(fetchGetSingleBlog(id));
-      dispatch(fetchReview(id));
-    }
+    if (!id) return;
+    dispatch(fetchGetSingleBlog(id));
+    dispatch(fetchReview(id));
   }, [id, dispatch]);
 
   /* ================= AUTO IMAGE SLIDER ================= */
@@ -37,28 +36,28 @@ export default function UserPage() {
     if (!currentBlog?.image || currentBlog.image.length <= 1) return;
 
     const interval = setInterval(() => {
-      setImg((prev) =>
+      setImgIndex((prev) =>
         prev === currentBlog.image.length - 1 ? 0 : prev + 1
       );
     }, 4000);
 
     return () => clearInterval(interval);
-  }, [currentBlog]);
+  }, [currentBlog?.image?.length]);
 
   /* ================= MANUAL SLIDER ================= */
-  const nextImage = () => {
+  const nextImage = useCallback(() => {
     if (!currentBlog?.image || currentBlog.image.length <= 1) return;
-    setImg((prev) =>
+    setImgIndex((prev) =>
       prev === currentBlog.image.length - 1 ? 0 : prev + 1
     );
-  };
+  }, [currentBlog?.image?.length]);
 
-  const prevImage = () => {
+  const prevImage = useCallback(() => {
     if (!currentBlog?.image || currentBlog.image.length <= 1) return;
-    setImg((prev) =>
+    setImgIndex((prev) =>
       prev === 0 ? currentBlog.image.length - 1 : prev - 1
     );
-  };
+  }, [currentBlog?.image?.length]);
 
   /* ================= DELETE BLOG ================= */
   const deleteBlog = () => {
@@ -97,7 +96,7 @@ export default function UserPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 py-10  px-4">
+    <div className="min-h-screen bg-gray-100 py-10 px-4">
       <div className="max-w-5xl mx-auto">
 
         <h1 className="text-4xl font-bold text-center mb-10">
@@ -115,14 +114,14 @@ export default function UserPage() {
         {currentBlog && (
           <div className="bg-white rounded-2xl shadow-lg relative overflow-hidden">
 
-            {/* IMAGE */}
+            {/* BLOG IMAGE */}
             <img
-              src={currentBlog.image?.[img]}
+              src={currentBlog.image?.[imgIndex]}
               alt="blog"
-              className="w-full h-[500px] object-cover"
+              className="w-full h-[250px] lg:h-[500px] object-cover"
             />
 
-            {/* ARROWS */}
+            {/* SLIDER CONTROLS */}
             {currentBlog.image?.length > 1 && (
               <>
                 <ArrowLeft
@@ -136,17 +135,49 @@ export default function UserPage() {
               </>
             )}
 
-            {/* CONTENT */}
             <div className="p-8">
-              <h2 className="text-3xl font-bold">{currentBlog.title}</h2>
+              {/* AUTHOR */}
+              <div className="flex gap-3 items-center mb-4">
+                <Link to={`/user/${currentBlog.author?._id}/blogs`}>
+                  <img
+                    src={
+                      currentBlog.author?.img ||
+                      "https://via.placeholder.com/150"
+                    }
+                    alt="author"
+                    className="w-10 h-10 rounded-full object-cover"
+                  />
+                </Link>
+
+                <h1 className="text-lg">
+                  Author:
+                  <strong className="ml-1">
+                    {currentBlog.author?.username}
+                  </strong>
+                </h1>
+              </div>
+
+              <h2 className="text-3xl font-bold">
+                {currentBlog.title}
+              </h2>
+
               <p className="mt-4 text-gray-700">
                 {currentBlog.description}
               </p>
 
+              {/* EDIT / DELETE */}
               {token && user?.id === currentBlog.author?._id && (
                 <div className="flex gap-3 mt-6">
-                  <Button className="px-2 py-1 rounded-md text-white bg-blue-500 cursor-pointer transition-all duration-300 hover:bg-blue-600 " to={`/userUpdate/${currentBlog._id}`} name="Edit" />
-                  <Button    className="px-2 py-1 rounded-md text-white bg-red-500 cursor-pointer transition-all duration-300 hover:bg-red-600 " onClick={deleteBlog} name="Delete" />
+                  <Button
+                    to={`/userUpdate/${currentBlog._id}`}
+                    className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
+                    name="Edit"
+                  />
+                  <Button
+                    onClick={deleteBlog}
+                    className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
+                    name="Delete"
+                  />
                 </div>
               )}
             </div>
@@ -159,22 +190,27 @@ export default function UserPage() {
             <input
               value={comment}
               onChange={(e) => setComment(e.target.value)}
-              className="flex-grow border rounded w-full  px-3 py-2"
+              className="border rounded w-full px-3 py-2"
               placeholder="Write a comment..."
             />
-            <button className="bg-indigo-600 cursor-pointer text-white px-5  py-1 rounded">
+            <button className="bg-indigo-600 text-white px-5 py-1 rounded hover:bg-indigo-700">
               Post
             </button>
           </form>
 
           <div className="mt-6">
             {review?.map((rev) => (
-              <div key={rev._id} className="flex justify-between border-b py-3">
+              <div
+                key={rev._id}
+                className="flex justify-between border-b py-3"
+              >
                 <p>{rev.comment}</p>
                 {user?.id === rev.user?._id && (
-                  <button 
-                    onClick={() => deleteReview(rev._id, rev.user._id)}
-                    className="px-2 py-1 rounded-md text-white bg-red-500 cursor-pointer transition-all duration-300 hover:bg-red-600 "
+                  <button
+                    onClick={() =>
+                      deleteReview(rev._id, rev.user._id)
+                    }
+                    className="px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600"
                   >
                     Delete
                   </button>

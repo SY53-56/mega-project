@@ -56,7 +56,7 @@ const userSignup = async (req, res) => {
     // 7️⃣ Send response
     res.status(201).json({
       success: true,
-      user: { id: user._id, username: user.username, email: user.email },
+      user: { id: user._id, username: user.username, email: user.email, img:user.img },
       token,
     });
   } catch (e) {
@@ -100,7 +100,7 @@ const userLogin = async (req, res) => {
     // 5️⃣ Respond
     res.status(200).json({
       success: true,
-      user: { id: user._id, username: user.username, email: user.email },
+      user: { id: user._id, username: user.username, email: user.email,img:user.img },
       token,
     });
   } catch (e) {

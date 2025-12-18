@@ -7,7 +7,7 @@ const blogSchema = new mongoose.Schema(
     description: { type: String, required: true },
     author: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true }, // link to user
     slug: { type: String, required: true, unique: true }, // ✅ add slug here
-    rating:{type:String,required:true ,max:5,min:0}
+
   },
   { timestamps: true } // adds createdAt & updatedAt automatically
 );

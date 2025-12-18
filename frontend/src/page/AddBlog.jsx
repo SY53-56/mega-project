@@ -68,7 +68,7 @@ export default function AddBlog() {
   return (
     <div className="w-full min-h-screen flex justify-center items-center bg-gradient-to-br from-blue-900 to-indigo-900 p-4">
       <div className="w-full max-w-lg bg-white rounded-2xl shadow-2xl p-8">
-        <h1 className="text-4xl font-extrabold text-center text-indigo-700 mb-6">
+        <h1 className="text-2xl  lg:text-4xl font-extrabold text-center text-indigo-700 mb-6">
           Add New Blog
         </h1>
 

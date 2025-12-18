@@ -21,7 +21,7 @@ const navigate = useNavigate()
   return (
     <header className="w-full bg-gray-400 mx-0 px-0 lg:px-32 shadow p-3 flex flex-col lg:flex-row lg:justify-between lg:items-center">
       {/* Logo + Hamburger */}
-    <div className="flex justify-between items-center">
+    <div className="flex justify-between items-center px-2">
   <Link className="text-2xl font-bold" to="/">Dailys blog</Link>
   
   <Button
