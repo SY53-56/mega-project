@@ -32,15 +32,15 @@ const {id}= useParams()
           {blog.map((item) => (
             <div
               key={item._id}
-              className="bg-white rounded-xl shadow-lg overflow-hidden flex flex-col items-center py-2 hover:scale-105 transition-transform duration-300"
+              className="bg-white rounded-xl shadow-lg overflow-hidden flex flex-col items-center px-1 py-2 hover:scale-105 transition-transform duration-300"
             >
               {item.image && (
                <Link to={`/userpage/${item._id}`}>
-               <img className="w-[350px ] h-[290px] rounded-lg object-cover" src={item.image[0]} alt={item.title} />
+               <img className="w-[250px ] lg:w-[350px] h-[190px] lg:h-[290px] rounded-lg object-cover" src={item.image[0]} alt={item.title} />
                </Link>
               )}
               <div className="p-4 flex flex-col items-center text-left ">
-                <h2 className="text-2xl font-bold text-gray-800 mb-2 text-left">title: {item.title}</h2>
+                <h2 className="text-[20px] lg:text-2xl font-bold text-gray-800 mb-2 text-left">title: {item.title}</h2>
       <p className="text-sm text-gray-500">Author{item.author?.username || "Unknown"}</p>
               </div>
             </div>

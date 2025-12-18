@@ -155,14 +155,14 @@ export default function UserPage() {
 
         {/* COMMENTS */}
         <div className="bg-white mt-10 p-6 rounded-xl shadow">
-          <form onSubmit={handleReviewForm} className="flex gap-3">
+          <form onSubmit={handleReviewForm} className="flex flex-col gap-3">
             <input
               value={comment}
               onChange={(e) => setComment(e.target.value)}
-              className="flex-grow border rounded w-[100px]  lg:w-full  px-3 py-2"
+              className="flex-grow border rounded w-full  px-3 py-2"
               placeholder="Write a comment..."
             />
-            <button className="bg-indigo-600 text-white px-5 rounded">
+            <button className="bg-indigo-600 cursor-pointer text-white px-5  py-1 rounded">
               Post
             </button>
           </form>
