@@ -6,7 +6,9 @@ import { Link } from "react-router-dom";
 export default function Home() {
   const dispatch = useDispatch();
   const { blog, status, error } = useSelector((state) => state.blog);
-  console.log(blog)
+  const {user} = useSelector((state)=>state.auth)
+  console.log( "blog data blog",blog)
+   console.log( "user data blog",user)
 const {id}= useParams()
   // Fetch blogs on mount
   useEffect(() => {
@@ -39,7 +41,7 @@ const {id}= useParams()
               )}
               <div className="p-4 flex flex-col items-center text-left ">
                 <h2 className="text-2xl font-bold text-gray-800 mb-2 text-left">title: {item.title}</h2>
-      <p className="text-sm text-gray-500">Author: {item.author?.username || "Unknown"}</p>
+      <p className="text-sm text-gray-500">Author{item.author?.username || "Unknown"}</p>
               </div>
             </div>
           ))}

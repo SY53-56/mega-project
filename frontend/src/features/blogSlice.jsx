@@ -3,11 +3,7 @@ import axios from "axios";
 
 // Helper to attach Authorization header
 const getAuthHeader = (token , isFrom = false) => ({
-  headers:  isFrom ?  {Authorization: `Bearer ${token}`}: {Authorization: `Bearer ${token}`,
-    "Content-Type": "multipart/form-data"},
-  
-  
-});
+  headers:  {Authorization: `Bearer ${token}`}})
 
 
 // ------------------- Thunks -------------------

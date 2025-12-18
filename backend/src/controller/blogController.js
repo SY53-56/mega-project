@@ -98,34 +98,38 @@ const userAccount = async (req, res) => {
     res.status(500).json({ success: false, message: e.message });
   }
 };
-
 const updateBlogData = async (req, res) => {
   try {
     const { id } = req.params;
-    const updates = req.body;
+    const { title, description, image } = req.body;
 
-    // Find blog first
     const blog = await Blog.findById(id);
-    if (!blog) return res.status(404).json({ success: false, message: "Blog not found" });
+    if (!blog) {
+      return res.status(404).json({ success: false, message: "Blog not found" });
+    }
 
-    // Check if current user is the author
+    // Authorization
     if (blog.author.toString() !== req.user.id) {
       return res.status(403).json({ success: false, message: "Not authorized to update this blog" });
     }
 
-    // Ensure image is an array
-    if (updates.image && !Array.isArray(updates.image)) {
-      updates.image = [updates.image];
+    // Update fields only if provided
+    if (typeof title === "string") blog.title = title;
+    if (typeof description === "string") blog.description = description;
+
+    // Handle image safely
+    if (Array.isArray(image)) {
+      blog.image = image.filter(Boolean);
+    } else if (typeof image === "string" && image.trim() !== "") {
+      blog.image = [image];
     }
 
-    // Update
-    Object.assign(blog, updates);
     await blog.save();
 
     res.status(200).json({ success: true, blog });
   } catch (e) {
     console.error("UpdateBlog error:", e);
-    res.status(500).json({ success: false, message: e.message });
+    res.status(500).json({ success: false, message: "Server error" });
   }
 };
 

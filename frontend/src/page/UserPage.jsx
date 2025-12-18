@@ -97,7 +97,7 @@ export default function UserPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 py-10 px-4">
+    <div className="min-h-screen bg-gray-100 py-10  px-4">
       <div className="max-w-5xl mx-auto">
 
         <h1 className="text-4xl font-bold text-center mb-10">
@@ -145,8 +145,8 @@ export default function UserPage() {
 
               {token && user?.id === currentBlog.author?._id && (
                 <div className="flex gap-3 mt-6">
-                  <Button to={`/userUpdate/${currentBlog._id}`} name="Edit" />
-                  <Button onClick={deleteBlog} name="Delete" />
+                  <Button className="px-2 py-1 rounded-md text-white bg-blue-500 cursor-pointer transition-all duration-300 hover:bg-blue-600 " to={`/userUpdate/${currentBlog._id}`} name="Edit" />
+                  <Button    className="px-2 py-1 rounded-md text-white bg-red-500 cursor-pointer transition-all duration-300 hover:bg-red-600 " onClick={deleteBlog} name="Delete" />
                 </div>
               )}
             </div>
@@ -159,7 +159,7 @@ export default function UserPage() {
             <input
               value={comment}
               onChange={(e) => setComment(e.target.value)}
-              className="flex-grow border rounded px-3 py-2"
+              className="flex-grow border rounded w-[100px]  lg:w-full  px-3 py-2"
               placeholder="Write a comment..."
             />
             <button className="bg-indigo-600 text-white px-5 rounded">
@@ -172,9 +172,9 @@ export default function UserPage() {
               <div key={rev._id} className="flex justify-between border-b py-3">
                 <p>{rev.comment}</p>
                 {user?.id === rev.user?._id && (
-                  <button
+                  <button 
                     onClick={() => deleteReview(rev._id, rev.user._id)}
-                    className="text-red-500"
+                    className="px-2 py-1 rounded-md text-white bg-red-500 cursor-pointer transition-all duration-300 hover:bg-red-600 "
                   >
                     Delete
                   </button>
