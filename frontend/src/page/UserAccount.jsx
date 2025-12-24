@@ -10,7 +10,8 @@ export default function UserAccount() {
 
   const { blog, user, status, error } = useSelector((state) => state.blog);
   const authUser = useSelector((state) => state.auth.user); // currently logged-in user
-
+console.log("userDAta",user)
+console.log("blog",blog)
   useEffect(() => {
     if (id) dispatch(fetchUserAccount(id));
   }, [dispatch, id]);
@@ -68,7 +69,7 @@ export default function UserAccount() {
                     <Link to={`/userpage/${post._id}`}>
                       <img
                         className="w-full h-48 object-cover rounded-lg mb-3"
-                        src={post.image}
+                        src={post.image[0]}
                         alt={post.title}
                       />
                     </Link>

@@ -64,7 +64,7 @@ const getSingleBlog=async(req,res)=>{
   try{
    const {id} = req.params
 
-const blog = await Blog.findById(id).populate("author", "username");
+const blog = await Blog.findById(id).populate("author", "username img");
    res.status(201).json({success:true,blog})
  }catch(e){
 console.log(e)

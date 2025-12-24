@@ -1,7 +1,7 @@
-import React, { useEffect } from "react";
+import  { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchGetData } from "../features/blogSlice";
-import { useParams } from "react-router-dom";
+
 import { Link } from "react-router-dom";
 export default function Home() {
   const dispatch = useDispatch();
@@ -9,7 +9,7 @@ export default function Home() {
   const {user} = useSelector((state)=>state.auth)
   console.log( "blog data blog",blog)
    console.log( "user data blog",user)
-const {id}= useParams()
+
   // Fetch blogs on mount
   useEffect(() => {
     dispatch(fetchGetData());

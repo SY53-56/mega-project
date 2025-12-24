@@ -24,14 +24,14 @@ export default function UserPage() {
   );
   const { token, user } = useSelector((state) => state.auth);
 
-  /* ================= FETCH BLOG & REVIEWS ================= */
+  /* ================= FETCH BLOG ================= */
   useEffect(() => {
     if (!id) return;
     dispatch(fetchGetSingleBlog(id));
     dispatch(fetchReview(id));
   }, [id, dispatch]);
 
-  /* ================= AUTO IMAGE SLIDER ================= */
+  /* ================= AUTO SLIDER ================= */
   useEffect(() => {
     if (!currentBlog?.image || currentBlog.image.length <= 1) return;
 
@@ -46,14 +46,12 @@ export default function UserPage() {
 
   /* ================= MANUAL SLIDER ================= */
   const nextImage = useCallback(() => {
-    if (!currentBlog?.image || currentBlog.image.length <= 1) return;
     setImgIndex((prev) =>
       prev === currentBlog.image.length - 1 ? 0 : prev + 1
     );
   }, [currentBlog?.image?.length]);
 
   const prevImage = useCallback(() => {
-    if (!currentBlog?.image || currentBlog.image.length <= 1) return;
     setImgIndex((prev) =>
       prev === 0 ? currentBlog.image.length - 1 : prev - 1
     );
@@ -61,7 +59,6 @@ export default function UserPage() {
 
   /* ================= DELETE BLOG ================= */
   const deleteBlog = () => {
-    if (!id) return;
     dispatch(fetchDelete(id))
       .unwrap()
       .then(() => navigate("/"))
@@ -71,40 +68,35 @@ export default function UserPage() {
   /* ================= POST COMMENT ================= */
   const handleReviewForm = (e) => {
     e.preventDefault();
-    if (!comment.trim()) return alert("Please enter a comment");
+    if (!comment.trim()) return;
 
     dispatch(fetchReviewPost({ blogId: id, reviewData: { comment } }))
       .unwrap()
       .then(() => {
         setComment("");
         dispatch(fetchReview(id));
-      })
-      .catch(console.error);
+      });
   };
 
   /* ================= DELETE COMMENT ================= */
   const deleteReview = (reviewId, reviewUserId) => {
-    if (user?.id !== reviewUserId) {
-      alert("You can only delete your own comment!");
-      return;
-    }
-
+    if (user?.id !== reviewUserId) return;
     dispatch(fetchReviewDelete(reviewId))
       .unwrap()
-      .then(() => dispatch(fetchReview(id)))
-      .catch(console.error);
+      .then(() => dispatch(fetchReview(id)));
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 py-10 px-4">
+    <div className="min-h-screen bg-gradient-to-br from-indigo-100 via-white to-pink-100 py-10 px-4">
       <div className="max-w-5xl mx-auto">
 
-        <h1 className="text-4xl font-bold text-center mb-10">
+        {/* TITLE */}
+        <h1 className="text-4xl font-extrabold text-center mb-10 text-gray-800">
           Blog Details
         </h1>
 
         {status === "loading" && (
-          <p className="text-center">Loading blog...</p>
+          <p className="text-center text-gray-600">Loading...</p>
         )}
 
         {error && (
@@ -112,70 +104,71 @@ export default function UserPage() {
         )}
 
         {currentBlog && (
-          <div className="bg-white rounded-2xl shadow-lg relative overflow-hidden">
+          <div className="bg-white rounded-3xl shadow-xl overflow-hidden">
 
-            {/* BLOG IMAGE */}
-            <img
-              src={currentBlog.image?.[imgIndex]}
-              alt="blog"
-              className="w-full h-[250px] lg:h-[500px] object-cover"
-            />
+            {/* IMAGE SLIDER */}
+            <div className="relative">
+              <img
+                src={currentBlog.image?.[imgIndex]}
+                alt="blog"
+                className="w-full h-[260px] lg:h-[520px] object-cover"
+              />
 
-            {/* SLIDER CONTROLS */}
-            {currentBlog.image?.length > 1 && (
-              <>
-                <ArrowLeft
-                  onClick={prevImage}
-                  className="absolute top-1/2 left-4 text-white bg-black/40 rounded-full cursor-pointer"
-                />
-                <ArrowRight
-                  onClick={nextImage}
-                  className="absolute top-1/2 right-4 text-white bg-black/40 rounded-full cursor-pointer"
-                />
-              </>
-            )}
+              {currentBlog.image?.length > 1 && (
+                <>
+                  <ArrowLeft
+                    onClick={prevImage}
+                    className="absolute top-1/2 left-4 w-9 h-9 p-2 bg-black/50 text-white rounded-full cursor-pointer hover:bg-black"
+                  />
+                  <ArrowRight
+                    onClick={nextImage}
+                    className="absolute top-1/2 right-4 w-9 h-9 p-2 bg-black/50 text-white rounded-full cursor-pointer hover:bg-black"
+                  />
+                </>
+              )}
+            </div>
 
+            {/* CONTENT */}
             <div className="p-8">
               {/* AUTHOR */}
-              <div className="flex gap-3 items-center mb-4">
+              <div className="flex items-center gap-4 mb-6">
                 <Link to={`/user/${currentBlog.author?._id}/blogs`}>
                   <img
                     src={
                       currentBlog.author?.img ||
                       "https://via.placeholder.com/150"
                     }
-                    alt="author"
-                    className="w-10 h-10 rounded-full object-cover"
+                    className="w-12 h-12 rounded-full object-cover"
                   />
                 </Link>
 
-                <h1 className="text-lg">
-                  Author:
-                  <strong className="ml-1">
+                <div>
+                  <p className="text-sm text-gray-500">Author</p>
+                  <h3 className="font-semibold text-lg">
                     {currentBlog.author?.username}
-                  </strong>
-                </h1>
+                  </h3>
+                </div>
               </div>
 
-              <h2 className="text-3xl font-bold">
+              <h2 className="text-3xl font-bold text-gray-800">
                 {currentBlog.title}
               </h2>
 
-              <p className="mt-4 text-gray-700">
+              <p className="mt-4 text-gray-700 leading-relaxed">
                 {currentBlog.description}
               </p>
 
-              {/* EDIT / DELETE */}
+              {/* ACTIONS */}
               {token && user?.id === currentBlog.author?._id && (
                 <div className="flex gap-3 mt-6">
                   <Button
                     to={`/userUpdate/${currentBlog._id}`}
-                    className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
+                    className="bg-blue-600 text-white px-4 py-1 rounded-lg hover:bg-blue-700"
                     name="Edit"
                   />
                   <Button
                     onClick={deleteBlog}
-                    className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
+                    className="bg-red-600 text-white px-4 py-1 rounded-lg hover:bg-red-700"
                     name="Delete"
                   />
                 </div>
@@ -185,32 +178,35 @@ export default function UserPage() {
         )}
 
         {/* COMMENTS */}
-        <div className="bg-white mt-10 p-6 rounded-xl shadow">
-          <form onSubmit={handleReviewForm} className="flex flex-col gap-3">
+        <div className="bg-white mt-10 p-6 rounded-2xl shadow-lg">
+          <h3 className="text-xl font-semibold mb-4">Comments</h3>
+
+          <form onSubmit={handleReviewForm} className="flex gap-3">
             <input
               value={comment}
               onChange={(e) => setComment(e.target.value)}
-              className="border rounded w-full px-3 py-2"
-              placeholder="Write a comment..."
+              className="flex-1 border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              placeholder="Write your comment..."
             />
-            <button className="bg-indigo-600 text-white px-5 py-1 rounded hover:bg-indigo-700">
+            <button className="bg-indigo-600 text-white px-5 rounded-lg hover:bg-indigo-700">
               Post
             </button>
           </form>
 
-          <div className="mt-6">
+          <div className="mt-6 space-y-4">
             {review?.map((rev) => (
               <div
                 key={rev._id}
-                className="flex justify-between border-b py-3"
+                className="flex justify-between items-center bg-gray-50 p-3 rounded-lg"
               >
-                <p>{rev.comment}</p>
+                <p className="text-gray-700">{rev.comment}</p>
+
                 {user?.id === rev.user?._id && (
                   <button
                     onClick={() =>
                       deleteReview(rev._id, rev.user._id)
                     }
-                    className="px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600"
+                    className="text-sm text-red-500 hover:underline"
                   >
                     Delete
                   </button>

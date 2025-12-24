@@ -2,7 +2,7 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
 // Helper to attach Authorization header
-const getAuthHeader = (token , isFrom = false) => ({
+const getAuthHeader = (token ) => ({
   headers:  {Authorization: `Bearer ${token}`}})
 
 

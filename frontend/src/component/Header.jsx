@@ -11,7 +11,7 @@ export default function Header() {
 const navigate = useNavigate()
   const { token, user } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
-
+console.log(user)
   const handleLogout = () => {
     dispatch(logout());
     setIsOpen(false); // close mobile menu on logout
@@ -55,6 +55,7 @@ const navigate = useNavigate()
         <div className="flex flex-col lg:flex-row gap-4 mt-3 lg:mt-0 px-2 items-center">
           {token ? (
             <>
+            <span>{user?.email}</span>
               <span className="text-white font-medium">Hello, {user?.username}</span>
               <Button
                 onClick={handleLogout}
@@ -97,6 +98,7 @@ const navigate = useNavigate()
         {token ? (
           <>
             <span className="px-4 py-2">Hello, {user?.username}</span>
+            <p>{user?.email}</p>
             <Button
               onClick={handleLogout}
               className="bg-red-600 text-white hover:bg-red-700"

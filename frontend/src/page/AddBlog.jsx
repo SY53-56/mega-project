@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import Button from "../component/Button";
 import { fetchAddData } from "../features/blogSlice";
 
 export default function AddBlog() {
-  const [form, setForm] = useState({ title: "", description: "" ,});
+  const [form, setForm] = useState({ title: "", description: "", });
   const [files, setFiles] = useState([]);
   const [previews, setPreviews] = useState([]);
 
@@ -18,10 +18,10 @@ export default function AddBlog() {
 
   const { error, status } = useSelector((state) => state.blog);
 
-  const handleFormData = (e) => {
+  const handleFormData = useCallback(async(e) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
-  };
+  },[setForm])
 
   const handleFileChange = (e) => {
     const selectedFiles = Array.from(e.target.files);
@@ -31,21 +31,18 @@ export default function AddBlog() {
     setPreviews(previews);
   };
 
-  const handleForm = async (e) => {
-    e.preventDefault();
+  console.log("imge")
+  
+const handleForm = useCallback(async(e)=>{
+ e.preventDefault();
     if (!token) {
       alert("Please login first!");
       return;
     }
-
     const formData = new FormData();
     formData.append("title", form.title);
     formData.append("description", form.description);
     files.forEach((file) => formData.append("images", file));
-
-
-
-
     try {
       await dispatch(fetchAddData(formData)).unwrap();
       alert(" Blog added successfully!");
@@ -57,7 +54,8 @@ export default function AddBlog() {
       console.error(" Error adding blog:", err);
       alert(err || "Failed to add blog");
     }
-  };
+},[form, setForm,navigate, setFiles])
+
 
   useEffect(() => {
     return () => {
