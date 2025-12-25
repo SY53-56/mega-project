@@ -64,7 +64,7 @@ const getSingleBlog=async(req,res)=>{
   try{
    const {id} = req.params
 
-const blog = await Blog.findById(id).populate("author", "username img");
+const blog = await Blog.findById(id).populate("author", "username img like");
    res.status(201).json({success:true,blog})
  }catch(e){
 console.log(e)
@@ -77,14 +77,14 @@ const userAccount = async (req, res) => {
     const { id } = req.params;
 
     // 1️⃣ Fetch the user info first
-    const user = await User.findById(id).select("username email img _id");
+    const user = await User.findById(id).select("username email img _id saveBlog follwer bio");
     if (!user)
       return res.status(404).json({ success: false, message: "User not found" });
 
     // 2️⃣ Fetch all blogs written by this user
     const blogs = await Blog.find({ author: id }).populate(
       "author",
-      "username img _id"
+      "username img _id follwer bio saveBlog"
     );
 
     // 3️⃣ Send both user + blogs in one response
@@ -147,10 +147,52 @@ const deleteBlog = async (req, res) => {
 
     res.status(200).json({ success: true, message: "Blog deleted successfully" });
   } catch (err) {
-    console.error(err);
+ 
     res.status(500).json({ success: false, message: "Server error" });
   }
 };
+
+
+const likePostApi = async(req,res)=>{
+  try{
+        const {blogId} = req.params;
+       const  userId=  req.user.id
+     
+        if(!userId){
+          return res.status(201).json("please sign up first")
+        }
+  
+        let user = await User.findById(user)
+
+  
+    const blog = await Blog.findById(blogId);
+    if (!blog) {
+      return res.status(404).json({ message: "Blog not found" });
+    }
+
+   let likeBlog = await blog.like.includes(userId)
+  
+
+   if(likeBlog){
+   await Blog.findByIdAndUpdate(blog,{$pull:{like:userId}}) 
+ return res.json({
+        message: "Post unliked",
+        liked: false,
+      });
+   }else{
+await Blog.findByIdAndUpdate(blog  ,{$addToSet:{like:userId}})
+ return res.json({
+        message: "Post liked",
+        liked: true,
+      });
+   }
+  }catch(e){
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+}
+
+
+
 module.exports = {
   getAllBlogs,
   postBlogData,
@@ -158,4 +200,5 @@ module.exports = {
   updateBlogData,
   deleteBlog,
   getSingleBlog,
+  likePostApi
 };

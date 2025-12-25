@@ -136,10 +136,101 @@ const userData = async (req, res) => {
     res.status(500).json({ success: false, message: "Server error" });
   }
 };
+const saveBlog = async(req,res)=>{
+  try{
+    let {userId }= req.params
+    let {blogId} = req.body
+    const user= await User.findById(userId)
+  
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+     let isSaved = await user.saveBlog.includes(blogId)
+      let savedBloged = await User.findByIdAndUpdate(userId,
+        isSaved?{$pull:{saveBlog:blogId}}:{$addToSet:{saveBlog:blogId}}
+      ).populate("saveBlog")
+     
+    
+  res.status(200).json({ success: true,   message: isSaved ? "Blog unsaved" : "Blog saved",
+      user: savedBloged });
+  }catch(e){
+     res.status(500).json({ success: false, message: "Server error" });
+  }
+}
+
+const follower = async (req, res) => {
+  try {
+    const { userId } = req.params;      // jisko follow karna hai
+    const { followerId } = req.body;    // jo follow kar raha hai
+
+    if (userId === followerId) {
+      return res.status(400).json({ message: "You cannot follow yourself" });
+    }
+
+    const user = await User.findById(userId);
+    const followerUser = await User.findById(followerId);
+
+    if (!user || !followerUser) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const isFollowing = user.follower.includes(followerId);
+
+    if (isFollowing) {
+      // UNFOLLOW
+      await User.findByIdAndUpdate(userId, {
+        $pull: { follower: followerId }
+      });
+
+      await User.findByIdAndUpdate(followerId, {
+        $pull: { following: userId }
+      });
+
+      return res.status(200).json({
+        success: true,
+        message: "Unfollowed successfully"
+      });
+    } else {
+      // FOLLOW
+      await User.findByIdAndUpdate(userId, {
+        $addToSet: { followers: followerId }
+      });
+
+      await User.findByIdAndUpdate(followerId, {
+        $addToSet: { following: userId }
+      });
+
+      return res.status(200).json({
+        success: true,
+        message: "Followed successfully"
+      });
+    }
+
+  } catch (e) {
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+};
+const getFollowerData= async(req,res)=>{
+  try{
+         let {userid} =  req.params;
+         
+         let user = await User.findById(userid)
+   if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+         res.status(200).json({success:true , followers:user.follower})
+  }catch(e){
+     res.status(500).json({ success: false, message: "Server error" });
+  }
+}
+
 
 module.exports = {
   userSignup,
   userLogin,
   userLogout,
   userData,
+  saveBlog,
+  getFollowerData,
+  follower
 };

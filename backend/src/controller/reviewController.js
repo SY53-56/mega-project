@@ -69,8 +69,42 @@ if(review.user.toString() !== req.user.id){
 }
 }
 
+const commentLikes = async(req,res)=>{
+try{
+   const userId = req.user.id;
+   const {reviewId} = req.params;
+
+   if(userId){
+    return res.status(200).json("please first login")
+   }
+   const review= await Review.findById(reviewId)
+   const isReviewLiked =  review.likes.includes(userId) 
+
+   if(isReviewLiked){
+    await Review.findByIdAndUpdate(review, {
+      $pull:{likes:userId}
+    })
+    return res.statu(200).json({
+      message:"unLiked",
+       liked: false,
+    })
+   }else{
+    await review.findByIdAndUpdate(review,{
+      $addToSet:{likes:userId}
+    })
+   }
+
+}catch(e){
+    res.status(500).json({ message: e.message });
+}
+}
+
+
+
+
 module.exports = {
   postComment,
   getAllComments,
-deleteReview
+deleteReview,
+commentLikes, 
 };

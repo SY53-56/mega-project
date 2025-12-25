@@ -5,14 +5,14 @@ const BlogRoutes = require("./routes/blogRoutes")
 const cookie = require("cookie-parser")
 const cors = require("cors")
 const ReviewRoutes= require("./routes/reviewRoutes")
-
+const helmet = require("helmet")
 app.use(cookie())
 
 app.use(cors({
   origin: "http://localhost:5173",
   credentials: true
 }));
-
+app.use(helmet());
 app.use("/uploads", express.static("uploads"));
 
 // ✅ Must come BEFORE routes
