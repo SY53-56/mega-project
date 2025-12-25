@@ -223,8 +223,6 @@ const getFollowerData= async(req,res)=>{
      res.status(500).json({ success: false, message: "Server error" });
   }
 }
-
-
 module.exports = {
   userSignup,
   userLogin,
