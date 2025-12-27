@@ -1,6 +1,6 @@
 import  { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchGetData } from "../features/blogSlice";
+import { fetchGetData } from "../features/BlogThunk"
 
 import { Link } from "react-router-dom";
 export default function Home() {

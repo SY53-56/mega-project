@@ -8,8 +8,9 @@ import {
   fetchReview,
   fetchReviewDelete,
   fetchReviewPost,
-} from "../features/blogSlice";
+} from "../features/BlogThunk";
 import Button from "../component/Button";
+import { followUser } from "../features/authThunk";
 
 export default function UserPage() {
   const dispatch = useDispatch();
@@ -20,9 +21,26 @@ export default function UserPage() {
   const [comment, setComment] = useState("");
 
   const { currentBlog, status, error, review } = useSelector(
-    (state) => state.blog
-  );
+    (state) => state.blog);
   const { token, user } = useSelector((state) => state.auth);
+  
+const authorId = currentBlog?.author?._id;
+const isFollowing = user?.following?.includes(authorId);
+useEffect(() => {
+  console.log("Current user state 👉", user);
+  console.log("Token 👉", token);
+}, [user, token]); // only runs when user or token changes
+
+
+
+const followedButton = useCallback(()=>{
+  if (!token) return alert("Please login");
+  if (!authorId) return;
+  if (user._id === authorId) return alert("You cannot follow yourself");
+
+  dispatch(followUser(authorId));
+},[dispatch,authorId,user ,token])
+
 
   /* ================= FETCH BLOG ================= */
   useEffect(() => {
@@ -42,7 +60,7 @@ export default function UserPage() {
     }, 4000);
 
     return () => clearInterval(interval);
-  }, [currentBlog?.image?.length]);
+  }, [currentBlog?.image?.length, setImgIndex , currentBlog]);
 
   /* ================= MANUAL SLIDER ================= */
   const nextImage = useCallback(() => {
@@ -77,7 +95,9 @@ export default function UserPage() {
         dispatch(fetchReview(id));
       });
   };
+   
 
+ 
   /* ================= DELETE COMMENT ================= */
   const deleteReview = (reviewId, reviewUserId) => {
     if (user?.id !== reviewUserId) return;
@@ -142,12 +162,15 @@ export default function UserPage() {
                   />
                 </Link>
 
-                <div>
-                  <p className="text-sm text-gray-500">Author</p>
+                <div className="flex justify-between w-full">
+                 <div>
+                   <p className="text-sm text-gray-500">Author</p>
                   <h3 className="font-semibold text-lg">
                     {currentBlog.author?.username}
                   </h3>
-                </div>
+                 </div>
+                   <Button onClick={followedButton}className="bg-blue-600 text-white px-4 py-1 rounded-lg hover:bg-blue-700" name={isFollowing?"unfollow":"follow"}/>
+                 </div>
               </div>
 
               <h2 className="text-3xl font-bold text-gray-800">
@@ -161,11 +184,14 @@ export default function UserPage() {
               {/* ACTIONS */}
               {token && user?.id === currentBlog.author?._id && (
                 <div className="flex gap-3 mt-6">
-                  <Button
-                    to={`/userUpdate/${currentBlog._id}`}
-                    className="bg-blue-600 text-white px-4 py-1 rounded-lg hover:bg-blue-700"
-                    name="Edit"
-                  />
+                 <Button
+  onClick={followedButton}
+  className={`px-4 py-1 text-white ${
+    isFollowing ? "bg-gray-500" : "bg-blue-500 hover:bg-blue-600"
+  }`}
+  name={isFollowing ? "Following" : "Follow"}
+/>
+
                   <Button
                     onClick={deleteBlog}
                     className="bg-red-600 text-white px-4 py-1 rounded-lg hover:bg-red-700"

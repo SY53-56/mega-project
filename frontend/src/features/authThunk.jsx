@@ -25,6 +25,7 @@ import axios from "axios";
     try {
       const res = await axios.post("http://localhost:5000/user/login", userData,);
         localStorage.setItem("token", res.data.token);
+      
       return res.data;
     } catch (e) {
       const message =
@@ -36,7 +37,40 @@ import axios from "axios";
   }
 );
 
+ const followUser = createAsyncThunk(
+  "user/follow",
+  async (authorId, { getState, rejectWithValue }) => {
+    try {
+      const token =
+        getState().auth.token || localStorage.getItem("token");
+          
+      if (!token) {
+        return rejectWithValue("Please login to follow users");
+      }
+
+      const res = await axios.put(
+        `http://localhost:5000/user/follow/${authorId}`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      return res.data; // { user, token? }
+    } catch (e) {
+      return rejectWithValue(
+        e.response?.data?.message ||
+        e.message ||
+        "Failed to follow user"
+      );
+    }
+  }
+);
+
 export  {
  fetchLogin,
- fetchSignup
+ fetchSignup,
+ followUser
 }

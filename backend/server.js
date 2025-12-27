@@ -4,6 +4,7 @@ const app = require("./src/app")
 const connectDB = require("./src/db/connect")
 
 const port = process.env.PORT || 5000
+console.log("JWT_TOKEN USED FOR VERIFY:", process.env.JWT_TOKEN);
 
 const startServer = async () => {
   try {

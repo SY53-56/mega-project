@@ -157,11 +157,10 @@ const saveBlog = async(req,res)=>{
      res.status(500).json({ success: false, message: "Server error" });
   }
 }
-
 const follower = async (req, res) => {
   try {
-    const { userId } = req.params;      // jisko follow karna hai
-    const { followerId } = req.body;    // jo follow kar raha hai
+    const userId = req.params.userId;      // target user (author)
+    const followerId = req.user.id;        // logged-in user
 
     if (userId === followerId) {
       return res.status(400).json({ message: "You cannot follow yourself" });
@@ -174,42 +173,28 @@ const follower = async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    const isFollowing = user.follower.includes(followerId);
+    const isFollowing = user.followers.includes(followerId);
 
     if (isFollowing) {
       // UNFOLLOW
-      await User.findByIdAndUpdate(userId, {
-        $pull: { follower: followerId }
-      });
+      await User.findByIdAndUpdate(userId, { $pull: { followers: followerId } });
+      await User.findByIdAndUpdate(followerId, { $pull: { following: userId } });
 
-      await User.findByIdAndUpdate(followerId, {
-        $pull: { following: userId }
-      });
-
-      return res.status(200).json({
-        success: true,
-        message: "Unfollowed successfully"
-      });
+      return res.status(200).json({ success: true, followed: false, user: followerUser });
     } else {
       // FOLLOW
-      await User.findByIdAndUpdate(userId, {
-        $addToSet: { followers: followerId }
-      });
+      await User.findByIdAndUpdate(userId, { $addToSet: { followers: followerId } });
+      await User.findByIdAndUpdate(followerId, { $addToSet: { following: userId } });
 
-      await User.findByIdAndUpdate(followerId, {
-        $addToSet: { following: userId }
-      });
-
-      return res.status(200).json({
-        success: true,
-        message: "Followed successfully"
-      });
+      return res.status(200).json({ success: true, followed: true, user: followerUser });
     }
 
   } catch (e) {
+    console.error(e);
     res.status(500).json({ success: false, message: "Server error" });
   }
 };
+
 const getFollowerData= async(req,res)=>{
   try{
          let {userid} =  req.params;

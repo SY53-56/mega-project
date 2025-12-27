@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import Button from "../component/Button";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchLogin } from "../features/authSlice";
+import {fetchLogin}  from "../features/authThunk";
 import { useNavigate,Link } from "react-router-dom";
 
 export default function Login() {

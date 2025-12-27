@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import Button from "../component/Button";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchSignup } from "../features/authSlice";
+import  {fetchSignup}  from "../features/authThunk";
 import { useNavigate, Link } from "react-router-dom";
 
 export default function CreateAccount() {

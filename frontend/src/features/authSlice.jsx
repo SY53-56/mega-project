@@ -1,5 +1,5 @@
 import {  createSlice } from "@reduxjs/toolkit";
-import { fetchLogin, fetchSignup } from "./authThunk";
+import { fetchLogin, fetchSignup, followUser } from "./authThunk";
 
 const authSlice = createSlice({
   name: "auth",
@@ -55,7 +55,23 @@ const authSlice = createSlice({
       .addCase(fetchLogin.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.payload;
-      });
+      })
+      .addCase(followUser.pending,(state)=>{
+         state.status = "loading";
+        state.error = null;
+      })
+      .addCase(followUser.fulfilled,(state ,action)=>{
+           state.status = "succeeded";
+           state.user = action.payload.user;
+         
+        state.error = null;
+         localStorage.setItem("user",JSON.stringify(action.payload.user))
+   
+      })
+      .addCase(followUser.rejected,(state,action)=>{
+         state.status = "failed";
+        state.error = action.payload;
+      })
   },
 });
 export const { logout } = authSlice.actions; 

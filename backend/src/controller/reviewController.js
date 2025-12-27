@@ -5,7 +5,7 @@ const Blog = require("../models/blogModel");
 const postComment = async (req, res) => {
   try {
       console.log("RES.BODY DATA ", res.body)
-    const { comment, rating } = req.body;
+    const { comment } = req.body;
     const { id } = req.params; // blog ID
     const userId = req.user?.id;
 
@@ -23,7 +23,6 @@ const postComment = async (req, res) => {
     // Create the review
     const newReview = await Review.create({
       comment,
-      rating,
       user: userId,
       blog: id,
     });

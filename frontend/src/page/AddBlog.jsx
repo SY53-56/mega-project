@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import Button from "../component/Button";
-import { fetchAddData } from "../features/blogSlice";
+import {fetchAddData}  from "../features/BlogThunk";
 
 export default function AddBlog() {
   const [form, setForm] = useState({ title: "", description: "", });

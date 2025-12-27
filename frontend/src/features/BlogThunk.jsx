@@ -9,7 +9,7 @@ const getAuthHeader = (token ) => ({
 // ------------------- Thunks -------------------
 
 // Fetch all blogs
- const fetchGetData = createAsyncThunk(
+ export const fetchGetData = createAsyncThunk(
   "blog/getData",
   async (_, { getState, rejectWithValue }) => {
     try {
@@ -22,7 +22,7 @@ const getAuthHeader = (token ) => ({
   }
 );
 
- const fetchGetSingleBlog = createAsyncThunk(
+  export const fetchGetSingleBlog = createAsyncThunk(
   "blog/singleBlog",
   async (blogId, { getState, rejectWithValue }) => {
     try {
@@ -36,7 +36,7 @@ const getAuthHeader = (token ) => ({
 );
 
 // Fetch all blogs of a specific user
- const fetchUserAccount = createAsyncThunk(
+ export const fetchUserAccount = createAsyncThunk(
   "blog/user",
   async (userId, { getState, rejectWithValue }) => {
     try {
@@ -49,7 +49,7 @@ const getAuthHeader = (token ) => ({
   }
 );
 
- const fetchAddData = createAsyncThunk(
+ export const fetchAddData = createAsyncThunk(
   "blog/addData",
   async (blogData, { getState, rejectWithValue }) => {
     try {
@@ -75,7 +75,7 @@ const getAuthHeader = (token ) => ({
 );
 
 // Update a blog
- const fetchUpdate = createAsyncThunk(
+ export const fetchUpdate = createAsyncThunk(
   "blog/update",
   async ({ id, updateData }, { getState, rejectWithValue }) => {
     try {
@@ -89,7 +89,7 @@ const getAuthHeader = (token ) => ({
 );
 
 // Delete a blog
- const fetchDelete = createAsyncThunk(
+export const fetchDelete = createAsyncThunk(
   "blog/delete",
   async (blogId, { getState, rejectWithValue }) => {
     try {
@@ -102,7 +102,7 @@ const getAuthHeader = (token ) => ({
   }
 );
 
- const fetchReview = createAsyncThunk("review/data", async(blogId,{getState,rejectWithValue})=>{
+  export const fetchReview = createAsyncThunk("review/data", async(blogId,{getState,rejectWithValue})=>{
   try{
   const token = getState().auth.token || localStorage.getItem("token")
   const res=await axios.get(`http://localhost:5000/review/${blogId}`,getAuthHeader(token))
@@ -111,13 +111,13 @@ const getAuthHeader = (token ) => ({
       return rejectWithValue(e.response?.data?.message || e.message || "Failed to show review");
   }
 })
- const fetchReviewPost = createAsyncThunk(
+ export const fetchReviewPost = createAsyncThunk(
   "review/post",
   async ({ blogId, reviewData }, { getState, rejectWithValue }) => {
     try {
       const token =
         getState().auth.token || localStorage.getItem("token");
-
+ console.log("toekn" , token)
       const res = await axios.post(
         `http://localhost:5000/review/${blogId}`,
         reviewData, // { comment, rating }
@@ -138,7 +138,7 @@ const getAuthHeader = (token ) => ({
   }
 );
 
- const fetchReviewDelete= createAsyncThunk("review/delete",async(blogId,{getState,rejectWithValue})=>{
+ export const fetchReviewDelete= createAsyncThunk("review/delete",async(blogId,{getState,rejectWithValue})=>{
   try{
     const token= getState().auth.token || localStorage.getItem('token')
     const res = await axios.delete(`http://localhost:5000/review/${blogId}`, getAuthHeader(token))
@@ -147,15 +147,3 @@ const getAuthHeader = (token ) => ({
     return rejectWithValue(e.response?.data?.message || e.message || "Failed to delete review");
   }
 })
-export {
-    fetchAddData,
-    fetchDelete,
-    fetchGetData,
-    fetchGetSingleBlog,
- fetchReview,
- fetchReviewDelete,
- fetchReviewPost,
- fetchUpdate,
- 
-    fetchUserAccount
-}
