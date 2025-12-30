@@ -1,9 +1,6 @@
 import {  createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "axios";
 
-// Helper to attach Authorization header
-const getAuthHeader = (token ) => ({
-  headers:  {Authorization: `Bearer ${token}`}})
+import api from "../api";
 
 
 // ------------------- Thunks -------------------
@@ -11,10 +8,10 @@ const getAuthHeader = (token ) => ({
 // Fetch all blogs
  export const fetchGetData = createAsyncThunk(
   "blog/getData",
-  async (_, { getState, rejectWithValue }) => {
+  async (_, {  rejectWithValue }) => {
     try {
-      const token = getState().auth.token || localStorage.getItem("token");
-      const res = await axios.get("http://localhost:5000/blog", getAuthHeader(token ));
+   
+      const res = await api.get("/blog");
       return res.data; // { blogs: [...] }
     } catch (e) {
       return rejectWithValue(e.response?.data?.message || e.message || "Failed to fetch blogs");
@@ -24,10 +21,10 @@ const getAuthHeader = (token ) => ({
 
   export const fetchGetSingleBlog = createAsyncThunk(
   "blog/singleBlog",
-  async (blogId, { getState, rejectWithValue }) => {
+  async (blogId, { rejectWithValue }) => {
     try {
-      const token = getState().auth.token || localStorage.getItem("token");
-      const res = await axios.get(`http://localhost:5000/blog/${blogId}`, getAuthHeader(token));
+
+      const res = await api.get(`/blog/${blogId}`);
       return res.data; // { blog: {...} }
     } catch (e) {
       return rejectWithValue(e.response?.data?.message || e.message || "Failed to fetch blog");
@@ -38,10 +35,10 @@ const getAuthHeader = (token ) => ({
 // Fetch all blogs of a specific user
  export const fetchUserAccount = createAsyncThunk(
   "blog/user",
-  async (userId, { getState, rejectWithValue }) => {
+  async (userId, {  rejectWithValue }) => {
     try {
-      const token = getState().auth.token || localStorage.getItem("token");
-      const res = await axios.get(`http://localhost:5000/blog/user/${userId}`, getAuthHeader(token));
+ 
+      const res = await api.get(`/blog/user/${userId}`, );
       return res.data; // { blog: [...] }
     } catch (e) {
       return rejectWithValue(e.response?.data?.message || e.message || "Failed to fetch user blogs");
@@ -51,20 +48,11 @@ const getAuthHeader = (token ) => ({
 
  export const fetchAddData = createAsyncThunk(
   "blog/addData",
-  async (blogData, { getState, rejectWithValue }) => {
+  async (blogData, {  rejectWithValue }) => {
     try {
-      const token = getState().auth.token || localStorage.getItem("token");
 
-      const res = await axios.post(
-        "http://localhost:5000/blog",
-        blogData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}` // DON'T set Content-Type
-          }
-        }
-      );
 
+      const res = await api.post("/blog", blogData);
       return res.data;
     } catch (e) {
       return rejectWithValue(
@@ -77,10 +65,10 @@ const getAuthHeader = (token ) => ({
 // Update a blog
  export const fetchUpdate = createAsyncThunk(
   "blog/update",
-  async ({ id, updateData }, { getState, rejectWithValue }) => {
+  async ({ id, updateData }, { rejectWithValue }) => {
     try {
-      const token = getState().auth.token || localStorage.getItem("token");
-      const res = await axios.put(`http://localhost:5000/blog/${id}`, updateData, getAuthHeader(token));
+   
+      const res = await api.put(`/blog/${id}`, updateData,);
       return res.data; // { blog: {...} }
     } catch (e) {
       return rejectWithValue(e.response?.data?.message || e.message || "Failed to update blog");
@@ -91,10 +79,10 @@ const getAuthHeader = (token ) => ({
 // Delete a blog
 export const fetchDelete = createAsyncThunk(
   "blog/delete",
-  async (blogId, { getState, rejectWithValue }) => {
+  async (blogId, { rejectWithValue }) => {
     try {
-      const token = getState().auth.token || localStorage.getItem("token");
-      const res = await axios.delete(`http://localhost:5000/blog/delete/${blogId}`, getAuthHeader(token));
+   
+      const res = await api.delete(`/blog/delete/${blogId}`, );
       return { blogId, ...res.data };
     } catch (e) {
       return rejectWithValue(e.response?.data?.message || e.message || "Failed to delete blog");
@@ -102,10 +90,10 @@ export const fetchDelete = createAsyncThunk(
   }
 );
 
-  export const fetchReview = createAsyncThunk("review/data", async(blogId,{getState,rejectWithValue})=>{
+  export const fetchReview = createAsyncThunk("review/data", async(blogId,{rejectWithValue})=>{
   try{
-  const token = getState().auth.token || localStorage.getItem("token")
-  const res=await axios.get(`http://localhost:5000/review/${blogId}`,getAuthHeader(token))
+
+  const res=await api.get(`/review/${blogId}`,)
    return res.data
   }catch(e){
       return rejectWithValue(e.response?.data?.message || e.message || "Failed to show review");
@@ -113,20 +101,14 @@ export const fetchDelete = createAsyncThunk(
 })
  export const fetchReviewPost = createAsyncThunk(
   "review/post",
-  async ({ blogId, reviewData }, { getState, rejectWithValue }) => {
+  async ({ blogId, reviewData }, {  rejectWithValue }) => {
     try {
-      const token =
-        getState().auth.token || localStorage.getItem("token");
- console.log("toekn" , token)
-      const res = await axios.post(
-        `http://localhost:5000/review/${blogId}`,
+     
+
+      const res = await api.post(
+        `/review/${blogId}`,
         reviewData, // { comment, rating }
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
+      
       );
 
       return res.data;
@@ -138,10 +120,10 @@ export const fetchDelete = createAsyncThunk(
   }
 );
 
- export const fetchReviewDelete= createAsyncThunk("review/delete",async(blogId,{getState,rejectWithValue})=>{
+ export const fetchReviewDelete= createAsyncThunk("review/delete",async(blogId,{rejectWithValue})=>{
   try{
-    const token= getState().auth.token || localStorage.getItem('token')
-    const res = await axios.delete(`http://localhost:5000/review/${blogId}`, getAuthHeader(token))
+    
+    const res = await api.delete(`/review/${blogId}`)
     return res.data
   }catch(e){
     return rejectWithValue(e.response?.data?.message || e.message || "Failed to delete review");

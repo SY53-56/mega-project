@@ -1,22 +1,36 @@
 const jwt = require("jsonwebtoken");
 
+// Middleware to verify JWT from cookie
 const userMiddleware = (req, res, next) => {
+  console.log("🔥 Middleware HIT");
+  console.log("🍪 Cookies:", req.cookies);
+
+  const token = req.cookies.token;
+
+  if (!token) {
+    return res.status(401).json({ message: "Login required" });
+  }
+
   try {
-    const authHeader = req.headers.authorization;
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    console.log("✅ Decoded JWT:", decoded);
 
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      return res.status(401).json({ message: "No token provided" });
-    }
-
-    const token = authHeader.split(" ")[1];
-
-    const decoded = jwt.verify(token, process.env.JWT_TOKEN);
-
-    req.user = { id: decoded.id };
-
+    req.user = decoded;
     next();
   } catch (err) {
-    return res.status(401).json({ message: "Invalid token" });
+    console.log("❌ JWT Error:", err.message);
+
+    // Automatically clear the invalid/old cookie
+    res.clearCookie("token", {
+      httpOnly: true,
+      secure: false, // true in prod (HTTPS)
+      sameSite: "lax",
+    });
+
+    // Optional: force client to login again
+    return res.status(401).json({
+      message: "Invalid or expired token. Please login again.",
+    });
   }
 };
 

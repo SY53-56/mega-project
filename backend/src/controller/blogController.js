@@ -17,7 +17,7 @@ const uploadBufferToCloudinary = (buffer) =>
 
 const getAllBlogs = async (req, res) => {
   try {
-    const blogs = await Blog.find().populate("author","username img _id"); // fetch all documents
+    const blogs = await Blog.find().populate("author","username img _id followers"); // fetch all documents
     res.status(200).json({ success: true, blogs });
   } catch (err) {
     console.error(err);
@@ -64,7 +64,7 @@ const getSingleBlog=async(req,res)=>{
   try{
    const {id} = req.params
 
-const blog = await Blog.findById(id).populate("author", "username img like");
+const blog = await Blog.findById(id).populate("author", "username img like followers");
    res.status(201).json({success:true,blog})
  }catch(e){
 console.log(e)
@@ -77,14 +77,14 @@ const userAccount = async (req, res) => {
     const { id } = req.params;
 
     // 1️⃣ Fetch the user info first
-    const user = await User.findById(id).select("username email img _id saveBlog follwer bio");
+    const user = await User.findById(id).select("username email img _id saveBlog  followers bio");
     if (!user)
       return res.status(404).json({ success: false, message: "User not found" });
 
     // 2️⃣ Fetch all blogs written by this user
     const blogs = await Blog.find({ author: id }).populate(
       "author",
-      "username img _id follwer bio saveBlog"
+      "username img _id  followers bio saveBlog  "
     );
 
     // 3️⃣ Send both user + blogs in one response

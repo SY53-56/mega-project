@@ -1,21 +1,18 @@
 import {  createSlice } from "@reduxjs/toolkit";
-import { fetchLogin, fetchSignup, followUser } from "./authThunk";
+import { fetchLogin, fetchSignup, followUser, fetchMe } from "./authThunk";
 
 const authSlice = createSlice({
   name: "auth",
   initialState: {
     user:JSON.parse(localStorage.getItem("user"))|| null,
-    token: localStorage.getItem("token"),
     error: null,
     status: "idle",
   },
   reducers:{
   logout: (state) => {
       state.user = null;
-      state.token = null;
       state.error = null;
       state.status = "idle";
-      localStorage.removeItem("token")
       localStorage.removeItem("user")
     },
   },
@@ -28,13 +25,13 @@ const authSlice = createSlice({
       .addCase(fetchSignup.fulfilled, (state, action) => {
         state.status = "succeeded";
         state.user = action.payload.user;
-        state.token = action.payload.token;
+      
       
         state.error = null;
      
         // persist user
         localStorage.setItem("user", JSON.stringify(action.payload.user));
-        localStorage.setItem("token", action.payload.token);
+   
       })
       .addCase(fetchSignup.rejected, (state, action) => {
         state.status = "failed";
@@ -47,10 +44,9 @@ const authSlice = createSlice({
       .addCase(fetchLogin.fulfilled, (state, action) => {
         state.status = "succeeded";
         state.user = action.payload.user;
-        state.token = action.payload.token;
         state.error = null;
         localStorage.setItem("user",JSON.stringify(action.payload.user))
-        localStorage.setItem("token",action.payload.token)
+    
       })
       .addCase(fetchLogin.rejected, (state, action) => {
         state.status = "failed";
@@ -63,15 +59,20 @@ const authSlice = createSlice({
       .addCase(followUser.fulfilled,(state ,action)=>{
            state.status = "succeeded";
            state.user = action.payload.user;
-         
+           localStorage.setItem("user",JSON.stringify(action.payload.user))
+              
         state.error = null;
-         localStorage.setItem("user",JSON.stringify(action.payload.user))
+      
    
       })
       .addCase(followUser.rejected,(state,action)=>{
          state.status = "failed";
         state.error = action.payload;
       })
+      .addCase(fetchMe.fulfilled, (state, action) => {
+  state.user = action.payload;
+  localStorage.setItem("user", JSON.stringify(action.payload));
+})
   },
 });
 export const { logout } = authSlice.actions; 

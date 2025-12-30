@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import Button from "../component/Button";
 import { useDispatch, useSelector } from "react-redux";
-import {fetchLogin}  from "../features/authThunk";
-import { useNavigate,Link } from "react-router-dom";
+import {fetchLogin, fetchMe}  from "../features/authThunk";
+import { useNavigate,Link, } from "react-router-dom";
 
 export default function Login() {
   const [form, setForm] = useState({ email: "", password: "" });
@@ -18,7 +18,8 @@ export default function Login() {
   const formHandler = async (e) => {
     e.preventDefault();
     try {
- await dispatch(fetchLogin(form)).unwrap();
+ await dispatch(fetchLogin(form)).unwrap().
+ then(()=>fetchMe())
      
       navigate("/");
     } catch (err) {

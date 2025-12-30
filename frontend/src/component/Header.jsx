@@ -1,65 +1,151 @@
 import React, { useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
-import Button from "./Button";
 import { Menu, X } from "lucide-react";
-import { useSelector, useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import Button from "./Button";
 import { logout } from "../features/authSlice";
+import api from "../api";
 
 export default function Header() {
   const [isOpen, setIsOpen] = useState(false);
   const toggle = () => setIsOpen(!isOpen);
-const navigate = useNavigate()
-  const { token, user } = useSelector((state) => state.auth);
+
+  const { user } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
-console.log(user)
-  const handleLogout = () => {
-    dispatch(logout());
-    setIsOpen(false); // close mobile menu on logout
-    navigate("/")
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    try {
+      await api.get("/user/logout"); // 🔥 cookie clear
+      dispatch(logout());
+      setIsOpen(false);
+      navigate("/");
+    } catch (e) {
+      console.error("Logout failed", e);
+    }
   };
 
   return (
-    <header className="w-full bg-gray-400 mx-0 px-0 lg:px-32 shadow p-3 flex flex-col lg:flex-row lg:justify-between lg:items-center">
-      {/* Logo + Hamburger */}
-    <div className="flex justify-between items-center px-2">
-  <Link className="text-2xl font-bold" to="/">Dailys blog</Link>
-  
-  <Button
-    className="block lg:hidden"   // ✅ visible on small screens, hidden on lg+
-    name={isOpen ? <X size={24} /> : <Menu size={24} />}
-    onClick={toggle}
-  />
-</div>
+    <header className="w-full bg-white shadow-md">
+      <div className="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
 
-      {/* desktop*/}
-      <nav
-        className={`flex-col lg:flex hidden lg:flex-row gap-6 transition-all duration-500 ${
-          isOpen ? "flex mt-3" : "hidden lg:flex mt-0"
-        }`}
-      >
-       
-       {token? <NavLink
-          to="/addblog"
-          className={({ isActive }) =>
-            `px-4 py-2 rounded-md transition font-medium ${
-              isActive
-                ? "text-blue-700  bg-blue-50 underline"
-                : "text-gray-600 hover:text-blue-600 hover:bg-gray-100"
-            }`
-          }
-        >
-          Add Blog
-        </NavLink>:""}
+        {/* LOGO */}
+        <Link to="/" className="text-2xl font-bold text-indigo-600">
+          DailyBlog
+        </Link>
 
-        {/* Auth Buttons */}
-        <div className="flex flex-col lg:flex-row gap-4 mt-3 lg:mt-0 px-2 items-center">
-          {token ? (
-            <>
-            <span>{user?.email}</span>
-              <span className="text-white font-medium">Hello, {user?.username}</span>
+        {/* DESKTOP NAV */}
+        <nav className="hidden lg:flex items-center gap-6">
+
+          <NavLink
+            to="/"
+            className={({ isActive }) =>
+              `font-medium ${
+                isActive ? "text-indigo-600" : "text-gray-600 hover:text-indigo-600"
+              }`
+            }
+          >
+            Home
+          </NavLink>
+
+          {user && (
+            <NavLink
+              to="/addblog"
+              className={({ isActive }) =>
+                `font-medium ${
+                  isActive ? "text-indigo-600" : "text-gray-600 hover:text-indigo-600"
+                }`
+              }
+            >
+              Add Blog
+            </NavLink>
+          )}
+
+          {/* AUTH AREA */}
+          {user ? (
+            <div className="flex items-center gap-4">
+              <div className="text-right">
+                <p className="text-sm text-gray-500">Welcome</p>
+                <p className="font-semibold text-gray-800">
+                  {user.username}
+                </p>
+              </div>
+
+              <img
+                src={user.img || "https://via.placeholder.com/40"}
+                alt="profile"
+                className="w-10 h-10 rounded-full object-cover border"
+              />
+
               <Button
                 onClick={handleLogout}
-                className="bg-red-600 text-white hover:bg-red-700"
+                className="bg-red-500 text-white hover:bg-red-600"
+                name="Logout"
+              />
+            </div>
+          ) : (
+            <div className="flex gap-3">
+              <Button
+                to="/login"
+                className="bg-indigo-600 text-white hover:bg-indigo-700"
+                name="Login"
+              />
+              <Button
+                to="/createaccount"
+                className="bg-green-600 text-white hover:bg-green-700"
+                name="Signup"
+              />
+            </div>
+          )}
+        </nav>
+
+        {/* MOBILE MENU BUTTON */}
+        <button
+          onClick={toggle}
+          className="lg:hidden text-gray-700"
+        >
+          {isOpen ? <X size={28} /> : <Menu size={28} />}
+        </button>
+      </div>
+
+      {/* MOBILE NAV */}
+      <div
+        className={`lg:hidden overflow-hidden transition-all duration-300 ${
+          isOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
+        }`}
+      >
+        <div className="px-4 py-4 flex flex-col gap-4 bg-gray-50 border-t">
+
+          <NavLink to="/" onClick={toggle} className="font-medium text-gray-700">
+            Home
+          </NavLink>
+
+          {user && (
+            <NavLink
+              to="/addblog"
+              onClick={toggle}
+              className="font-medium text-gray-700"
+            >
+              Add Blog
+            </NavLink>
+          )}
+
+          {user ? (
+            <>
+              <div className="flex items-center gap-3 mt-2">
+                <img
+                  src={user.img || "https://via.placeholder.com/40"}
+                  className="w-10 h-10 rounded-full"
+                />
+                <div>
+                  <p className="font-semibold">{user.username}</p>
+                  <p className="text-sm text-gray-500">{user.email}</p>
+                </div>
+              </div>
+
+              <Button
+                onClick={handleLogout}
+                className="bg-red-500 text-white hover:bg-red-600 w-full"
                 name="Logout"
               />
             </>
@@ -67,58 +153,19 @@ console.log(user)
             <>
               <Button
                 to="/login"
-                className="bg-red-600 text-white hover:bg-red-700"
+                onClick={toggle}
+                className="bg-indigo-600 text-white hover:bg-indigo-700 w-full"
                 name="Login"
               />
               <Button
-                to="/Createaccount"
-                className="bg-green-600 text-white hover:bg-green-700"
-                name="Create Account"
+                to="/createaccount"
+                onClick={toggle}
+                className="bg-green-600 text-white hover:bg-green-700 w-full"
+                name="Signup"
               />
             </>
           )}
         </div>
-      </nav>
-      {/* moblie*/}
-         <div
-        className={`lg:hidden mt-4 flex flex-col gap-3 overflow-hidden px-2 transition-all duration-300 ${
-          isOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
-        }`}
-      >
-        {token && (
-          <NavLink
-            to="/addblog"
-            onClick={() => setIsOpen(false)}
-            className="px-4 py-2 rounded-md bg-gray-700 text-center text-white hover:bg-gray-600"
-          >
-            Add Blog
-          </NavLink>
-        )}
-
-        {token ? (
-          <>
-            <span className="px-4 py-2">Hello, {user?.username}</span>
-            <p>{user?.email}</p>
-            <Button
-              onClick={handleLogout}
-              className="bg-red-600 text-white hover:bg-red-700"
-              name="Logout"
-            />
-          </>
-        ) : (
-          <>
-            <Button
-              to="/login"
-              className="bg-red-600 text-white hover:bg-red-700"
-              name="Login"
-            />
-            <Button
-              to="/Createaccount"
-              className="bg-green-600 text-white hover:bg-green-700"
-              name="Create Account"
-            />
-          </>
-        )}
       </div>
     </header>
   );

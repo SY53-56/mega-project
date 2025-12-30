@@ -12,10 +12,6 @@ export default function AddBlog() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const token =
-    useSelector((state) => state.auth.token) ||
-    localStorage.getItem("token");
-
   const { error, status } = useSelector((state) => state.blog);
 
   const handleFormData = useCallback(async(e) => {
@@ -35,10 +31,7 @@ export default function AddBlog() {
   
 const handleForm = useCallback(async(e)=>{
  e.preventDefault();
-    if (!token) {
-      alert("Please login first!");
-      return;
-    }
+   
     const formData = new FormData();
     formData.append("title", form.title);
     formData.append("description", form.description);
@@ -54,7 +47,7 @@ const handleForm = useCallback(async(e)=>{
       console.error(" Error adding blog:", err);
       alert(err || "Failed to add blog");
     }
-},[form, setForm,navigate, setFiles])
+},[form, dispatch])
 
 
   useEffect(() => {

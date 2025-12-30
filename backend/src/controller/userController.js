@@ -2,39 +2,33 @@ const User = require("../models/userModel");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
-// ✅ Helper: Generate JWT token
-const generateToken = (user) => {
-  if (!process.env.JWT_TOKEN) {
-    throw new Error("JWT_TOKEN is not set in environment variables");
-  }
 
+
+// 🔐 JWT
+const generateToken = (user) => {
   return jwt.sign(
-    { id: user._id, username: user.username, email: user.email },
-    process.env.JWT_TOKEN,
-    { expiresIn: "30d" } // Token valid for 7 days
+    { id: user._id },
+    process.env.JWT_SECRET,
+    { expiresIn: "7d" }
   );
 };
 
-// -------------------- SIGNUP --------------------
+// ================= SIGNUP =================
 const userSignup = async (req, res) => {
   try {
     const { username, email, password, img } = req.body;
 
-    // 1️⃣ Validate required fields
     if (!username || !email || !password) {
-      return res.status(400).json({ message: "Please fill all required fields" });
+      return res.status(400).json({ message: "All fields required" });
     }
 
-    // 2️⃣ Check if user already exists
     const existUser = await User.findOne({ email });
     if (existUser) {
-      return res.status(400).json({ message: "Email is already registered" });
+      return res.status(400).json({ message: "Email already registered" });
     }
 
-    // 3️⃣ Hash password
     const hashPassword = await bcrypt.hash(password, 10);
 
-    // 4️⃣ Create new user
     const user = await User.create({
       username,
       email,
@@ -42,88 +36,84 @@ const userSignup = async (req, res) => {
       img: img || "",
     });
 
-    // 5️⃣ Generate JWT token
     const token = generateToken(user);
 
-    // 6️⃣ Set cookie (7 days)
+    // ✅ CORRECT COOKIE CONFIG
     res.cookie("token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      maxAge: 7 * 24 * 60 * 60 * 1000, // ✅ Match token lifetime (7 days)
+      secure: false,                 // true in prod, false in localhost
       sameSite: "lax",
+      maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
-    // 7️⃣ Send response
     res.status(201).json({
       success: true,
-      user: { id: user._id, username: user.username, email: user.email, img:user.img },
-      token,
+      user: {
+        id: user._id,
+        username: user.username,
+        email: user.email,
+        img: user.img,
+      },
     });
+
   } catch (e) {
-    console.error("Signup error:", e);
-    res.status(500).json({ success: false, message: e.message || "Server error" });
+    res.status(500).json({ message: e.message });
   }
 };
 
-// -------------------- LOGIN --------------------
+// ================= LOGIN =================
 const userLogin = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    if (!email || !password) {
-      return res.status(400).json({ message: "Please provide email and password" });
-    }
-
-    // 1️⃣ Find user
     const user = await User.findOne({ email });
     if (!user) {
-      return res.status(400).json({ message: "Email or password invalid" });
+      return res.status(400).json({ message: "Invalid credentials" });
     }
 
-    // 2️⃣ Compare password
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      return res.status(400).json({ message: "Email or password invalid" });
+      return res.status(400).json({ message: "Invalid credentials" });
     }
 
-    // 3️⃣ Generate JWT
     const token = generateToken(user);
 
-    // 4️⃣ Set cookie (7 days)
+    // ✅ SAME COOKIE CONFIG
     res.cookie("token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      maxAge: 7 * 24 * 60 * 60 * 1000, // ✅ Match 7 days
-      sameSite: "strict",
+      secure: false,
+      sameSite:  "lax",
+      maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
-    // 5️⃣ Respond
     res.status(200).json({
       success: true,
-      user: { id: user._id, username: user.username, email: user.email,img:user.img },
-      token,
+      user: {
+        id: user._id,
+        username: user.username,
+        email: user.email,
+        img: user.img,
+      },
     });
+
   } catch (e) {
-    console.error("Login error:", e);
-    res.status(500).json({ success: false, message: e.message || "Server error" });
+    res.status(500).json({ message: e.message });
   }
 };
 
-// -------------------- LOGOUT --------------------
+// ================= LOGOUT =================
 const userLogout = (req, res) => {
   res.clearCookie("token", {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "strict",
+    secure: false,
+    sameSite:  "lax",
   });
-
-  res.status(200).json({ success: true, message: "Logged out successfully" });
-};
-
+   res.status(200).json({ success: true, message: "Logged out successfully" });
+}
 // -------------------- GET SINGLE USER --------------------
 const userData = async (req, res) => {
   try {
-    const userId = req.params.id;
+    const userId = req.user.id;
     const user = await User.findById(userId).select("-password"); // remove password
 
     if (!user) {
@@ -138,7 +128,7 @@ const userData = async (req, res) => {
 };
 const saveBlog = async(req,res)=>{
   try{
-    let {userId }= req.params
+    let {userId }= req.params.id
     let {blogId} = req.body
     const user= await User.findById(userId)
   
@@ -159,8 +149,8 @@ const saveBlog = async(req,res)=>{
 }
 const follower = async (req, res) => {
   try {
-    const userId = req.params.userId;      // target user (author)
-    const followerId = req.user.id;        // logged-in user
+    const userId = req.params.id;   // jisko follow karna hai
+    const followerId = req.user.id; // logged-in user
 
     if (userId === followerId) {
       return res.status(400).json({ message: "You cannot follow yourself" });
@@ -173,21 +163,34 @@ const follower = async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    const isFollowing = user.followers.includes(followerId);
+    const isFollowing = followerUser.following.includes(userId);
 
     if (isFollowing) {
-      // UNFOLLOW
-      await User.findByIdAndUpdate(userId, { $pull: { followers: followerId } });
-      await User.findByIdAndUpdate(followerId, { $pull: { following: userId } });
+      await User.findByIdAndUpdate(userId, {
+        $pull: { followers: followerId },
+      });
 
-      return res.status(200).json({ success: true, followed: false, user: followerUser });
+      await User.findByIdAndUpdate(followerId, {
+        $pull: { following: userId },
+      });
     } else {
-      // FOLLOW
-      await User.findByIdAndUpdate(userId, { $addToSet: { followers: followerId } });
-      await User.findByIdAndUpdate(followerId, { $addToSet: { following: userId } });
+      await User.findByIdAndUpdate(userId, {
+        $addToSet: { followers: followerId },
+      });
 
-      return res.status(200).json({ success: true, followed: true, user: followerUser });
+      await User.findByIdAndUpdate(followerId, {
+        $addToSet: { following: userId },
+      });
     }
+
+    // 🔥 VERY IMPORTANT: updated user bhejo
+    const updatedUser = await User.findById(followerId);
+
+    res.status(200).json({
+      success: true,
+      followed: !isFollowing,
+      user: updatedUser,
+    });
 
   } catch (e) {
     console.error(e);
@@ -195,15 +198,17 @@ const follower = async (req, res) => {
   }
 };
 
+
 const getFollowerData= async(req,res)=>{
   try{
          let {userid} =  req.params;
          
-         let user = await User.findById(userid)
+         let user = await User.findById(userid).populate("followers" , "username img").populate("following", "username img");
    if (!user) {
       return res.status(404).json({ success: false, message: "User not found" });
     }
-         res.status(200).json({success:true , followers:user.follower})
+         res.status(200).json({success:true ,    followers: user.followers,
+      following: user.following,})
   }catch(e){
      res.status(500).json({ success: false, message: "Server error" });
   }
@@ -216,4 +221,4 @@ module.exports = {
   saveBlog,
   getFollowerData,
   follower
-};
+}

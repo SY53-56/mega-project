@@ -1,62 +1,39 @@
 import { createAsyncThunk, } from "@reduxjs/toolkit";
-import axios from "axios";
+
+import api from "../api";
 
  const fetchSignup = createAsyncThunk(
   "user/signup",
   async (userData, { rejectWithValue }) => {
     try {
-      const res = await axios.post("http://localhost:5000/user/signup", userData ,);
-         console.log("Signup response:", res.data); // you can log here
-           localStorage.setItem("token", res.data.token);
+      const res = await api.post("/user/signup",userData);
+
       return res.data; 
     } catch (e) {
-      const message =
-        e.response && e.response.data && e.response.data.message
-          ? e.response.data.message
-          : e.message || "Failed to fetch";
-      return rejectWithValue(message);
+      return rejectWithValue(e.response.data.message);
     }
   }
 );
 
- const fetchLogin = createAsyncThunk(
+  const fetchLogin = createAsyncThunk(
   "user/login",
-  async (userData, { rejectWithValue }) => {
+  async (data, { rejectWithValue }) => {
     try {
-      const res = await axios.post("http://localhost:5000/user/login", userData,);
-        localStorage.setItem("token", res.data.token);
-      
-      return res.data;
+      const res = await api.post("/user/login", data);
+      return res.data; // cookie already set by backend
     } catch (e) {
-      const message =
-        e.response && e.response.data && e.response.data.message
-          ? e.response.data.message
-          : e.message || "Failed to fetch";
-      return rejectWithValue(message);
+      return rejectWithValue(e.response.data.message);
     }
   }
 );
+
 
  const followUser = createAsyncThunk(
   "user/follow",
-  async (authorId, { getState, rejectWithValue }) => {
+  async (authorId, {  rejectWithValue }) => {
     try {
-      const token =
-        getState().auth.token || localStorage.getItem("token");
-          
-      if (!token) {
-        return rejectWithValue("Please login to follow users");
-      }
-
-      const res = await axios.put(
-        `http://localhost:5000/user/follow/${authorId}`,
-        {},
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      
+     const res = await api.put(`/user/follow/${authorId}`)
 
       return res.data; // { user, token? }
     } catch (e) {
@@ -68,9 +45,34 @@ import axios from "axios";
     }
   }
 );
-
+const logout = createAsyncThunk("logout/user",async(_,{rejectWithValue})=>{
+ try{
+   let res = api.post("/logout")
+   return res.data
+ }catch(e){
+  return rejectWithValue(
+        e.response?.data?.message ||
+        e.message ||
+        "Failed to follow user"
+      );
+ }
+})
+const fetchMe= createAsyncThunk("user/data",async(_ ,{   rejectWithValue})=>{
+    try{
+   let res= await api.get("/user/userAccount")
+    return res.data
+    }catch(e){
+       return rejectWithValue(
+        e.response?.data?.message ||
+        e.message ||
+        "Failed to follow user"
+      );
+    }
+})
 export  {
  fetchLogin,
  fetchSignup,
- followUser
+ followUser,
+ fetchMe,
+ logout
 }

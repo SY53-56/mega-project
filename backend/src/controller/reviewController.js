@@ -1,109 +1,127 @@
 const Review = require("../models/reviewModel");
 const Blog = require("../models/blogModel");
 
-// ------------------ POST a Comment/Review ------------------
+// ------------------ POST COMMENT ------------------
 const postComment = async (req, res) => {
   try {
-      console.log("RES.BODY DATA ", res.body)
+    console.log("REQ BODY:", req.body);
+    console.log("USER:", req.user);
+
     const { comment } = req.body;
-    const { id } = req.params; // blog ID
+    const { id } = req.params; // blogId
     const userId = req.user?.id;
 
+    if (!userId) {
+      return res.status(401).json({ message: "Login required" });
+    }
 
     if (!comment) {
       return res.status(400).json({ message: "Comment cannot be empty" });
     }
 
-    // Optional: check if blog exists
     const blog = await Blog.findById(id);
     if (!blog) {
       return res.status(404).json({ message: "Blog not found" });
     }
 
-    // Create the review
-    const newReview = await Review.create({
+    const review = await Review.create({
       comment,
       user: userId,
       blog: id,
     });
 
-    res.status(201).json({ success: true, review: newReview });
+    res.status(201).json({ success: true, review });
   } catch (e) {
     console.error("postComment error:", e);
-    res.status(500).json({ message: e.message });
+    res.status(500).json({ message: "Server error" });
   }
 };
 
-// ------------------ GET All Comments for a Blog ------------------
+// ------------------ GET COMMENTS ------------------
 const getAllComments = async (req, res) => {
   try {
-    const { id } = req.params; // blog ID
+    const { id } = req.params;
 
     const reviews = await Review.find({ blog: id })
-      .populate("user", "username img _id")
-      .sort({ createdAt: -1 }); // newest first
+      .populate("user", "username img")
+      .sort({ createdAt: -1 });
 
     res.status(200).json({ success: true, reviews });
   } catch (e) {
-  
-    res.status(500).json({ message: e.message });
+    res.status(500).json({ message: "Server error" });
   }
 };
-const deleteReview= async(req ,res)=>{
-try{
-const reviewId = req.params.id
-const review = await Review.findById(reviewId)
-  if(!review) res.status(401).json({message:"review not found"})
-    res.status(200).json({ success: true, message: "Blog deleted successfully" });
 
-if(review.user.toString() !== req.user.id){
-     return res.status(403).json({ message: "Not authorized to delete this review" });
-}
+// ------------------ DELETE REVIEW ------------------
+const deleteReview = async (req, res) => {
+  try {
+    const reviewId = req.params.id;
+    const userId = req.user?.id;
 
+    if (!userId) {
+      return res.status(401).json({ message: "Login required" });
+    }
 
-  await review.deleteOne()
-      res.status(200).json({ message: "Review deleted successfully",reviewId});
-}catch(e){
-  res.status(500).json({ message: e.message });
-}
-}
+    const review = await Review.findById(reviewId);
+    if (!review) {
+      return res.status(404).json({ message: "Review not found" });
+    }
 
-const commentLikes = async(req,res)=>{
-try{
-   const userId = req.user.id;
-   const {reviewId} = req.params;
+    if (review.user.toString() !== userId) {
+      return res.status(403).json({ message: "Not authorized" });
+    }
 
-   if(userId){
-    return res.status(200).json("please first login")
-   }
-   const review= await Review.findById(reviewId)
-   const isReviewLiked =  review.likes.includes(userId) 
+    await review.deleteOne();
 
-   if(isReviewLiked){
-    await Review.findByIdAndUpdate(review, {
-      $pull:{likes:userId}
-    })
-    return res.statu(200).json({
-      message:"unLiked",
-       liked: false,
-    })
-   }else{
-    await review.findByIdAndUpdate(review,{
-      $addToSet:{likes:userId}
-    })
-   }
+    res.status(200).json({
+      success: true,
+      message: "Review deleted successfully",
+      reviewId,
+    });
+  } catch (e) {
+    res.status(500).json({ message: "Server error" });
+  }
+};
 
-}catch(e){
-    res.status(500).json({ message: e.message });
-}
-}
+// ------------------ LIKE / UNLIKE ------------------
+const commentLikes = async (req, res) => {
+  try {
+    const userId = req.user?.id;
+    const { reviewId } = req.params;
 
+    if (!userId) {
+      return res.status(401).json({ message: "Login required" });
+    }
 
+    const review = await Review.findById(reviewId);
+    if (!review) {
+      return res.status(404).json({ message: "Review not found" });
+    }
 
+    const isLiked = review.likes.includes(userId);
+
+    if (isLiked) {
+      await Review.findByIdAndUpdate(reviewId, {
+        $pull: { likes: userId },
+      });
+    } else {
+      await Review.findByIdAndUpdate(reviewId, {
+        $addToSet: { likes: userId },
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      liked: !isLiked,
+    });
+  } catch (e) {
+    res.status(500).json({ message: "Server error" });
+  }
+};
 
 module.exports = {
   postComment,
   getAllComments,
-deleteReview,
-commentLikes, 
+  deleteReview,
+  commentLikes,
 };
