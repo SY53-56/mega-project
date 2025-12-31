@@ -171,7 +171,7 @@ useEffect(() => {
                     {currentBlog.author?.username}
                   </h3>
                  </div>
-                   <Button onClick={followedButton}className="bg-blue-600 text-white px-4 py-1 rounded-lg hover:bg-blue-700"   name={isFollowing ? "Unfollow" : "Follow"}/>
+                   <Button onClick={followedButton}className="bg-blue-600 active:scale-95 text-white px-4 py-1 rounded-lg hover:bg-blue-700"   name={isFollowing ? "Unfollow" : "Follow"}/>
                  </div>
               </div>
 
@@ -188,7 +188,7 @@ useEffect(() => {
                 <div className="flex gap-3 mt-6">
                  <Button
   onClick={followedButton}
-  className={`px-4 py-1 text-white ${
+  className={`px-4 py-1 text-white active:scale-95  ${
     isFollowing ? "bg-gray-500" : "bg-blue-500 hover:bg-blue-600"
   }`}
    name={isFollowing ? "Unfollow" : "Follow"}
@@ -196,7 +196,7 @@ useEffect(() => {
 
                   <Button
                     onClick={deleteBlog}
-                    className="bg-red-600 text-white px-4 py-1 rounded-lg hover:bg-red-700"
+                    className="bg-red-600 active:scale-95 cursor-pointer text-white px-4 py-1 rounded-lg hover:bg-red-700"
                     name="Delete"
                   />
                 </div>
@@ -216,7 +216,7 @@ useEffect(() => {
               className="flex-1 border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
               placeholder="Write your comment..."
             />
-            <button className="bg-indigo-600 text-white px-5 rounded-lg hover:bg-indigo-700">
+            <button className="bg-indigo-600 active:scale-95 cursor-pointer text-white px-5 rounded-lg hover:bg-indigo-700">
               Post
             </button>
           </form>

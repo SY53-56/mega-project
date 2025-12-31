@@ -121,7 +121,7 @@ const handleForm = useCallback(async(e)=>{
           <Button
             type="submit"
             name={status === "loading" ? "Adding..." : "Add Blog"}
-            className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-lg mt-2 transition-colors duration-300"
+            className="bg-indigo-600 active:scale-90 hover:bg-indigo-700 text-white font-bold py-3 rounded-lg mt-2 transition-colors duration-300"
             disabled={status === "loading"}
           />
         </form>

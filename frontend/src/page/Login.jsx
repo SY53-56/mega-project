@@ -50,7 +50,7 @@ export default function Login() {
             placeholder="Enter your password"
             className="mb-3 px-2 py-0.5 rounded border"
           />
-          <Button type="submit" className="bg-amber-500 text-white mt-5" name="Login" />
+          <Button type="submit" className="bg-amber-500 active:scale-95 text-white mt-5" name="Login" />
           <p className="mt-2">if you want to <Link className="text-blue-600" to="/createaccount">create new account</Link></p>
         </form>
         {error && <p className="text-red-500 mt-2">{error}</p>}

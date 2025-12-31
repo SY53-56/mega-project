@@ -76,7 +76,7 @@ export default function CreateAccount() {
             className="mb-3 px-3 py-1 rounded border"
           />
 
-          <Button type="submit" name={status === "loading" ? "Signing up..." : "Signup"} className="bg-blue-600 text-white mt-4" />
+          <Button type="submit" name={status === "loading" ? "Signing up..." : "Signup"} className="bg-blue-600 active:scale-95 text-white mt-4" />
 
           <p className="mt-2">
             Already have an account?{" "}

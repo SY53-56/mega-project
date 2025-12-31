@@ -49,7 +49,7 @@ console.log("blog",blog)
           {authUser?._id === user._id && (
             <Button
               name="Edit Profile"
-              className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded mt-4"
+              className="bg-indigo-600 active:scale-95 hover:bg-indigo-700 text-white px-4 py-2 rounded mt-4"
             />
           )}
         </div>
