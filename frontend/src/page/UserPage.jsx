@@ -184,7 +184,7 @@ useEffect(() => {
               </p>
 
               {/* ACTIONS */}
-              {user?.id === currentBlog.author?._id && (
+              {user?._id === currentBlog.author?._id && (
                 <div className="flex gap-3 mt-6">
                  <Button
   onClick={followedButton}

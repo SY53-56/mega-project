@@ -21,9 +21,13 @@ export default function AddBlog() {
 
   const handleFileChange = (e) => {
     const selectedFiles = Array.from(e.target.files);
+    console.log("file", selectedFiles
+
+    )
     setFiles(selectedFiles);
 
     const previews = selectedFiles.map((file) => URL.createObjectURL(file));
+    console.log("imgfile",previews)
     setPreviews(previews);
   };
 
@@ -33,9 +37,12 @@ const handleForm = useCallback(async(e)=>{
  e.preventDefault();
    
     const formData = new FormData();
+    
     formData.append("title", form.title);
     formData.append("description", form.description);
     files.forEach((file) => formData.append("images", file));
+    files.forEach((file) => console.log(   "dataghsdghhjdfjljjjg",file.name, file.type, file.size));
+
     try {
       await dispatch(fetchAddData(formData)).unwrap();
       alert(" Blog added successfully!");
@@ -47,7 +54,7 @@ const handleForm = useCallback(async(e)=>{
       console.error(" Error adding blog:", err);
       alert(err || "Failed to add blog");
     }
-},[form, dispatch])
+},[dispatch,form,files])
 
 
   useEffect(() => {
