@@ -13,7 +13,7 @@ export default function Header() {
   const { user } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
   const navigate = useNavigate();
-
+  console.log("usersahul",user)
   const handleLogout = async () => {
     try {
       await api.get("/user/logout"); // 🔥 cookie clear
@@ -24,6 +24,7 @@ export default function Header() {
       console.error("Logout failed", e);
     }
   };
+const isLoggedIn = Boolean(user);
 
   return (
     <header className="w-full bg-white shadow-md">
@@ -62,7 +63,7 @@ export default function Header() {
           )}
 
           {/* AUTH AREA */}
-          {user ? (
+          {isLoggedIn? (
             <div className="flex items-center gap-4">
               <div className="text-right">
                 <p className="text-sm text-gray-500">Welcome</p>
@@ -130,13 +131,15 @@ export default function Header() {
             </NavLink>
           )}
 
-          {user ? (
+          {isLoggedIn? (
             <>
               <div className="flex items-center gap-3 mt-2">
+               <Link to={`/user/${user._id}/blogs`}>
                 <img
                   src={user.img || "https://via.placeholder.com/40"}
                   className="w-10 h-10 rounded-full"
                 />
+               </Link>
                 <div>
                   <p className="font-semibold">{user.username}</p>
                   <p className="text-sm text-gray-500">{user.email}</p>

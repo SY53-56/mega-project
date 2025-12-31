@@ -5,7 +5,7 @@ const blogSlice = createSlice({
   name: "blog",
   initialState: {
     blog: [], 
-    user:null, 
+    userProfile:null, 
     review:[],        // all blogs or user blogs
     currentBlog: null, // single blog
     status: "idle",    // idle | loading | succeeded | failed
@@ -50,7 +50,7 @@ const blogSlice = createSlice({
       .addCase(fetchUserAccount.fulfilled, (state, action) => {
         state.status = "succeeded";
         state.blog = action.payload.blog || [];
-        state.user = action.payload.user || null
+        state.userProfile = action.payload.user || null
       })
       .addCase(fetchUserAccount.rejected, (state, action) => {
         state.status = "failed";

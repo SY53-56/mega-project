@@ -9,12 +9,12 @@ const authSlice = createSlice({
     status: "idle",
   },
   reducers:{
-  logout: (state) => {
-      state.user = null;
-      state.error = null;
-      state.status = "idle";
-      localStorage.removeItem("user")
-    },
+ logout: (state) => {
+  state.user = null;
+  state.error = null;
+  state.status = "idle";
+  localStorage.removeItem("user");
+},
   },
   extraReducers: (builder) => {
     builder
