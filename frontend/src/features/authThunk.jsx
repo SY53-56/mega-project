@@ -69,10 +69,13 @@ const fetchMe= createAsyncThunk("user/data",async(_ ,{   rejectWithValue})=>{
       );
     }
 })
+
+
 export  {
  fetchLogin,
  fetchSignup,
  followUser,
  fetchMe,
- logout
+ logout,
+
 }

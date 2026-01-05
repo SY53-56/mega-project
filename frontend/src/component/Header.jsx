@@ -72,11 +72,13 @@ const isLoggedIn = Boolean(user);
                 </p>
               </div>
 
+             <Link to={`/user/${user._id}/blogs`}>
               <img
                 src={user.img || "https://via.placeholder.com/40"}
                 alt="profile"
                 className="w-10 h-10 rounded-full object-cover border"
               />
+             </Link>
 
               <Button
                 onClick={handleLogout}
@@ -84,7 +86,7 @@ const isLoggedIn = Boolean(user);
                 name="Logout"
               />
             </div>
-          ) : (
+          ):(   
             <div className="flex gap-3">
               <Button
                 to="/login"

@@ -11,8 +11,11 @@ export default function UserAccount() {
   const { blog, userProfile, status, error } = useSelector((state) => state.blog);
   const authUser = useSelector((state) => state.auth.user); // currently logged-in user
   //const {user} =  useSelector((state) => state.auth.user)
-console.log("userDAta",userProfile)
-console.log("blog",authUser)
+console.log("profile",userProfile)
+console.log("auther",authUser)
+console.log("blog",blog)
+
+
   useEffect(() => {
     if (id) dispatch(fetchUserAccount(id));
   }, [dispatch, id]);
@@ -57,12 +60,12 @@ console.log("blog",authUser)
           <div className="flex gap-3">
            <div className="flex flex-col items-center"> 
             <Button className="" name="follow"/>
-            <h1>{userProfile.followers.length}</h1>
+            <h1>{userProfile?.followers?.length ||0}</h1>
 
            </div>
                <div className="flex flex-col items-center">
                 <Button className="" name="following"/>
-                <h1>{authUser.following.length}</h1>
+                <h1>{ authUser?.following?.length||0}</h1>
                </div>
           </div>
         </div>

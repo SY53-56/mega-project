@@ -65,14 +65,12 @@ const authSlice = createSlice({
       
    
       })
-      .addCase(followUser.rejected,(state,action)=>{
-         state.status = "failed";
-        state.error = action.payload;
-      })
+    
       .addCase(fetchMe.fulfilled, (state, action) => {
   state.user = action.payload;
   localStorage.setItem("user", JSON.stringify(action.payload));
 })
+
   },
 });
 export const { logout } = authSlice.actions; 

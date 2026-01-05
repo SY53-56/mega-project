@@ -10,6 +10,7 @@ const uploads = require("../middleware/uploadsImgMiddleware")
 
 
 
+
 routes.get("/",getAllBlogs)
 routes.get("/user/:id/",userMiddleware,userAccount)
 routes.get("/:id", getSingleBlog)

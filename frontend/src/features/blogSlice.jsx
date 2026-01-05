@@ -1,10 +1,12 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { fetchReview,fetchAddData,fetchDelete,fetchGetData,fetchGetSingleBlog,fetchReviewDelete,fetchReviewPost,fetchUpdate,fetchUserAccount,} from "./BlogThunk";
+import { fetchFollowData, fetchReview,fetchAddData,fetchDelete,fetchGetData,fetchGetSingleBlog,fetchReviewDelete,fetchReviewPost,fetchUpdate,fetchUserAccount, fetchLike,} from "./BlogThunk";
 // ------------------- Slice -------------------
 const blogSlice = createSlice({
   name: "blog",
   initialState: {
-    blog: [], 
+    blog: [],
+     followers: [],      // ✅ ADD THIS
+  following: [], 
     userProfile:null, 
     review:[],        // all blogs or user blogs
     currentBlog: null, // single blog
@@ -135,8 +137,24 @@ const blogSlice = createSlice({
 .addCase(fetchReviewDelete.rejected, (state, action) => {
   state.status = "failed";
   state.error = action.payload;
+})
+.addCase(fetchLike.fulfilled,(state,action)=>{
+  state.state= "successed"
+ // const liked = state.blog.like.some(p=> p.id === action.payload)
+ 
+})
+.addCase(fetchFollowData.pending, (state) => {
+  state.status = "loading";
+})
+.addCase(fetchFollowData.fulfilled, (state, action) => {
+  state.status = "succeeded";
+  state.followers = action.payload.followers || [];
+  state.following = action.payload.following || [];
+})
+.addCase(fetchFollowData.rejected, (state, action) => {
+  state.status = "failed";
+  state.error = action.payload;
 });
-
 
   },
 });

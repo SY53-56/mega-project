@@ -1,62 +1,57 @@
-import React, { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import Button from "../component/Button";
-import {fetchAddData}  from "../features/BlogThunk";
+import { fetchAddData } from "../features/BlogThunk";
 
 export default function AddBlog() {
-  const [form, setForm] = useState({ title: "", description: "", });
-  const [files, setFiles] = useState([]);
-  const [previews, setPreviews] = useState([]);
-
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const { error, status } = useSelector((state) => state.blog);
+  const { status, error } = useSelector((state) => state.blog);
 
-  const handleFormData = useCallback(async(e) => {
+  const [form, setForm] = useState({
+    title: "",
+    description: "",
+  });
+  const [files, setFiles] = useState([]);
+  const [previews, setPreviews] = useState([]);
+
+  /* ================= INPUT HANDLER ================= */
+  const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
-  },[setForm])
-
-  const handleFileChange = (e) => {
-    const selectedFiles = Array.from(e.target.files);
-    console.log("file", selectedFiles
-
-    )
-    setFiles(selectedFiles);
-
-    const previews = selectedFiles.map((file) => URL.createObjectURL(file));
-    console.log("imgfile",previews)
-    setPreviews(previews);
   };
 
-  console.log("imge")
-  
-const handleForm = useCallback(async(e)=>{
- e.preventDefault();
-   
+  /* ================= FILE HANDLER ================= */
+  const handleFileChange = (e) => {
+    const selectedFiles = Array.from(e.target.files);
+    setFiles(selectedFiles);
+
+    const previewUrls = selectedFiles.map((file) =>
+      URL.createObjectURL(file)
+    );
+    setPreviews(previewUrls);
+  };
+
+  /* ================= SUBMIT ================= */
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
     const formData = new FormData();
-    
     formData.append("title", form.title);
     formData.append("description", form.description);
     files.forEach((file) => formData.append("images", file));
-    files.forEach((file) => console.log(   "dataghsdghhjdfjljjjg",file.name, file.type, file.size));
 
     try {
       await dispatch(fetchAddData(formData)).unwrap();
-      alert(" Blog added successfully!");
-      setForm({ title: "", description: "" });
-      setFiles([]);
-      setPreviews([]);
       navigate("/");
     } catch (err) {
-      console.error(" Error adding blog:", err);
-      alert(err || "Failed to add blog");
+      console.error(err);
     }
-},[dispatch,form,files])
+  };
 
-
+  /* ================= CLEANUP ================= */
   useEffect(() => {
     return () => {
       previews.forEach((url) => URL.revokeObjectURL(url));
@@ -64,62 +59,53 @@ const handleForm = useCallback(async(e)=>{
   }, [previews]);
 
   return (
-    <div className="w-full min-h-screen flex justify-center items-center bg-gradient-to-br from-blue-900 to-indigo-900 p-4">
-      <div className="w-full max-w-lg bg-white rounded-2xl shadow-2xl p-8">
-        <h1 className="text-2xl  lg:text-4xl font-extrabold text-center text-indigo-700 mb-6">
-          Add New Blog
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-900 to-blue-900 p-4">
+      <div className="bg-white w-full max-w-lg rounded-2xl shadow-xl p-8">
+
+        <h1 className="text-3xl font-bold text-center text-indigo-700 mb-6">
+          Create New Blog
         </h1>
 
-        <form onSubmit={handleForm} className="flex flex-col gap-4">
-          <div className="flex flex-col">
-            <label className="text-gray-700 font-semibold mb-1">Title</label>
-            <input
-              type="text"
-              name="title"
-              value={form.title}
-              onChange={handleFormData}
-              required
-              placeholder="Enter blog title"
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-400"
-            />
-          </div>
+        <form onSubmit={handleSubmit} className="space-y-4">
 
-          <div className="flex flex-col">
-            <label className="text-gray-700 font-semibold mb-1">
-              Description
-            </label>
-            <textarea
-              name="description"
-              value={form.description}
-              onChange={handleFormData}
-              required
-              placeholder="Write your blog description..."
-              className="px-4 py-2 border border-gray-300 rounded-lg h-32 resize-none focus:ring-2 focus:ring-indigo-400"
-            />
-          </div>
+          <input
+            type="text"
+            name="title"
+            value={form.title}
+            onChange={handleChange}
+            placeholder="Blog title"
+            className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500"
+            required
+          />
 
-          <div className="flex flex-col">
-            <label className="text-gray-700 font-semibold mb-1">
-              Upload Images
-            </label>
+          <textarea
+            name="description"
+            value={form.description}
+            onChange={handleChange}
+            placeholder="Write your story..."
+            className="w-full h-32 px-4 py-2 border rounded-lg resize-none focus:ring-2 focus:ring-indigo-500"
+            required
+          />
+
+          <label className="flex items-center justify-center gap-3 cursor-pointer border-2 border-dashed rounded-lg p-4 text-gray-600 hover:border-indigo-500">
+            <span>Upload Images</span>
             <input
               type="file"
-              name="images"
-              accept="image/*"
               multiple
+              accept="image/*"
               onChange={handleFileChange}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-400"
+              hidden
             />
-          </div>
+          </label>
 
           {previews.length > 0 && (
-            <div className="grid grid-cols-3 gap-2 mt-3">
-              {previews.map((src, idx) => (
+            <div className="grid grid-cols-3 gap-2">
+              {previews.map((src, i) => (
                 <img
-                  key={idx}
+                  key={i}
                   src={src}
                   alt="preview"
-                  className="w-full h-24 object-cover rounded-lg border"
+                  className="h-24 w-full object-cover rounded-lg"
                 />
               ))}
             </div>
@@ -127,14 +113,14 @@ const handleForm = useCallback(async(e)=>{
 
           <Button
             type="submit"
-            name={status === "loading" ? "Adding..." : "Add Blog"}
-            className="bg-indigo-600 active:scale-90 hover:bg-indigo-700 text-white font-bold py-3 rounded-lg mt-2 transition-colors duration-300"
             disabled={status === "loading"}
+            name={status === "loading" ? "Posting..." : "Post Blog"}
+            className="w-full bg-indigo-600 text-white py-3 rounded-lg hover:bg-indigo-700"
           />
         </form>
 
         {error && (
-          <p className="text-red-500 mt-3 text-center font-medium">{error}</p>
+          <p className="text-red-500 text-center mt-4">{error}</p>
         )}
       </div>
     </div>

@@ -207,8 +207,7 @@ const getFollowerData= async(req,res)=>{
    if (!user) {
       return res.status(404).json({ success: false, message: "User not found" });
     }
-         res.status(200).json({success:true ,    followers: user.followers,
-      following: user.following,})
+         res.status(200).json({success:true , user})
   }catch(e){
      res.status(500).json({ success: false, message: "Server error" });
   }

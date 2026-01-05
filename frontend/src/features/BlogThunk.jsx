@@ -38,7 +38,7 @@ import api from "../api";
   async (userId, {  rejectWithValue }) => {
     try {
  
-      const res = await api.get(`/blog/user/${userId}`, );
+      const res = await api.get(`/blog/user/${userId}`);
       return res.data; // { blog: [...] }
     } catch (e) {
       return rejectWithValue(e.response?.data?.message || e.message || "Failed to fetch user blogs");
@@ -127,5 +127,25 @@ export const fetchDelete = createAsyncThunk(
     return res.data
   }catch(e){
     return rejectWithValue(e.response?.data?.message || e.message || "Failed to delete review");
+  }
+})
+ export const fetchLike = createAsyncThunk("like/blog",async(blogId,{rejectWithValue})=>{
+   try{
+    const res= await api.put(`/user/${blogId}/like`)
+    return {blogId , liked: res.data.liked}
+   }catch(e){
+ return rejectWithValue(e.response?.data?.message || e.message || "Failed to like blog");
+   }
+})
+export const fetchFollowData= createAsyncThunk("follow/user",async(id,{rejectWithValue})=>{
+  try{
+    const res= await api.get(`/user/folowerAccount/${id}`)
+    return res.data
+  }catch(e){
+    return rejectWithValue(
+        e.response?.data?.message ||
+        e.message ||
+        "Failed to follow user"
+      );
   }
 })

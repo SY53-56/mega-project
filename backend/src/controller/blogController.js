@@ -162,7 +162,7 @@ const likePostApi = async(req,res)=>{
           return res.status(201).json("please sign up first")
         }
   
-        let user = await User.findById(user)
+        let user = await User.findById(userId)
 
   
     const blog = await Blog.findById(blogId);
@@ -174,13 +174,13 @@ const likePostApi = async(req,res)=>{
   
 
    if(likeBlog){
-   await Blog.findByIdAndUpdate(blog,{$pull:{like:userId}}) 
+   await Blog.findByIdAndUpdate(blog._id,{$pull:{like:userId}}) 
  return res.json({
         message: "Post unliked",
         liked: false,
       });
    }else{
-await Blog.findByIdAndUpdate(blog  ,{$addToSet:{like:userId}})
+await Blog.findByIdAndUpdate(blog._id  ,{$addToSet:{like:userId}})
  return res.json({
         message: "Post liked",
         liked: true,
