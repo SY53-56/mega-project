@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import  {fetchUserAccount}  from "../features/BlogThunk";
 import { Link, useParams } from "react-router-dom";
 import Button from "../component/Button";
+import BlogCard from "../component/BlogCard";
 
 export default function UserAccount() {
   const dispatch = useDispatch();
@@ -77,27 +78,7 @@ console.log("blog",blog)
           {blog.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               {blog.map((post) => (
-                <div
-                  key={post._id}
-                  className="bg-white p-4 rounded-xl shadow-md hover:shadow-lg transition-shadow"
-                >
-                  {post.image && (
-                    <Link to={`/userpage/${post._id}`}>
-                      <img
-                        className="w-full h-48 object-cover rounded-lg mb-3"
-                        src={post.image[0]}
-                        alt={post.title}
-                      />
-                    </Link>
-                  )}
-                  <h2 className="text-xl font-semibold mb-1">{post.title}</h2>
-                  <p className="text-gray-600 mb-2">
-                    {post.description.slice(0, 100)}...
-                  </p>
-                  <p className="text-sm text-gray-500">
-                    🕒 {new Date(post.createdAt).toLocaleDateString()}
-                  </p>
-                </div>
+                 <BlogCard blog={post}/>
               ))}
             </div>
           ) : (
