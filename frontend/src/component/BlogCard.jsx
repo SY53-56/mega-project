@@ -1,7 +1,24 @@
 import { Link } from "react-router-dom";
 import { Heart } from "lucide-react";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchGetSingleBlog, fetchLike } from "../features/BlogThunk";
+import { memo, useCallback } from "react";
 
-export default function BlogCard({ blog }) {
+ const BlogCard = memo(function BlogCard({ blog }) {
+   const dispatch = useDispatch()
+   const {user}  =  useSelector(state=>state.auth)
+   const {blogs} = useSelector(state =>state.blog)
+   console.log("ggdhhjhfgdj",user)
+   console.log("blpog",blog)
+   console.log("data",blogs)
+ let isLike = user?blog?.like.map(d=>d).includes(user._id):false
+const handlike = useCallback(()=>{
+  if(!user)return alert("login first")
+         dispatch(fetchLike(blog._id))
+         .then(()=>fetchGetSingleBlog(blog._id))
+   
+   },[dispatch,blog._id,user])
+
   return (
     <div className="bg-white rounded-3xl shadow-md hover:shadow-2xl transition-all duration-300 overflow-hidden group relative">
 
@@ -62,12 +79,13 @@ export default function BlogCard({ blog }) {
             Read more →
           </Link>
 
-          <div className="flex items-center gap-1 text-gray-500">
-            <Heart size={16} />
+          <div className={`flex items-center gap-1  text-gray-500`}>
+            <Heart size={16} onClick={handlike} className={`${isLike?"text-red-500 ":"text-gray-700"} cursor-pointer active:scale-90`}/>
             <span className="text-sm">{blog.like?.length || 0}</span>
           </div>
         </div>
       </div>
     </div>
   );
-}
+})
+export default BlogCard

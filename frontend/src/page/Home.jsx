@@ -6,10 +6,15 @@ import BlogCard from "../component/BlogCard"
 export default function Home() {
   const dispatch = useDispatch();
   const { blog, status, error } = useSelector((state) => state.blog);
-
+console.log('bloges',blog)
   useEffect(() => {
     dispatch(fetchGetData());
   }, [dispatch]);
+
+
+useEffect(() => {
+  console.log("ALL BLOGS AFTER FETCH:", blog);
+}, [blog]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-pink-50 px-6 py-12">
