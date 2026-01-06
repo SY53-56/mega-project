@@ -32,12 +32,13 @@ export default function UserPage() {
  console.log("review",review)
   const authorId = currentBlog?.author?._id;
   const imageLength = currentBlog?.image?.length || 0;
-
+console.log("aouthoris",authorId)
   const isFollowing = user?.following?.includes(authorId);
 const isLiked = currentBlog?.like
   ?.map(id => id)
   ?.includes(user?._id);
 
+console.log("MATCH?", String(user?.id), String(authorId));
 
   /* ================= FOLLOW ================= */
   const followedButton = () => {
@@ -108,6 +109,8 @@ const isLiked = currentBlog?.like
     dispatch(fetchLike(currentBlog?._id)).unwrap()
     .then(()=>dispatch(fetchGetSingleBlog(currentBlog._id)))
   }
+
+  const isAuthor = user && authorId&& String(user.id)===String(authorId)
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-100 via-white to-pink-100 py-10 px-4">
       <div className="max-w-5xl mx-auto">
@@ -183,7 +186,7 @@ const isLiked = currentBlog?.like
               <h2 className="text-3xl font-bold">{currentBlog.title}</h2>
               <p className="mt-4 text-gray-700">{currentBlog.description}</p>
 
-              {user?._id === authorId && (
+              {isAuthor && (
                 <div className="flex gap-3 mt-6">
                   <Button
                     to={`/userUpdate/${id}`}
