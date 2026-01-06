@@ -8,7 +8,7 @@ const userSchema = new mongoose.Schema({
   bio: { type: String, default: "" },
   followers: [{ type: mongoose.Types.ObjectId, ref: "User" }],
   following: [{ type: mongoose.Types.ObjectId, ref: "User" }],
-  likes: [{ type: mongoose.Types.ObjectId, ref: "Blog" }],
+
   saveBlog: [{ type: mongoose.Types.ObjectId, ref: "Blog" }],
 }, { timestamps: true });
 

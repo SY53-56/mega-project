@@ -6,6 +6,7 @@ import { ArrowLeft, ArrowRight, Heart } from "lucide-react";
 import {
   fetchDelete,
   fetchGetSingleBlog,
+  fetchLike,
   fetchReview,
   fetchReviewDelete,
   fetchReviewPost,
@@ -26,11 +27,17 @@ export default function UserPage() {
     (state) => state.blog
   );
   const { user } = useSelector((state) => state.auth);
-
+ console.log("user",user)
+ console.log("current user",currentBlog)
+ console.log("review",review)
   const authorId = currentBlog?.author?._id;
   const imageLength = currentBlog?.image?.length || 0;
 
   const isFollowing = user?.following?.includes(authorId);
+const isLiked = currentBlog?.like
+  ?.map(id => id)
+  ?.includes(user?._id);
+
 
   /* ================= FOLLOW ================= */
   const followedButton = () => {
@@ -96,6 +103,11 @@ export default function UserPage() {
       .then(() => dispatch(fetchReview(id)));
   };
 
+  function handleLike(){
+     if (!user) return alert("Please login to like this blog");
+    dispatch(fetchLike(currentBlog?._id)).unwrap()
+    .then(()=>dispatch(fetchGetSingleBlog(currentBlog._id)))
+  }
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-100 via-white to-pink-100 py-10 px-4">
       <div className="max-w-5xl mx-auto">
@@ -141,7 +153,6 @@ export default function UserPage() {
                     className="w-12 h-12 rounded-full object-cover"
                   />
                 </Link>
-
                 <div className="flex justify-between w-full">
                   <div>
                     <p className="text-sm text-gray-500">Author</p>
@@ -151,10 +162,17 @@ export default function UserPage() {
                   </div>
 
                   <div className="flex gap-6">
-                    <button className="flex items-center gap-1 px-3 py-1 rounded-full bg-gray-100">
-                      <Heart size={18} />
-                      <span>{currentBlog.likes?.length || 0}</span>
+                    <div className="flex  justify-center items-center">
+                      <button
+                      onClick={handleLike}
+                      className={`flex items-center cursor-pointer gap-1 px-3 py-1 rounded-full ${isLiked ? "bg-red-200" : "bg-gray-100"}`}
+                    >
+                      <Heart size={18} className={`transition ${isLiked ? "text-red-500 full-red-500" : "text-gray-500"}`} />
                     </button>
+                             <span>{currentBlog.like?.length || 0}</span>
+                    </div>
+             
+
 
                     <Button
                       onClick={followedButton}
@@ -207,7 +225,12 @@ export default function UserPage() {
           <div className="mt-6 space-y-4">
             {review.map((rev) => (
               <div key={rev._id} className="flex justify-between bg-gray-50 p-3 rounded-lg">
-                <p>{rev.comment}</p>
+               <div className="flex gap-2 items-center cursor-pointer">
+            <Link to={`/user/${authorId}/blogs`}>
+                         <img className="w-10 h-10 rounded-full" src={rev?.user?.img} alt="" />
+            </Link>
+                 <p>{rev.comment}</p>
+               </div>
 
                 {user?._id === rev.user?._id && (
                   <button

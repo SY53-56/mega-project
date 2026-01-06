@@ -17,7 +17,7 @@ const uploadBufferToCloudinary = (buffer) =>
 
 const getAllBlogs = async (req, res) => {
   try {
-    const blogs = await Blog.find().populate("author","username img _id followers"); // fetch all documents
+    const blogs = await Blog.find().populate("author","username img _id followers following"); // fetch all documents
     res.status(200).json({ success: true, blogs });
   } catch (err) {
     console.error(err);
@@ -64,7 +64,7 @@ const getSingleBlog=async(req,res)=>{
   try{
    const {id} = req.params
 
-const blog = await Blog.findById(id).populate("author", "username img like followers");
+const blog = await Blog.findById(id).populate("author", "username img like followers following");
    res.status(201).json({success:true,blog})
  }catch(e){
 console.log(e)
@@ -77,14 +77,14 @@ const userAccount = async (req, res) => {
     const { id } = req.params;
 
     // 1️⃣ Fetch the user info first
-    const user = await User.findById(id).select("username email img _id saveBlog  followers bio");
+    const user = await User.findById(id).select("username email img _id saveBlog  followers bio following");
     if (!user)
       return res.status(404).json({ success: false, message: "User not found" });
 
     // 2️⃣ Fetch all blogs written by this user
     const blogs = await Blog.find({ author: id }).populate(
       "author",
-      "username img _id  followers bio saveBlog  "
+      "username img _id  followers bio saveBlog following "
     );
 
     // 3️⃣ Send both user + blogs in one response
@@ -151,46 +151,41 @@ const deleteBlog = async (req, res) => {
     res.status(500).json({ success: false, message: "Server error" });
   }
 };
+const likePostApi = async (req, res) => {
+  try {
+    const { id: blogId } = req.params; // blogId
+    const userId = req.user.id; // string from JWT
 
+    if (!userId) {
+      return res.status(401).json({ message: "Please login first" });
+    }
 
-const likePostApi = async(req,res)=>{
-  try{
-        const {blogId} = req.params;
-       const  userId=  req.user.id
-     
-        if(!userId){
-          return res.status(201).json("please sign up first")
-        }
-  
-        let user = await User.findById(userId)
-
-  
     const blog = await Blog.findById(blogId);
     if (!blog) {
       return res.status(404).json({ message: "Blog not found" });
     }
 
-   let likeBlog = await blog.like.includes(userId)
-  
+    // ✅ Convert ObjectId to string before checking
+    const hasLiked = blog.like.map((id) => id.toString()).includes(userId);
 
-   if(likeBlog){
-   await Blog.findByIdAndUpdate(blog._id,{$pull:{like:userId}}) 
- return res.json({
+    if (hasLiked) {
+      await Blog.findByIdAndUpdate(blog._id, { $pull: { like: userId } }, { new: true });
+      return res.json({
         message: "Post unliked",
         liked: false,
       });
-   }else{
-await Blog.findByIdAndUpdate(blog._id  ,{$addToSet:{like:userId}})
- return res.json({
+    } else {
+      await Blog.findByIdAndUpdate(blog._id, { $addToSet: { like: userId } }, { new: true });
+      return res.json({
         message: "Post liked",
         liked: true,
       });
-   }
-  }catch(e){
+    }
+  } catch (e) {
+    console.error("Like error:", e);
     res.status(500).json({ success: false, message: "Server error" });
   }
-}
-
+};
 
 
 module.exports = {

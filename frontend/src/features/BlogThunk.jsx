@@ -131,7 +131,7 @@ export const fetchDelete = createAsyncThunk(
 })
  export const fetchLike = createAsyncThunk("like/blog",async(blogId,{rejectWithValue})=>{
    try{
-    const res= await api.put(`/user/${blogId}/like`)
+    const res= await api.put(`/blog/like/${blogId}`)
     return {blogId , liked: res.data.liked}
    }catch(e){
  return rejectWithValue(e.response?.data?.message || e.message || "Failed to like blog");

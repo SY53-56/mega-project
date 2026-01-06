@@ -138,10 +138,33 @@ const blogSlice = createSlice({
   state.status = "failed";
   state.error = action.payload;
 })
-.addCase(fetchLike.fulfilled,(state,action)=>{
-  state.state= "successed"
- // const liked = state.blog.like.some(p=> p.id === action.payload)
- 
+.addCase(fetchLike.fulfilled, (state, action) => {
+  const { blogId, liked } = action.payload;
+
+  // ✅ currentBlog update
+  if (state.currentBlog?._id === blogId) {
+    if (liked) {
+      state.currentBlog.like.push(state.userId); // optional
+    } else {
+      state.currentBlog.like = state.currentBlog.like.filter(
+        (id) => id !== state.userId
+      );
+    }
+  }
+
+  // ✅ blog list update
+  state.blog = state.blog.map((b) =>
+    b._id === blogId
+      ? {
+          ...b,
+          like: liked
+            ? [...b.like, state.userId]
+            : b.like.filter((id) => id !== state.userId),
+        }
+      : b
+  );
+
+  state.status = "succeeded";
 })
 .addCase(fetchFollowData.pending, (state) => {
   state.status = "loading";

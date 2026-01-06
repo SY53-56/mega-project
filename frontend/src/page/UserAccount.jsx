@@ -59,13 +59,13 @@ console.log("blog",blog)
 
           <div className="flex gap-3">
            <div className="flex flex-col items-center"> 
-            <Button className="" name="follow"/>
+            <Button className="" name="followers"/>
             <h1>{userProfile?.followers?.length ||0}</h1>
 
            </div>
                <div className="flex flex-col items-center">
                 <Button className="" name="following"/>
-                <h1>{ authUser?.following?.length||0}</h1>
+                <h1>{ userProfile?.following?.length||0}</h1>
                </div>
           </div>
         </div>
