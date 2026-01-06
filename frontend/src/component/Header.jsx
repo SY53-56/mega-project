@@ -88,7 +88,7 @@ const isLoggedIn = Boolean(user);
 
           <Link to={`/user/${user._id}/blogs`}>
             <img
-              src={user.img || "https://via.placeholder.com/40"}
+              src={user.image|| "https://via.placeholder.com/40"}
               alt="profile"
               className="
                 w-10 h-10 rounded-full object-cover
@@ -158,7 +158,7 @@ const isLoggedIn = Boolean(user);
         <>
           <div className="flex items-center gap-3">
             <img
-              src={user.img || "https://via.placeholder.com/40"}
+              src={user.image || "https://via.placeholder.com/40"}
               className="w-10 h-10 rounded-full ring-2 ring-indigo-400"
             />
             <div>

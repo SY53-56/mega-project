@@ -2,18 +2,7 @@ const Blog= require("../models/blogModel")
 const slugify=  require("slugify")
 const {nanoid} = require("nanoid")
 const User = require("../models/userModel")
-const Review =require("../models/reviewModel")
-const streamifier = require("streamifier");
-const cloudinary = require("../config/cloudinary");
-
-const uploadBufferToCloudinary = (buffer) =>
-  new Promise((resolve, reject) => {
-    const stream = cloudinary.uploader.upload_stream({ folder: "blogs" }, (err, result) => {
-      if (err) return reject(err);
-      resolve(result);
-    });
-    streamifier.createReadStream(buffer).pipe(stream);
-  });
+const uploadBufferToCloudinary = require("../utils/uploadToCloudinary")
 
 const getAllBlogs = async (req, res) => {
   try {

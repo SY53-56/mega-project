@@ -6,22 +6,32 @@ import { useNavigate, Link } from "react-router-dom";
 
 export default function CreateAccount() {
   // Match backend field names: use "img" instead of "image"
-  const [form, setForm] = useState({ username: "", email: "", password: "", img: "" });
+  const [form, setForm] = useState({ username: "", email: "", password: "" });
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { error, status } = useSelector((state) => state.auth);
-
+  const [file,setFile]  =useState({})
   // Handle input changes
   const handleFormData = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
   };
+  const handleFile=(e)=>{
+   const selectFile= e.target.files[0]
+   setFile(selectFile)
+  }
 
   // Submit signup form
   const handleSubmit = async (e) => {
     e.preventDefault();
+     let formData =new FormData()
+      formData.append("username",form.username)
+      formData.append("email",form.email)
+      formData.append("password",form.password)
+    if(file)  formData.append("image",file)
     try {
-  await dispatch(fetchSignup(form)).unwrap();
+     
+  await dispatch(fetchSignup(formData));
       
       navigate("/"); // Redirect after signup
     } catch (err) {
@@ -57,10 +67,11 @@ export default function CreateAccount() {
 
           <label>Profile Image URL</label>
           <input
-            name="img"  // Changed from "image" to "img" to match backend
-            value={form.img}
-            onChange={handleFormData}
-            type="url"
+            name="image"  // Changed from "image" to "img" to match backend
+            type="file"
+              accept="image/*"
+            onChange={handleFile}
+         
             placeholder="https://example.com/image.jpg"
             className="mb-3 px-3 py-1 rounded border"
           />
