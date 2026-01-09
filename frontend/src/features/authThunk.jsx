@@ -69,6 +69,18 @@ const fetchMe= createAsyncThunk("user/data",async(_ ,{   rejectWithValue})=>{
       );
     }
 })
+const fetchSaveBlog= createAsyncThunk("save/data",async(blogId,{rejectWithValue})=>{
+  try{
+   let res= await api.put(`/user/saveBlog/`,{blogId})
+   return res.data
+  }catch(e){
+       return rejectWithValue(
+        e.response?.data?.message ||
+        e.message ||
+        "Failed to saver"
+      );
+    }
+})
 
 
 export  {
@@ -77,5 +89,6 @@ export  {
  followUser,
  fetchMe,
  logout,
+ fetchSaveBlog
 
 }

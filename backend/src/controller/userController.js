@@ -127,27 +127,40 @@ const userData = async (req, res) => {
     res.status(500).json({ success: false, message: "Server error" });
   }
 };
-const saveBlog = async(req,res)=>{
-  try{
-    let {userId }= req.params.id
-    let {blogId} = req.body
-    const user= await User.findById(userId)
-  
+const saveBlog = async (req, res) => {
+  try {
+    const userId = req.user.id; 
+    console.log(userId)  // ✅ from JWT
+    const { blogId } = req.body;   // ✅ from body
+ console.log("blog",blogId)
+    const user = await User.findById(userId);
+
     if (!user) {
       return res.status(404).json({ success: false, message: "User not found" });
     }
-     let isSaved = await user.saveBlog.includes(blogId)
-      let savedBloged = await User.findByIdAndUpdate(userId,
-        isSaved?{$pull:{saveBlog:blogId}}:{$addToSet:{saveBlog:blogId}}
-      ).populate("saveBlog")
-     
-    
-  res.status(200).json({ success: true,   message: isSaved ? "Blog unsaved" : "Blog saved",
-      user: savedBloged });
-  }catch(e){
-     res.status(500).json({ success: false, message: "Server error" });
+
+    const isSaved = user.saveBlogs.includes(blogId);
+
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      isSaved
+        ? { $pull: { saveBlogs: blogId } }
+        : { $addToSet: { saveBlogs: blogId } },
+      { new: true }
+    ).populate("saveBlogs");
+
+    res.status(200).json({
+      success: true,
+      message: isSaved ? "Blog unsaved" : "Blog saved",
+      user: updatedUser,
+    });
+
+  } catch (e) {
+    console.error("SAVE BLOG ERROR:", e);
+    res.status(500).json({ success: false, message: "Server error" });
   }
-}
+};
+
 const follower = async (req, res) => {
   try {
     const userId = req.params.id;   // jisko follow karna hai

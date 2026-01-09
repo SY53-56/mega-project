@@ -28,9 +28,10 @@ export default function UserPage() {
   );
   const { user } = useSelector((state) => state.auth);
 
-  const authorId = currentBlog?.author?._id;
+  const authorId = currentBlog?.author?._id
   const imageLength = currentBlog?.image?.length || 0;
-
+ console.log("gdfd",authorId)
+ console.log(user)
   const isFollowing = user?.following?.includes(authorId);
 const isLiked = currentBlog?.like
   ?.map(id => id)
@@ -100,14 +101,14 @@ const isLiked = currentBlog?.like
       .unwrap()
       .then(() => dispatch(fetchReview(id)));
   };
-
+ 
   function handleLike(){
      if (!user) return alert("Please login to like this blog");
     dispatch(fetchLike(currentBlog?._id)).unwrap()
     .then(()=>dispatch(fetchGetSingleBlog(currentBlog._id)))
   }
 
-  const isAuthor = user && authorId&& String(user.id)===String(authorId)
+  const isAuthor =     user._id === authorId              // user && authorId&& String(user.id)===String(authorId)
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-100 via-white to-pink-100 py-10 px-4">
       <div className="max-w-5xl mx-auto">
@@ -145,24 +146,25 @@ const isLiked = currentBlog?.like
             </div>
 
             {/* CONTENT */}
-            <div className="p-8">
-              <div className="flex items-center gap-4 mb-6">
+            <div className="p-8 flex-col">
+              <div className="w-full  items-center justify-between lg:flex gap-8 mb-6">
+                <div className="flex items-center gap-4">
                 <Link to={`/user/${authorId}/blogs`}>
                   <img
                     src={currentBlog.author?.image || "https://via.placeholder.com/150"}
-                    className="w-12 h-12 rounded-full object-cover"
+                    className="w-20 h-12 rounded-full object-cover"
                   />
                 </Link>
-                <div className="flex justify-between w-full">
-                  <div>
+                <div className=" w-full">
+                  
                     <p className="text-sm text-gray-500">Author</p>
                     <h3 className="font-semibold text-lg">
                       {currentBlog.author?.username}
                     </h3>
                   </div>
-
-                  <div className="flex gap-6">
-                    <div className="flex  justify-center items-center">
+                  </div>
+                  <div className="flex gap-16 mt-8">
+                    <div className="flex  justify-center gap-2 items-center">
                       <button
                       onClick={handleLike}
                       className={`flex items-center cursor-pointer gap-1 px-3 py-1 rounded-full ${isLiked ? "bg-red-200" : "bg-gray-100"}`}
@@ -177,7 +179,7 @@ const isLiked = currentBlog?.like
                       name={isFollowing ? "Unfollow" : "Follow"}
                     />
                   </div>
-                </div>
+               
               </div>
 
               <h2 className="text-3xl font-bold">{currentBlog.title}</h2>

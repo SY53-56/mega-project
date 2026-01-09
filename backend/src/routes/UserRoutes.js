@@ -10,5 +10,6 @@ routes.get("/logout",userLogout)
 routes.get("/userAccount" , userData)
 routes.put("/follow/:id" ,userMiddleware, follower)
 routes.get("/folowerAccount/:id" , userMiddleware , getFollowerData)
-routes.put("/saveBlog/:id", userMiddleware , saveBlog)
+routes.put("/saveBlog", userMiddleware, saveBlog)
+
 module.exports = routes

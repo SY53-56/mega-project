@@ -2,8 +2,7 @@ const jwt = require("jsonwebtoken");
 const User = require("../models/userModel");
 
 const userMiddleware = async (req, res, next) => {
-  console.log("🔥 Middleware HIT");
-  console.log("🍪 Cookies:", req.cookies);
+  
 
   const token = req.cookies.token;
 
@@ -13,7 +12,7 @@ const userMiddleware = async (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    console.log("✅ Decoded JWT:", decoded);
+   
 
     // ✅ FETCH FULL USER (INCLUDING IMAGE)
     

@@ -1,5 +1,5 @@
 import {  createSlice } from "@reduxjs/toolkit";
-import { fetchLogin, fetchSignup, followUser, fetchMe } from "./authThunk";
+import { fetchLogin, fetchSignup, followUser, fetchMe, fetchSaveBlog } from "./authThunk";
 
 const authSlice = createSlice({
   name: "auth",
@@ -67,8 +67,15 @@ const authSlice = createSlice({
       })
     
       .addCase(fetchMe.fulfilled, (state, action) => {
+         state.status = "succeeded";
   state.user = action.payload;
+   state.error = action.payload
   localStorage.setItem("user", JSON.stringify(action.payload));
+}).addCase(fetchSaveBlog.fulfilled,(state,action)=>{
+  state.status = "succeeded";
+  state.user= action.payload.user
+   localStorage.setItem("user",JSON.stringify(action.payload.user))
+  state.error = action.payload
 })
 
   },
