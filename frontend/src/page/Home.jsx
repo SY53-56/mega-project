@@ -6,7 +6,7 @@ import BlogCard from "../component/BlogCard"
 export default function Home() {
   const dispatch = useDispatch();
   const { blog, status, error } = useSelector((state) => state.blog);
-console.log('bloges',blog)
+
   useEffect(() => {
     dispatch(fetchGetData());
   }, [dispatch]);

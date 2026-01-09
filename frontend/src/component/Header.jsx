@@ -11,9 +11,11 @@ export default function Header() {
   const toggle = () => setIsOpen(!isOpen);
 
   const { user } = useSelector((state) => state.auth);
+
+
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  console.log("usersahul",user)
+
   const handleLogout = async () => {
     try {
       await api.get("/user/logout"); // 🔥 cookie clear
@@ -50,10 +52,10 @@ const isLoggedIn = Boolean(user);
       <NavLink
         to="/"
         className={({ isActive }) =>
-          `relative font-medium transition ${
+          `relative font-medium transition-all duration-500 ${
             isActive
-              ? "text-indigo-400"
-              : "text-gray-300 hover:text-white"
+              ? "text-white bg-blue-500 px-3 py-1 rounded-md "
+              : "text-white hover:text-white"
           }`
         }
       >
@@ -64,10 +66,10 @@ const isLoggedIn = Boolean(user);
         <NavLink
           to="/addblog"
           className={({ isActive }) =>
-            `font-medium transition ${
+            `font-medium  transition-all duration-500 ${
               isActive
-                ? "text-indigo-400"
-                : "text-gray-300 hover:text-white"
+                ? "text-white bg-blue-500 px-3 py-1 rounded-md"
+                : "text-white hover:text-white"
             }`
           }
         >
@@ -140,7 +142,13 @@ const isLoggedIn = Boolean(user);
       bg-slate-900/90 backdrop-blur-md
       border-t border-white/10
     ">
-      <NavLink onClick={toggle} to="/" className="text-gray-300 hover:text-white">
+      <NavLink onClick={toggle} to="/" className={({ isActive }) =>
+            `font-medium  transition-all duration-500 ${
+              isActive
+                ? "text-white bg-blue-500 px-3 py-1 rounded-md"
+                : "text-white hover:text-white"
+            }`
+          }>
         Home
       </NavLink>
 
@@ -148,7 +156,13 @@ const isLoggedIn = Boolean(user);
         <NavLink
           onClick={toggle}
           to="/addblog"
-          className="text-gray-300 hover:text-white"
+       className={({ isActive }) =>
+            `font-medium  transition-all duration-500 ${
+              isActive
+                ? "text-white bg-blue-500 px-3 py-1 rounded-md"
+                : "text-white hover:text-white"
+            }`
+          }
         >
           Add Blog
         </NavLink>
@@ -157,10 +171,12 @@ const isLoggedIn = Boolean(user);
       {isLoggedIn ? (
         <>
           <div className="flex items-center gap-3">
+           <Link to={`/user/${user._id}/blogs`}>
             <img
               src={user.image || "https://via.placeholder.com/40"}
               className="w-10 h-10 rounded-full ring-2 ring-indigo-400"
             />
+           </Link>
             <div>
               <p className="font-semibold text-white">{user.username}</p>
               <p className="text-xs text-gray-400">{user.email}</p>

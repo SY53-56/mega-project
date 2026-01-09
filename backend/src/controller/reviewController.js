@@ -43,7 +43,7 @@ const getAllComments = async (req, res) => {
     const { id } = req.params;
 
     const reviews = await Review.find({ blog: id })
-      .populate("user", "username img")
+      .populate("user", "username image")
       .sort({ createdAt: -1 });
 
     res.status(200).json({ success: true, reviews });

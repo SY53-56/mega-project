@@ -7,10 +7,8 @@ import { memo, useCallback } from "react";
  const BlogCard = memo(function BlogCard({ blog }) {
    const dispatch = useDispatch()
    const {user}  =  useSelector(state=>state.auth)
-   const {blogs} = useSelector(state =>state.blog)
-   console.log("ggdhhjhfgdj",user)
-   console.log("blpog",blog)
-   console.log("data",blogs)
+ 
+
  let isLike = user?blog?.like.map(d=>d).includes(user._id):false
 const handlike = useCallback(()=>{
   if(!user)return alert("login first")
@@ -47,7 +45,7 @@ const handlike = useCallback(()=>{
         {/* Author */}
         <div className="flex items-center gap-3">
           <img
-            src={blog.author?.img || "https://via.placeholder.com/150"}
+            src={blog.author?.image || "https://via.placeholder.com/150"}
             alt="author"
             className="w-10 h-10 rounded-full object-cover"
           />

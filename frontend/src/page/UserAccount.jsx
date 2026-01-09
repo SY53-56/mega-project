@@ -12,9 +12,7 @@ export default function UserAccount() {
   const { blog, userProfile, status, error } = useSelector((state) => state.blog);
   const authUser = useSelector((state) => state.auth.user); // currently logged-in user
   //const {user} =  useSelector((state) => state.auth.user)
-console.log("profile",userProfile)
-console.log("auther",authUser)
-console.log("blog",blog)
+
 
 
   useEffect(() => {

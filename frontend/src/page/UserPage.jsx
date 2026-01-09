@@ -27,18 +27,15 @@ export default function UserPage() {
     (state) => state.blog
   );
   const { user } = useSelector((state) => state.auth);
- console.log("user",user)
- console.log("current user",currentBlog)
- console.log("review",review)
+
   const authorId = currentBlog?.author?._id;
   const imageLength = currentBlog?.image?.length || 0;
-console.log("aouthoris",authorId)
+
   const isFollowing = user?.following?.includes(authorId);
 const isLiked = currentBlog?.like
   ?.map(id => id)
   ?.includes(user?._id);
 
-console.log("MATCH?", String(user?.id), String(authorId));
 
   /* ================= FOLLOW ================= */
   const followedButton = () => {
@@ -152,7 +149,7 @@ console.log("MATCH?", String(user?.id), String(authorId));
               <div className="flex items-center gap-4 mb-6">
                 <Link to={`/user/${authorId}/blogs`}>
                   <img
-                    src={currentBlog.author?.img || "https://via.placeholder.com/150"}
+                    src={currentBlog.author?.image || "https://via.placeholder.com/150"}
                     className="w-12 h-12 rounded-full object-cover"
                   />
                 </Link>
@@ -217,7 +214,7 @@ console.log("MATCH?", String(user?.id), String(authorId));
               className="flex-1 border rounded-lg px-4 py-2"
               placeholder="Write your comment..."
             />
-            <button className="bg-indigo-600 text-white px-5 rounded-lg">
+            <button className="bg-indigo-500 hover:bg-indigo-600  text-white px-5 cursor-pointer rounded-md transition-all duration-500">
               Post
             </button>
           </form>
@@ -227,15 +224,15 @@ console.log("MATCH?", String(user?.id), String(authorId));
               <div key={rev._id} className="flex justify-between bg-gray-50 p-3 rounded-lg">
                <div className="flex gap-2 items-center cursor-pointer">
             <Link to={`/user/${authorId}/blogs`}>
-                         <img className="w-10 h-10 rounded-full" src={rev?.user?.img} alt="" />
+                         <img className="w-10 h-10 rounded-full" src={rev?.user?.image} alt="" />
             </Link>
                  <p>{rev.comment}</p>
                </div>
 
-                {user?._id === rev.user?._id && (
+                {user?._id === rev?.user?._id && (
                   <button
                     onClick={() => deleteReview(rev._id, rev.user._id)}
-                    className="text-sm text-red-500"
+                    className="text-sm cursor-pointer bg-red-500 hover:bg-red-600 text-white  px-3 py-1 rounded-md transition-all duration-500"
                   >
                     Delete
                   </button>
