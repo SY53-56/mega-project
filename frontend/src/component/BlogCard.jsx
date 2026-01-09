@@ -17,9 +17,8 @@ const BlogCard = memo(function BlogCard({ blog }) {
   // ✅ Save check (FIXED)
  // ✅ Save check (FIXED PROPERLY)
 // ✅ Save check (FIXED PROPERLY)
-const isSaved = user
-  ? user.saveBlogs.some(blogObj => blogObj._id === blog._id)
-  : false;
+const isSaved = user?.saveBlogs?.some(blogObj => blogObj._id === blog._id) || false;
+
 
 
 

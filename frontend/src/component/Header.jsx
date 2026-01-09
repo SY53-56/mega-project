@@ -12,7 +12,7 @@ export default function Header() {
 
   const { user } = useSelector((state) => state.auth);
 
-
+console.log("user",user)
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -49,18 +49,23 @@ const isLoggedIn = Boolean(user);
     {/* DESKTOP NAV */}
     <nav className="hidden lg:flex items-center gap-8">
 
-      <NavLink
-        to="/"
-        className={({ isActive }) =>
-          `relative font-medium transition-all duration-500 ${
-            isActive
-              ? "text-white bg-blue-500 px-3 py-1 rounded-md "
-              : "text-white hover:text-white"
-          }`
-        }
-      >
-        Home
-      </NavLink>
+     
+     {/* DESKTOP NAV */}
+{user?.saveBlogs?.length > 0 && (
+  <NavLink
+    to={`/saveblog/${user._id}`}
+    className={({ isActive }) =>
+      `font-medium transition-all duration-500 ${
+        isActive
+          ? "text-white bg-blue-500 px-3 py-1 rounded-md"
+          : "text-white hover:text-white"
+      }`
+    }
+  >
+    Saved Blogs
+  </NavLink>
+)}
+
 
       {user && (
         <NavLink
@@ -82,7 +87,7 @@ const isLoggedIn = Boolean(user);
         <div className="flex items-center gap-4">
 
           <div className="text-right leading-tight">
-            <p className="text-xs text-gray-400">Welcome</p>
+            <p className="text-xs text-gray-100">Welcome</p>
             <p className="font-semibold text-white">
               {user.username}
             </p>
@@ -142,15 +147,25 @@ const isLoggedIn = Boolean(user);
       bg-slate-900/90 backdrop-blur-md
       border-t border-white/10
     ">
-      <NavLink onClick={toggle} to="/" className={({ isActive }) =>
-            `font-medium  transition-all duration-500 ${
-              isActive
-                ? "text-white bg-blue-500 px-3 py-1 rounded-md"
-                : "text-white hover:text-white"
-            }`
-          }>
-        Home
-      </NavLink>
+     
+       
+       {/* DESKTOP NAV */}
+{ user?.saveBlogs?.length > 0 && (
+  <NavLink
+    to={`/saveblog/${user._id}`}
+    className={({ isActive }) =>
+      `font-medium transition-all duration-500 ${
+        isActive
+          ? "text-white bg-blue-500 px-3 py-1 rounded-md"
+          : "text-white hover:text-white"
+      }`
+    }
+  >
+    Saved Blogs
+  </NavLink>
+)}
+
+       
 
       {user && (
         <NavLink

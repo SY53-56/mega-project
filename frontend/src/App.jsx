@@ -9,6 +9,7 @@ import CreateAccount from './page/CreateAccount'
 import UserPage from './page/UserPage'
 import UpdateBlog from './page/UpdateBlog'
 import UserAccount from './page/UserAccount'
+import SaveBlog from './page/SaveBlog'
 function App() {
 
 
@@ -22,6 +23,7 @@ function App() {
       <Route path={`/userpage/:id`} element={<UserPage />}/>
       <Route path={'/userUpdate/:id'} element={<UpdateBlog />}/>
       <Route path={`/user/:id/blogs`} element={<UserAccount/>}/>
+      <Route path={`/saveBlog/:id`} element={<SaveBlog/>}/>
       </Route>
       <Route path='/login' element={<Login/>}/>
             <Route path='/createaccount' element={<CreateAccount/>}/>
