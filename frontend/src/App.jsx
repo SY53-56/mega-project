@@ -1,36 +1,78 @@
+import React, { Suspense, lazy } from "react";
+import { Routes, Route } from "react-router-dom";
+import Layouts from "./Layouts";
 
-import './App.css'
-import { Route, Router, Routes } from 'react-router-dom'
-import Layouts from './Layouts'
-import Home from './page/Home'
-import AddBlog from "./page/AddBlog"
-import Login from './page/Login'
-import CreateAccount from './page/CreateAccount'
-import UserPage from './page/UserPage'
-import UpdateBlog from './page/UpdateBlog'
-import UserAccount from './page/UserAccount'
-import SaveBlog from './page/SaveBlog'
-function App() {
+// Lazy-loaded pages
+const Home = lazy(() => import("./page/Home"));
+const AddBlog = lazy(() => import("./page/AddBlog"));
+const UserPage = lazy(() => import("./page/UserPage"));
+const UpdateBlog = lazy(() => import("./page/UpdateBlog"));
+const UserAccount = lazy(() => import("./page/UserAccount"));
+const SaveBlog = lazy(() => import("./page/SaveBlog"));
 
+// Non-lazy pages (small)
+import Login from "./page/Login";
+import CreateAccount from "./page/CreateAccount";
 
+export default function App() {
   return (
-    <>
- 
     <Routes>
-      <Route element={<Layouts/>}>
-      <Route index element={<Home />} />
-      <Route  path="/addblog" element={<AddBlog />}/>
-      <Route path={`/userpage/:id`} element={<UserPage />}/>
-      <Route path={'/userUpdate/:id'} element={<UpdateBlog />}/>
-      <Route path={`/user/:id/blogs`} element={<UserAccount/>}/>
-      <Route path={`/saveBlog/:id`} element={<SaveBlog/>}/>
+      {/* Routes with layout */}
+      <Route element={<Layouts />}>
+        {/* Suspense wraps only the lazy-loaded component */}
+        <Route
+          index
+          element={
+            <Suspense fallback={<div className="text-center mt-20">Loading Home...</div>}>
+              <Home />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/addblog"
+          element={
+            <Suspense fallback={<div className="text-center mt-20">Loading AddBlog...</div>}>
+              <AddBlog />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/userpage/:id"
+          element={
+            <Suspense fallback={<div className="text-center mt-20">Loading UserPage...</div>}>
+              <UserPage />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/userUpdate/:id"
+          element={
+            <Suspense fallback={<div className="text-center mt-20">Loading UpdateBlog...</div>}>
+              <UpdateBlog />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/user/:id/blogs"
+          element={
+            <Suspense fallback={<div className="text-center mt-20">Loading UserAccount...</div>}>
+              <UserAccount />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/saveBlog/:id"
+          element={
+            <Suspense fallback={<div className="text-center mt-20">Loading SaveBlog...</div>}>
+              <SaveBlog />
+            </Suspense>
+          }
+        />
       </Route>
-      <Route path='/login' element={<Login/>}/>
-            <Route path='/createaccount' element={<CreateAccount/>}/>
+
+      {/* Routes without layout */}
+      <Route path="/login" element={<Login />} />
+      <Route path="/createaccount" element={<CreateAccount />} />
     </Routes>
-
-    </>
-  )
+  );
 }
-
-export default App
