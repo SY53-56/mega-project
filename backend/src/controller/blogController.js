@@ -24,22 +24,33 @@ const postBlogData = async (req, res) => {
 
     const slug = `${slugify(title, { lower: true, strict: true })}-${nanoid(6)}`;
     const authorId = req.user.id;
+console.log("Files received:", req.files);
+console.log("Body received:", req.body);
 
     // Upload files
     const files = req.files || [];
-    const uploaded = [];
-    for (let f of files) {
-      const result = await uploadBufferToCloudinary(f.buffer);
-      uploaded.push(result.secure_url);
-    }
+    const uploaded = await Promise.all(
+      files.map(async (file)=>{
+              if (!file.mimetype.startsWith("image/")) {
+          throw new Error("Only image files are allowed");
+        }
+        if (file.size > 8 * 1024 * 1024) {
+          throw new Error("File too large, max 5MB");
+        }
+        const result=  await uploadBufferToCloudinary(file.buffer)
+           return result.secure_url;
+      })
+    );
+  
 
     const blog = await Blog.create({
       title,
       description,
-      image: uploaded,
+      image:uploaded,
       author: authorId,
       slug,
     });
+
 
     res.status(200).json({ success: true, blog });
   } catch (e) {

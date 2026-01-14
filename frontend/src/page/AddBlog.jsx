@@ -3,20 +3,16 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import Button from "../component/Button";
 import { fetchAddData } from "../features/BlogThunk";
+import imageCompression from "browser-image-compression";
 
 export default function AddBlog() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const [progress, setProgress] = useState(0);
-
   const { status, error } = useSelector((state) => state.blog);
 
-  const [form, setForm] = useState({
-    title: "",
-    description: "",
-  });
-
+  const [form, setForm] = useState({ title: "", description: "" });
   const [files, setFiles] = useState([]);
   const [previews, setPreviews] = useState([]);
 
@@ -25,13 +21,20 @@ export default function AddBlog() {
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleFileChange = (e) => {
+  const handleFileChange = async (e) => {
     const selectedFiles = Array.from(e.target.files);
-    setFiles(selectedFiles);
 
-    const previewUrls = selectedFiles.map((file) =>
-      URL.createObjectURL(file)
+    // ✅ Compress all images before storing in state
+    const compressedFiles = await Promise.all(
+      selectedFiles.map(async (file) => {
+        const options = { maxSizeMB: 1, maxWidthOrHeight: 1024, useWebWorker: true };
+        return await imageCompression(file, options);
+      })
     );
+
+    setFiles(compressedFiles);
+
+    const previewUrls = compressedFiles.map((file) => URL.createObjectURL(file));
     setPreviews(previewUrls);
   };
 
@@ -45,10 +48,7 @@ export default function AddBlog() {
 
     try {
       await dispatch(
-        fetchAddData({
-          blogData: formData,
-          onProgress: setProgress,
-        })
+        fetchAddData({ blogData: formData, onProgress: setProgress })
       ).unwrap();
 
       navigate("/");
@@ -122,7 +122,7 @@ export default function AddBlog() {
           />
         </form>
 
-        {/* ✅ Progress Bar */}
+        {/* Progress Bar */}
         {status === "loading" && (
           <div className="mt-4">
             <div className="h-2 bg-gray-200 rounded-lg overflow-hidden">
@@ -130,15 +130,12 @@ export default function AddBlog() {
                 className="h-full bg-amber-500 transition-all duration-300"
                 style={{ width: `${progress}%` }}
               />
-                  <p className="text-center text-sm mt-1">{progress}%</p>
             </div>
             <p className="text-center text-sm mt-1">{progress}%</p>
           </div>
         )}
 
-        {error && (
-          <p className="text-red-500 text-center mt-4">{error}</p>
-        )}
+        {error && <p className="text-red-500 text-center mt-4">{error}</p>}
       </div>
     </div>
   );
