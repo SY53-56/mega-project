@@ -10,7 +10,11 @@ import api from "../api";
 
       return res.data; 
     } catch (e) {
-      return rejectWithValue(e.response.data.message);
+     return rejectWithValue(
+        e.response?.data?.message ||
+        e.message ||
+        "Failed to follow user"
+      );
     }
   }
 );
@@ -22,7 +26,11 @@ import api from "../api";
       const res = await api.post("/user/login", data);
       return res.data; // cookie already set by backend
     } catch (e) {
-      return rejectWithValue(e.response.data.message);
+      return rejectWithValue(
+        e.response?.data?.message ||
+        e.message ||
+        "Failed to follow user"
+      );
     }
   }
 );

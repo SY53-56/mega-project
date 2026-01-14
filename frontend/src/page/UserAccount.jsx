@@ -14,7 +14,8 @@ export default function UserAccount() {
   //const {user} =  useSelector((state) => state.auth.user)
 
 
-
+console.log("blog",blog)
+console.log("profile",userProfile)
   useEffect(() => {
     if (id) dispatch(fetchUserAccount(id));
   }, [dispatch, id]);
@@ -39,7 +40,7 @@ export default function UserAccount() {
         <div className="bg-white p-6 rounded-xl shadow-md flex h-[400px] flex-col items-center">
           <img
             src={
-              userProfile.img ||
+              userProfile.image ||
               "https://plus.unsplash.com/premium_photo-1761211108987-c37052604d95?ixlib=rb-4.1.0&auto=format&fit=crop&q=80&w=1915"
             }
             alt={userProfile.username}

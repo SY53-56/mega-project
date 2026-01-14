@@ -78,7 +78,7 @@ const userLogin = async (req, res) => {
     }
 
     const token = generateToken(user);
-
+console.log(token)
     // ✅ SAME COOKIE CONFIG
     res.cookie("token", token, {
       httpOnly: true,

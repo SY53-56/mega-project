@@ -27,21 +27,22 @@ export default function UserPage() {
     (state) => state.blog
   );
   const { user } = useSelector((state) => state.auth);
-
+console.log("review",review)
   const authorId = currentBlog?.author?._id
   const imageLength = currentBlog?.image?.length || 0;
  console.log("gdfd",authorId)
  console.log(user)
+ let userId = user?.id || user?._id
   const isFollowing = user?.following?.includes(authorId);
 const isLiked = currentBlog?.like
   ?.map(id => id)
   ?.includes(user?._id);
 
-
+console.log("current",currentBlog)
   /* ================= FOLLOW ================= */
   const followedButton = () => {
     if (!user) return alert("Please login");
-    if (user._id === authorId) return alert("You cannot follow yourself");
+    if (userId=== authorId) return alert("You cannot follow yourself");
 
     dispatch(followUser(authorId));
   };
@@ -108,7 +109,8 @@ const isLiked = currentBlog?.like
     .then(()=>dispatch(fetchGetSingleBlog(currentBlog._id)))
   }
 
-  const isAuthor =     user._id === authorId              // user && authorId&& String(user.id)===String(authorId)
+  const isAuthor =     userId === authorId  
+  console.log("isauthor",isAuthor)            // user && authorId&& String(user.id)===String(authorId)
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-100 via-white to-pink-100 py-10 px-4">
       <div className="max-w-5xl mx-auto">
@@ -152,7 +154,7 @@ const isLiked = currentBlog?.like
                 <Link to={`/user/${authorId}/blogs`}>
                   <img
                     src={currentBlog.author?.image || "https://via.placeholder.com/150"}
-                    className="w-20 h-12 rounded-full object-cover"
+                    className=" w-16 lg:w-20 h-12 rounded-full object-cover"
                   />
                 </Link>
                 <div className=" w-full">
@@ -221,27 +223,53 @@ const isLiked = currentBlog?.like
             </button>
           </form>
 
-          <div className="mt-6 space-y-4">
-            {review.map((rev) => (
-              <div key={rev._id} className="flex justify-between bg-gray-50 p-3 rounded-lg">
-               <div className="flex gap-2 items-center cursor-pointer">
-            <Link to={`/user/${authorId}/blogs`}>
-                         <img className="w-10 h-10 rounded-full" src={rev?.user?.image} alt="" />
-            </Link>
-                 <p>{rev.comment}</p>
-               </div>
+       <div className="mt-6 space-y-4">
+  {review.map((rev) => (
+    <div
+      key={rev._id}
+      className="bg-white border rounded-xl p-4 shadow-sm hover:shadow-md transition"
+    >
+      {/* USER INFO */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <Link to={`/user/${rev.user._id}/blogs`}>
+            <img
+              src={rev?.user?.image}
+              alt="user"
+              className="w-11 h-11 rounded-full object-cover cursor-pointer"
+            />
+          </Link>
 
-                {user?._id === rev?.user?._id && (
-                  <button
-                    onClick={() => deleteReview(rev._id, rev.user._id)}
-                    className="text-sm cursor-pointer bg-red-500 hover:bg-red-600 text-white  px-3 py-1 rounded-md transition-all duration-500"
-                  >
-                    Delete
-                  </button>
-                )}
-              </div>
-            ))}
+          <div>
+            <p className="font-semibold text-gray-800">
+              {rev.user.username}
+            </p>
+            <p className="text-xs text-gray-400">
+              Just now
+            </p>
           </div>
+        </div>
+
+        {userId === rev?.user?._id && (
+          <button
+            onClick={() => deleteReview(rev._id)}
+            className="text-xs bg-red-100 text-red-600 hover:bg-red-200 px-3 py-1 rounded-full transition"
+          >
+            Delete
+          </button>
+        )}
+      </div>
+
+      {/* COMMENT */}
+      <div className="mt-3 ml-14">
+        <p className="text-gray-700 leading-relaxed">
+          {rev.comment}
+        </p>
+      </div>
+    </div>
+  ))}
+</div>
+
         </div>
 
       </div>

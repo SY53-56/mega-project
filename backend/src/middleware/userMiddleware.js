@@ -5,7 +5,7 @@ const userMiddleware = async (req, res, next) => {
   
 
   const token = req.cookies.token;
-
+console.log("token",token)
   if (!token) {
     return res.status(401).json({ message: "Login required" });
   }
@@ -15,8 +15,6 @@ const userMiddleware = async (req, res, next) => {
    
 
     // ✅ FETCH FULL USER (INCLUDING IMAGE)
-    
-
     req.user = decoded; // 🔥 FULL USER OBJECT
     next();
 

@@ -46,13 +46,26 @@ import api from "../api";
   }
 );
 
- export const fetchAddData = createAsyncThunk(
+
+export const fetchAddData = createAsyncThunk(
   "blog/addData",
-  async (blogData, {  rejectWithValue }) => {
+  async ({ blogData, onProgress }, { rejectWithValue }) => {
     try {
+      const res = await api.post("/blog", blogData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+        onUploadProgress: (progressEvent) => {
+          if (onProgress && progressEvent.total) {
+            const percent = Math.round(
+              (progressEvent.loaded * 100) / progressEvent.total
+            );
+            console.log("precent load", percent)
+            onProgress(percent);
+          }
+        },
+      });
 
-
-      const res = await api.post("/blog", blogData);
       return res.data;
     } catch (e) {
       return rejectWithValue(
