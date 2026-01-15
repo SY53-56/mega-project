@@ -56,15 +56,7 @@ console.log("user",user)
             Blogs, thoughts & ideas worth sharing
           </p>
         </div>
-     <img
-  src={user?.image}
-  alt="profile"
-  onError={(e) => {
-    console.log("IMAGE FAILED:", e.target.src);
-    e.target.src = "https://via.placeholder.com/600x400";
-  }}
-/>
-
+   
         {/* FILTER UI */}
         <div className="bg-white shadow-lg border rounded-lg px-4 py-3 w-full md:w-60">
           <label className="block text-xs font-semibold text-gray-500 mb-1">
