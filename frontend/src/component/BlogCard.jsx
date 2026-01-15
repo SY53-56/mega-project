@@ -2,9 +2,8 @@ import { Link } from "react-router-dom";
 import { BookMarkedIcon, Heart } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchGetSingleBlog, fetchLike } from "../features/BlogThunk";
-import { memo, useCallback } from "react";
+import { memo, useCallback} from "react";
 import { fetchSaveBlog } from "../features/authThunk";
-
 const BlogCard = memo(function BlogCard({ blog }) {
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
@@ -22,7 +21,6 @@ const isSaved = user?.saveBlogs?.some(blogObj => blogObj._id === blog._id) || fa
 
 
 
-console.log("blog",blog._id)
 console.log("user",isSaved)
 console.log("userbbdadf",user)
   // ✅ Like handler
@@ -41,7 +39,7 @@ console.log("userbbdadf",user)
     if (!user) return alert("Login first");
 
     dispatch(fetchSaveBlog(blog._id))
-    .then(()=>  alert("blogsaved"))
+    .then(()=>  alert("blog saved"))
   
   }, [dispatch, user, blog._id]);
 
