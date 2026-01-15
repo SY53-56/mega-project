@@ -1,11 +1,11 @@
 const jwt = require("jsonwebtoken");
-const User = require("../models/userModel");
+
 
 const userMiddleware = async (req, res, next) => {
   
 
   const token = req.cookies.token;
-console.log("token",token)
+
   if (!token) {
     return res.status(401).json({ message: "Login required" });
   }
