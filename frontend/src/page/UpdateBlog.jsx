@@ -9,11 +9,10 @@ export default function UpdateBlog() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { currentBlog, status, error } = useSelector((state) => state.blog);
-
+const [file ,setfile] = useState([])
   const [form, setForm] = useState({
     title: "",
     description: "",
-    image: "",
   });
 
   // 1️⃣ Load the blog if not already loaded
@@ -24,7 +23,6 @@ export default function UpdateBlog() {
       setForm({
         title: currentBlog.title || "",
         description: currentBlog.description || "",
-      image: currentBlog.image?.[0] || "",
       });
     }
   }, [currentBlog, id, dispatch]);
@@ -34,18 +32,20 @@ export default function UpdateBlog() {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
   };
+  const handlefile =(e)=>{
+    setfile(Array.from(e.target.files))
+  }
 
   // 3️⃣ Handle form submission
   const handleForm = (e) => {
     e.preventDefault();
 
-    const updatePayload = {
-      title: form.title,
-      description: form.description,
-      image: form.image ? [form.image] : [], // send as array
-    };
+    const formData= new FormData()
+    formData.append("title",form.title)
+    formData.append("description",form.description)
+   file.forEach(f => formData.append("images", f));
 
-    dispatch(fetchUpdate({ id, updateData: updatePayload }))
+    dispatch(fetchUpdate({ id, updateData: formData }))
       .unwrap()
       .then(() => navigate(`/userpage/${id}`))
       .catch((err) => console.error("Update error:", err));
@@ -74,9 +74,10 @@ export default function UpdateBlog() {
           <div className="flex flex-col">
             <label className="text-gray-700 font-semibold mb-1">Image URL</label>
             <input
-              name="image"
-              value={form.image}
-              onChange={handleFormData}
+              name="files"
+              type="file"
+              multiple
+              onChange={handlefile}
               placeholder="https://example.com/image.jpg"
               className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400"
             />

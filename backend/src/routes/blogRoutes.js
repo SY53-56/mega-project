@@ -15,7 +15,7 @@ routes.get("/",getAllBlogs)
 routes.get("/user/:id/",userMiddleware,userAccount)
 routes.get("/:id", getSingleBlog)
 routes.post("/", userMiddleware,uploads.array("images",5),postBlogData)
-routes.put("/:id",userMiddleware,checkBlogOwner,updateBlogData)
+routes.put("/:id",userMiddleware,uploads.array("images",5),checkBlogOwner,updateBlogData)
 routes.delete("/delete/:id",userMiddleware, checkBlogOwner,   deleteBlog)
 routes.put("/like/:id", userMiddleware,likePostApi)
 

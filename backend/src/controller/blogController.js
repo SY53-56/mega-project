@@ -3,7 +3,7 @@ const slugify=  require("slugify")
 const {nanoid} = require("nanoid")
 const User = require("../models/userModel")
 const uploadBufferToCloudinary = require("../utils/uploadToCloudinary")
-
+const cloudinary = require('../config/cloudinary')
 const getAllBlogs = async (req, res) => {
   try {
     const blogs = await Blog.find().populate("author","username image _id followers following"); // fetch all documents
@@ -14,8 +14,6 @@ const getAllBlogs = async (req, res) => {
   }
 };
 
-
-
 const postBlogData = async (req, res) => {
   try {
     const { title, description } = req.body;
@@ -24,40 +22,43 @@ const postBlogData = async (req, res) => {
 
     const slug = `${slugify(title, { lower: true, strict: true })}-${nanoid(6)}`;
     const authorId = req.user.id;
-console.log("Files received:", req.files);
-console.log("Body received:", req.body);
 
-    // Upload files
     const files = req.files || [];
+
     const uploaded = await Promise.all(
-      files.map(async (file)=>{
-              if (!file.mimetype.startsWith("image/")) {
+      files.map(async (file) => {
+        if (!file.mimetype.startsWith("image/")) {
           throw new Error("Only image files are allowed");
         }
         if (file.size > 8 * 1024 * 1024) {
-          throw new Error("File too large, max 5MB");
+          throw new Error("File too large, max 8MB");
         }
-        const result=  await uploadBufferToCloudinary(file.buffer)
-           return result.secure_url;
+
+        const result = await uploadBufferToCloudinary(file.buffer);
+
+        return {
+          url: result.secure_url,
+          publicId: result.public_id,
+        };
       })
     );
-  
 
     const blog = await Blog.create({
       title,
       description,
-      image:uploaded,
+      image: uploaded.map((img) => img.url),
+      imagePublicId: uploaded.map((img) => img.publicId),
       author: authorId,
       slug,
     });
 
-
-    res.status(200).json({ success: true, blog });
+    res.status(201).json({ success: true, blog });
   } catch (e) {
     console.error("Error in postBlogData:", e);
     res.status(500).json({ success: false, message: e.message });
   }
 };
+
 
 
 const getSingleBlog=async(req,res)=>{
@@ -101,35 +102,41 @@ const userAccount = async (req, res) => {
 const updateBlogData = async (req, res) => {
   try {
     const { id } = req.params;
-    const { title, description, image } = req.body;
+    const { title, description } = req.body;
 
     const blog = await Blog.findById(id);
-    if (!blog) {
-      return res.status(404).json({ success: false, message: "Blog not found" });
-    }
+    if (!blog) return res.status(404).json({ success: false, message: "Blog not found" });
 
     // Authorization
     if (blog.author.toString() !== req.user.id) {
-      return res.status(403).json({ success: false, message: "Not authorized to update this blog" });
+      return res.status(403).json({ success: false, message: "Not authorized" });
     }
 
-    // Update fields only if provided
-    if (typeof title === "string") blog.title = title;
-    if (typeof description === "string") blog.description = description;
+    if (title) blog.title = title;
+    if (description) blog.description = description;
 
-    // Handle image safely
-    if (Array.isArray(image)) {
-      blog.image = image.filter(Boolean);
-    } else if (typeof image === "string" && image.trim() !== "") {
-      blog.image = [image];
+    if (req.files && req.files.length > 0) {
+  // Delete old images
+  if (blog.imagePublicId?.length) {
+    for (const publicId of blog.imagePublicId) {
+      await cloudinary.uploader.destroy(publicId);
     }
+  }
+
+  // Upload new images
+  const uploaded = await Promise.all(
+    req.files.map(file => uploadBufferToCloudinary(file.buffer))
+  );
+
+  blog.image = uploaded.map(u => u.secure_url);
+  blog.imagePublicId = uploaded.map(u => u.public_id);
+}
 
     await blog.save();
-
     res.status(200).json({ success: true, blog });
   } catch (e) {
     console.error("UpdateBlog error:", e);
-    res.status(500).json({ success: false, message: "Server error" });
+    res.status(500).json({ success: false, message: e.message });
   }
 };
 
@@ -140,6 +147,8 @@ const deleteBlog = async (req, res) => {
     const { id } = req.params; // blog ID from URL
 
     const deletedBlog = await Blog.findByIdAndDelete(id);
+    
+
 
     if (!deletedBlog) {
       return res.status(404).json({ success: false, message: "Blog not found" });

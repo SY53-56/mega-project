@@ -4,17 +4,19 @@ import { fetchLogin, fetchSignup, followUser, fetchMe, fetchSaveBlog } from "./a
 const authSlice = createSlice({
   name: "auth",
   initialState: {
-    user:JSON.parse(localStorage.getItem("user"))|| null,
+    user:  null,
+    
     error: null,
     status: "idle",
   },
   reducers:{
- logout: (state) => {
-  state.user = null;
-  state.error = null;
-  state.status = "idle";
-  localStorage.removeItem("user");
-},
+   logout: (state) => {
+      state.user = null;
+      state.token = null;
+      state.error = null;
+      state.status = "idle";
+    },
+    
   },
   extraReducers: (builder) => {
     builder
@@ -30,7 +32,6 @@ const authSlice = createSlice({
         state.error = null;
      
         // persist user
-        localStorage.setItem("user", JSON.stringify(action.payload.user));
    
       })
       .addCase(fetchSignup.rejected, (state, action) => {
@@ -45,7 +46,7 @@ const authSlice = createSlice({
         state.status = "succeeded";
         state.user = action.payload.user;
         state.error = null;
-        localStorage.setItem("user",JSON.stringify(action.payload.user))
+     
     
       })
       .addCase(fetchLogin.rejected, (state, action) => {
@@ -59,7 +60,8 @@ const authSlice = createSlice({
       .addCase(followUser.fulfilled,(state ,action)=>{
            state.status = "succeeded";
            state.user = action.payload.user;
-           localStorage.setItem("user",JSON.stringify(action.payload.user))
+         
+     
               
         state.error = null;
       
@@ -68,13 +70,13 @@ const authSlice = createSlice({
     
       .addCase(fetchMe.fulfilled, (state, action) => {
          state.status = "succeeded";
-  state.user = action.payload;
+  state.user = action.payload.user||action.payload
    state.error = action.payload
-  localStorage.setItem("user", JSON.stringify(action.payload));
+
 }).addCase(fetchSaveBlog.fulfilled,(state,action)=>{
   state.status = "succeeded";
   state.user= action.payload.user
-   localStorage.setItem("user",JSON.stringify(action.payload.user))
+
   state.error = action.payload
 })
 

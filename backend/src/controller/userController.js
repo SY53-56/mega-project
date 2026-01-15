@@ -12,7 +12,7 @@ const generateToken = (user) => {
     { expiresIn: "7d" }
   );
 };
-
+    const isProd = process.env.NODE_ENV === "production";
 // ================= SIGNUP =================
 const userSignup = async (req, res) => {
   try {
@@ -40,12 +40,12 @@ const userSignup = async (req, res) => {
     const token = generateToken(user);
 
     // ✅ CORRECT COOKIE CONFIG
-    res.cookie("token", token, {
-      httpOnly: true,
-      secure: false,                 // true in prod, false in localhost
-      sameSite: "lax",
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-    });
+   res.cookie("token", token, {
+  httpOnly: true,
+  secure: isProd,                     // localhost: false, prod: true
+  sameSite: isProd ? "none" : "lax", // localhost: lax, prod: none
+  maxAge: 7 * 24 * 60 * 60 * 1000,   // 7 days
+});
 
     res.status(201).json({
       success: true,
@@ -80,12 +80,12 @@ const userLogin = async (req, res) => {
     const token = generateToken(user);
 console.log(token)
     // ✅ SAME COOKIE CONFIG
-    res.cookie("token", token, {
-      httpOnly: true,
-      secure: false,
-      sameSite:  "lax",
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-    });
+  res.cookie("token", token, {
+  httpOnly: true,
+  secure: isProd,                     // localhost: false, prod: true
+  sameSite: isProd ? "none" : "lax", // localhost: lax, prod: none
+  maxAge: 7 * 24 * 60 * 60 * 1000,   // 7 days
+});
 
     res.status(200).json({
       success: true,
@@ -102,12 +102,14 @@ console.log(token)
   }
 };
 
+
 // ================= LOGOUT =================
 const userLogout = (req, res) => {
   res.clearCookie("token", {
-    httpOnly: true,
-    secure: false,
-    sameSite:  "lax",
+     httpOnly: true,
+  secure: isProd,                     // localhost: false, prod: true
+  sameSite: isProd ? "none" : "lax", // localhost: lax, prod: none
+
   });
    res.status(200).json({ success: true, message: "Logged out successfully" });
 }
