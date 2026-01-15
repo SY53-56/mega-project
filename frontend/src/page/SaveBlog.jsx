@@ -3,10 +3,9 @@ import BlogCard from "../component/BlogCard";
 
 export default function SaveBlog() {
   const { user } = useSelector(state => state.auth);
-  const {blog} = useSelector(state=>state.blog)
-console.log("savebgldgh",user)
 
-console.log("jhdhksdfkh",blog)
+
+
   if (!user?.saveBlogs?.length) {
     return <p className="text-center mt-10">No saved blogs yet</p>;
   }

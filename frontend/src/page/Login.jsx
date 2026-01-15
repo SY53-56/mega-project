@@ -15,7 +15,6 @@ export default function Login() {
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
-console.log("foem",form)
   const formHandler = async (e) => {
     e.preventDefault();
     try {

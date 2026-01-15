@@ -27,18 +27,15 @@ export default function UserPage() {
     (state) => state.blog
   );
   const { user } = useSelector((state) => state.auth);
-console.log("review",review)
+
   const authorId = currentBlog?.author?._id
   const imageLength = currentBlog?.image?.length || 0;
- console.log("gdfd",authorId)
- console.log(user)
+
  let userId = user?.id || user?._id
   const isFollowing = user?.following?.includes(authorId);
 const isLiked = currentBlog?.like
   ?.map(id => id)
   ?.includes(user?._id);
-
-console.log("current",currentBlog)
   /* ================= FOLLOW ================= */
   const followedButton = () => {
     if (!user) return alert("Please login");
@@ -128,7 +125,7 @@ console.log("current",currentBlog)
             {/* IMAGE SLIDER */}
             <div className="relative">
               <img
-                src={currentBlog.image?.[imgIndex]}
+                src={currentBlog?.image?.[imgIndex]}
                 alt="blog"
                 className="w-full h-[260px] lg:h-[520px] object-cover"
               />
@@ -153,7 +150,7 @@ console.log("current",currentBlog)
                 <div className="flex items-center gap-4">
                 <Link to={`/user/${authorId}/blogs`}>
                   <img
-                    src={currentBlog.author?.image || "https://via.placeholder.com/150"}
+                    src={currentBlog.author?.image || "https://wallpaperaccess.com/full/8669676.jpg"}
                     className=" w-16 lg:w-20 h-12 rounded-full object-cover"
                   />
                 </Link>

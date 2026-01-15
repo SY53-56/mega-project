@@ -228,7 +228,7 @@ const getFollowerData= async(req,res)=>{
   try{
          let {userid} =  req.params;
          
-         let user = await User.findById(userid).populate("followers" , "username img").populate("following", "username img");
+         let user = await User.findById(userid).populate("followers" , "username image").populate("following", "username image");
    if (!user) {
       return res.status(404).json({ success: false, message: "User not found" });
     }

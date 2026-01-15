@@ -14,8 +14,7 @@ export default function UserAccount() {
   //const {user} =  useSelector((state) => state.auth.user)
 
 
-console.log("blog",blog)
-console.log("profile",userProfile)
+
   useEffect(() => {
     if (id) dispatch(fetchUserAccount(id));
   }, [dispatch, id]);
