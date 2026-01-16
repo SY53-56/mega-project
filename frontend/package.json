@@ -13,7 +13,6 @@
     "@reduxjs/toolkit": "^2.9.0",
     "@tailwindcss/vite": "^4.1.14",
     "axios": "^1.12.2",
-    "backend": "file:..",
     "browser-image-compression": "^2.0.2",
     "lucide-react": "^0.545.0",
     "react": "^19.1.1",
