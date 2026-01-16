@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchGetData } from "../features/BlogThunk";
+import { fetchGetData} from "../features/BlogThunk";
 import BlogCard from "../component/BlogCard";
 import { fetchMe } from "../features/authThunk";
 
@@ -35,12 +35,8 @@ const filtersData = Array.isArray(blog)
   useEffect(() => {
     dispatch(fetchGetData())
     dispatch(fetchMe())
+
   }, [dispatch]);
-
-  useEffect(()=>{
-
-console.log("user",user)
-  },[user])
 
 
   return (
