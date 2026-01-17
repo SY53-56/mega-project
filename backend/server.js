@@ -11,27 +11,16 @@ const BlogRoutes = require("./src/routes/blogRoutes");
 const ReviewRoutes = require("./src/routes/reviewRoutes");
 
 const app = express();
+
 /* ================= CORS ================= */
-const allowedOrigins = [
-  "http://localhost:5173",
-  "https://mega-project-85fr.vercel.app/"
-];
+app.use(cors({
+  origin: [
+    "http://localhost:5173",
+    "https://mega-project-85fr.vercel.app"
+  ],
+  credentials: true
+}));
 
-app.use(
-  cors({
-    origin: (origin, callback) => {
-      // browser direct hit (postman / server-to-server)
-      if (!origin) return callback(null, true);
-
-      if (allowedOrigins.includes(origin)) {
-        return callback(null, true);
-      } else {
-        return callback(new Error("CORS blocked: " + origin));
-      }
-    },
-    credentials: true,
-  })
-);
 /* ================= MIDDLEWARE ================= */
 app.use(cookieParser());
 app.use(express.json());
@@ -46,7 +35,6 @@ app.get("/", (req, res) => {
   res.send("Backend is running");
 });
 
-/* ================= START SERVER ================= */
 const PORT = process.env.PORT || 5000;
 
 const start = async () => {
@@ -61,3 +49,4 @@ const start = async () => {
 };
 
 start();
+
