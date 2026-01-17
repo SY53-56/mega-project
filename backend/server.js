@@ -14,7 +14,7 @@ const app = express();
 /* ================= CORS ================= */
 const allowedOrigins = [
   "http://localhost:5173",
-  "https://mega-project-i8zw-git-main-sahul-yadavs-projects-6df64d48.vercel.app"
+  "https://mega-project-85fr.vercel.app/"
 ];
 
 app.use(
