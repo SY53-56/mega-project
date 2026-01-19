@@ -7,22 +7,17 @@ import { fetchSaveBlog } from "../features/authThunk";
 const BlogCard = memo(function BlogCard({ blog }) {
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
-  console.log("blog",blog)
+
   // ✅ Like check
   const isLike = user
     ? blog?.like?.includes(user._id)
     : false;
 
-  // ✅ Save check (FIXED)
- // ✅ Save check (FIXED PROPERLY)
-// ✅ Save check (FIXED PROPERLY)
 const isSaved = user?.saveBlogs?.some(blogObj => blogObj._id === blog._id) || false;
 
 
 
 
-console.log("user",isSaved)
-console.log("userbbdadf",user)
   // ✅ Like handler
   const handleLike = useCallback(() => {
     if (!user) return alert("Login first");

@@ -32,11 +32,16 @@ const filtersData = Array.isArray(blog)
     })
   : [];
 
-  useEffect(() => {
-    dispatch(fetchGetData())
-    dispatch(fetchMe())
+useEffect(() => {
+  dispatch(fetchGetData());
+}, [dispatch]);
 
-  }, [dispatch]);
+useEffect(() => {
+  if (user) {
+    dispatch(fetchMe());
+  }
+},[dispatch , user]);
+
 
 
   return (
@@ -70,7 +75,7 @@ const filtersData = Array.isArray(blog)
 
       {/* STATES */}
       {status === "loading" && (
-        <p className="text-center text-gray-500">Loading blogs...</p>
+        <p className="text-center text-2xl text-gray-500">Please wait, server is starting...</p>
       )}
 
       {error && (

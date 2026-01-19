@@ -10,7 +10,7 @@ export default function Footer() {
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 text-center sm:text-left">
           {/* Brand / Info */}
           <div>
-            <h2 className="text-xl font-semibold text-white">MyWebsite</h2>
+            <h2 className="text-xl font-semibold text-white">Blog app</h2>
             <p className="mt-2 text-sm text-gray-400">
               Building simple, beautiful web experiences with React.
             </p>
