@@ -48,9 +48,11 @@ const isLiked = currentBlog?.like
   /* ================= FETCH BLOG ================= */
   useEffect(() => {
     if (!id) return;
-    dispatch(fetchGetSingleBlog(id));
+ if( !currentBlog && currentBlog?.id !== id){
+     dispatch(fetchGetSingleBlog(id));
     dispatch(fetchReview(id));
-  }, [id, dispatch]);
+ }
+  }, [id]);
 
   /* ================= AUTO SLIDER (FIXED) ================= */
   useEffect(() => {
@@ -115,8 +117,10 @@ const isLiked = currentBlog?.like
         <h1 className="text-4xl font-extrabold text-center mb-10 text-gray-800">
           Blog Details
         </h1>
+{status === "loading" && (
+  <div className="animate-pulse h-[400px] bg-gray-200 rounded-xl" />
+)}
 
-        {status === "loading" && <p className="text-center">Loading...</p>}
         {error && <p className="text-center text-red-500">{error}</p>}
 
         {currentBlog && (

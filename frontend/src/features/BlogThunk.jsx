@@ -12,7 +12,7 @@ import { setUploadPercent } from "./blogSlice";
   async (_, {  rejectWithValue }) => {
     try {
    
-      const res = await api.get("/blog?page=1&limit=5",{
+      const res = await api.get("/blog?page=1&limit=8",{
           
       });
       return res.data; // { blogs: [...] }

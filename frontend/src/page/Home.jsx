@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchGetData} from "../features/BlogThunk";
 import BlogCard from "../component/BlogCard";
 import { fetchMe } from "../features/authThunk";
+import { useMemo } from "react";
 
 export default function Home() {
   const dispatch = useDispatch();
@@ -11,13 +12,15 @@ export default function Home() {
 const [filters ,setFilters] =useState("all")
  
 console.log( "sahul",user)
-const filtersData = Array.isArray(blog)
-  ? blog.filter((items) => {
+console.log("blogData",blog)
+const filtersData = useMemo(()=>{
+   if(!Array.isArray(blog)) return[]
+   return blog.filter((items) => {
       let blogDate = new Date(items.createdAt);
       let today = new Date();
 
       if (filters === "today") {
-        return today.toDateString() === blogDate.toDateString();
+        return today.toDateString() === blogDate.toDateString() 
       }
 
       if (filters === "7days") {
@@ -30,16 +33,22 @@ const filtersData = Array.isArray(blog)
 
       return true;
     })
-  : [];
 
+},[blog,filters])
+
+
+console.log("filter",filters)
 useEffect(() => {
   if (!blog?.length) {
     dispatch(fetchGetData());
   }
-  dispatch(fetchMe());
+
 }, [dispatch, blog?.length]);
 
 
+useEffect(() => {
+  dispatch(fetchMe());
+}, [dispatch]);
 
 
   return (
@@ -72,10 +81,11 @@ useEffect(() => {
       </div>
 
       {/* STATES */}
-      {status === "loading" && (
+      {status === "loading" &&  (
         <p className="text-center text-2xl text-gray-500">Please wait,server is starting...</p>
       )}
 
+  
       {error && (
         <p className="text-center text-red-500">{error}</p>
       )}
