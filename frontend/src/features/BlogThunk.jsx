@@ -1,6 +1,7 @@
 import {  createAsyncThunk } from "@reduxjs/toolkit";
 
 import api from "../api";
+import { setUploadPercent } from "./blogSlice";
 
 
 // ------------------- Thunks -------------------
@@ -11,7 +12,9 @@ import api from "../api";
   async (_, {  rejectWithValue }) => {
     try {
    
-      const res = await api.get("/blog");
+      const res = await api.get("/blog?page=1&limit=5",{
+          
+      });
       return res.data; // { blogs: [...] }
     } catch (e) {
       return rejectWithValue(e.response?.data?.message || e.message || "Failed to fetch blogs");
@@ -49,19 +52,18 @@ import api from "../api";
 
 export const fetchAddData = createAsyncThunk(
   "blog/addData",
-  async ({ blogData, onProgress }, { rejectWithValue }) => {
+  async ({ blogData }, {dispatch, rejectWithValue }) => {
     try {
       const res = await api.post("/blog", blogData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
         onUploadProgress: (progressEvent) => {
-          if (onProgress && progressEvent.total) {
+          if ( progressEvent.total) {
             const percent = Math.round(
               (progressEvent.loaded * 100) / progressEvent.total
             );
-            console.log("precent load", percent)
-            onProgress(percent);
+            dispatch(setUploadPercent(percent))
           }
         },
       });

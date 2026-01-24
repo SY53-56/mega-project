@@ -6,11 +6,11 @@ import { fetchMe } from "../features/authThunk";
 
 export default function Home() {
   const dispatch = useDispatch();
-  const { blog, status, error } = useSelector((state) => state.blog);
+  const { blog, status, error,  } = useSelector((state) => state.blog);
   const {user} = useSelector(state=>state.auth)
 const [filters ,setFilters] =useState("all")
  
-console.log(user)
+console.log( "sahul",user)
 const filtersData = Array.isArray(blog)
   ? blog.filter((items) => {
       let blogDate = new Date(items.createdAt);
@@ -33,14 +33,12 @@ const filtersData = Array.isArray(blog)
   : [];
 
 useEffect(() => {
-  dispatch(fetchGetData());
-}, [dispatch]);
-
-useEffect(() => {
-  if (user) {
-    dispatch(fetchMe());
+  if (!blog?.length) {
+    dispatch(fetchGetData());
   }
-},[dispatch , user]);
+  dispatch(fetchMe());
+}, [dispatch, blog?.length]);
+
 
 
 
@@ -75,7 +73,7 @@ useEffect(() => {
 
       {/* STATES */}
       {status === "loading" && (
-        <p className="text-center text-2xl text-gray-500">Please wait, server is starting...</p>
+        <p className="text-center text-2xl text-gray-500">Please wait,server is starting...</p>
       )}
 
       {error && (

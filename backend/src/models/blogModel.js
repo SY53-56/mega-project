@@ -28,12 +28,14 @@ const blogSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
+      index:true
     },
 
     slug: {
       type: String,
       required: true,
       unique: true,
+      index:true
     },
 
     like: [
@@ -46,4 +48,7 @@ const blogSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+blogSchema.index({ createdAt: -1 }); // for sorting
+blogSchema.index({ author: 1 });     // user blogs
+blogSchema.index({ slug: 1 });  
 module.exports = mongoose.model("Blog", blogSchema);

@@ -5,43 +5,54 @@ const blogSlice = createSlice({
   name: "blog",
   initialState: {
     blog: [],
-     followers: [],      // ✅ ADD THIS
+     followers: [],      // ADD THIS
   following: [], 
     userProfile:null, 
     review:[],        // all blogs or user blogs
     currentBlog: null, // single blog
     status: "idle",    // idle | loading | succeeded | failed
     error: null,
+    uploadPercent:0
   },
-  reducers: {},
+  reducers: {
+      setUploadPercent: (state, action) => {
+    state.uploadPercent = action.payload;   //  Step 2
+  },
+  },
   extraReducers: (builder) => {
     builder
       // Fetch all blogs
       .addCase(fetchGetData.pending, (state) => {
         state.status = "loading";
         state.error = null;
+        state.uploadPercent= 0
       })
       .addCase(fetchGetData.fulfilled, (state, action) => {
         state.status = "succeeded";
         state.blog = action.payload.blogs || [];
+        state.uploadPercent= 100
       })
       .addCase(fetchGetData.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.payload;
+state.uploadPercent= 0
       })
 
       // Fetch single blog
       .addCase(fetchGetSingleBlog.pending, (state) => {
         state.status = "loading";
         state.error = null;
+        state.uploadPercent=0
       })
       .addCase(fetchGetSingleBlog.fulfilled, (state, action) => {
         state.status = "succeeded";
         state.currentBlog = action.payload.blog || null;
+          state.uploadPercent= 100
       })
       .addCase(fetchGetSingleBlog.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.payload;
+        state.uploadPercent= 0
       })
 
       // Fetch user blogs
@@ -63,10 +74,12 @@ const blogSlice = createSlice({
       .addCase(fetchAddData.pending, (state) => {
         state.status = "loading";
         state.error = null;
+        state.uploadPercent =0
       })
       .addCase(fetchAddData.fulfilled, (state, action) => {
         state.status = "succeeded";
         if (action.payload.blog) state.blog.unshift(action.payload.blog);
+          state.uploadPercent= 100
       })
       .addCase(fetchAddData.rejected, (state, action) => {
         state.status = "failed";
@@ -182,4 +195,5 @@ const blogSlice = createSlice({
   },
 });
 
+export const {setUploadPercent} = blogSlice.actions
 export default blogSlice.reducer;

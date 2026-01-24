@@ -9,8 +9,7 @@ export default function AddBlog() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const [progress, setProgress] = useState(0);
-  const { status, error } = useSelector((state) => state.blog);
+  const { status, error,   uploadPercent } = useSelector((state) => state.blog);
 
   const [form, setForm] = useState({ title: "", description: "" });
   const [files, setFiles] = useState([]);
@@ -48,7 +47,7 @@ export default function AddBlog() {
 
     try {
       await dispatch(
-        fetchAddData({ blogData: formData, onProgress: setProgress })
+        fetchAddData({ blogData: formData,})
       ).unwrap();
 
       navigate("/");
@@ -128,10 +127,10 @@ export default function AddBlog() {
             <div className="h-2 bg-gray-200 rounded-lg overflow-hidden">
               <div
                 className="h-full bg-amber-500 transition-all duration-300"
-                style={{ width: `${progress}%` }}
+                style={{ width: `${   uploadPercent}%` }}
               />
             </div>
-            <p className="text-center text-sm mt-1">{progress}%</p>
+            <p className="text-center text-sm mt-1">{   uploadPercent}%</p>
           </div>
         )}
 

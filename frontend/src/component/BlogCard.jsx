@@ -114,7 +114,7 @@ const isSaved = user?.saveBlogs?.some(blogObj => blogObj._id === blog._id) || fa
               size={16}
               onClick={handleLike}
               className={`cursor-pointer active:scale-90 ${
-                isLike ? "text-red-500" : "text-gray-700"
+                isLike ? "text-red-500 fill-red-500 " : "text-gray-700"
               }`}
             />
             <span className="text-sm">{blog.like?.length || 0}</span>

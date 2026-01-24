@@ -27,7 +27,7 @@ export default function UserPage() {
     (state) => state.blog
   );
   const { user } = useSelector((state) => state.auth);
-
+console.log("userpage",currentBlog)
   const authorId = currentBlog?.author?._id
   const imageLength = currentBlog?.image?.length || 0;
 
@@ -37,6 +37,7 @@ const isLiked = currentBlog?.like
   ?.map(id => id)
   ?.includes(user?._id);
   /* ================= FOLLOW ================= */
+
   const followedButton = () => {
     if (!user) return alert("Please login");
     if (userId=== authorId) return alert("You cannot follow yourself");
@@ -97,13 +98,12 @@ const isLiked = currentBlog?.like
 
     dispatch(fetchReviewDelete(reviewId))
       .unwrap()
-      .then(() => dispatch(fetchReview(id)));
+     
   };
  
   function handleLike(){
      if (!user) return alert("Please login to like this blog");
     dispatch(fetchLike(currentBlog?._id)).unwrap()
-    .then(()=>dispatch(fetchGetSingleBlog(currentBlog._id)))
   }
 
   const isAuthor =     userId === authorId  
@@ -127,6 +127,7 @@ const isLiked = currentBlog?.like
               <img
                 src={currentBlog?.image?.[imgIndex]}
                 alt="blog"
+                  loading="lazy"
                 className="w-full h-[260px] lg:h-[520px] object-cover"
               />
 
@@ -166,9 +167,9 @@ const isLiked = currentBlog?.like
                     <div className="flex  justify-center gap-2 items-center">
                       <button
                       onClick={handleLike}
-                      className={`flex items-center cursor-pointer gap-1 px-3 py-1 rounded-full ${isLiked ? "bg-red-200" : "bg-gray-100"}`}
+                      className={`flex items-center cursor-pointer gap-1 px-3 py-1 rounded-full ${isLiked ? "bg-white" : "bg-gray-100"}`}
                     >
-                      <Heart size={18} className={`transition ${isLiked ? "text-red-500 full-red-500" : "text-gray-500"}`} />
+                      <Heart size={18} className={`transition ${isLiked ? "text-red-500 fill-red-500" : "text-gray-500"}`} />
                     </button>
                              <span>{currentBlog.like?.length || 0}</span>
                     </div>
