@@ -3,20 +3,22 @@ import { BookMarkedIcon, Heart } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchGetSingleBlog, fetchLike } from "../features/BlogThunk";
 import { memo, useCallback} from "react";
-import { fetchSaveBlog } from "../features/authThunk";
+import {   fetchSaveBlog } from "../features/authThunk";
+//import { useEffect } from "react";
 const BlogCard = memo(function BlogCard({ blog }) {
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
-
+console.log("login uaer",user)
   // ✅ Like check
   const isLike = user
     ? blog?.like?.includes(user._id)
     : false;
 
-const isSaved = user?.saveBlogs?.some(blogObj => blogObj._id === blog._id) || false;
 
+const isSaved = user?.saveBlogs?.includes(blog?._id)
+console.log("saved", isSaved)
 
-
+console.log("sahul blog",blog)
 
   // ✅ Like handler
   const handleLike = useCallback(() => {
@@ -28,15 +30,17 @@ const isSaved = user?.saveBlogs?.some(blogObj => blogObj._id === blog._id) || fa
 
   // ✅ Save handler (NO NAVIGATION)
   const handleSave = useCallback((e) => {
-    e.preventDefault();
-    e.stopPropagation();
+  e.preventDefault();
+  e.stopPropagation();
 
-    if (!user) return alert("Login first");
+  if (!user) return alert("Login first");
 
-    dispatch(fetchSaveBlog(blog._id))
-    .then(()=>  alert("blog saved"))
+  dispatch(fetchSaveBlog(blog._id))
+ .then(()=>alert(`${isSaved?"unsave":"Saved"}`))
   
-  }, [dispatch, user, blog._id]);
+}, [dispatch, blog._id, user,isSaved]);
+
+
 
   return (
     <div className="bg-white rounded-3xl shadow-md hover:shadow-2xl transition-all duration-300 overflow-hidden group relative">

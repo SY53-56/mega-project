@@ -8,7 +8,7 @@ import api from "../api";
     try {
       const res = await api.post("/user/signup",userData);
 
-      return res.data; 
+      return res.data.user
     } catch (e) {
      return rejectWithValue(
         e.response?.data?.message ||
@@ -24,7 +24,7 @@ import api from "../api";
   async (data, { rejectWithValue }) => {
     try {
       const res = await api.post("/user/login", data);
-      return res.data; // cookie already set by backend
+      return res.data.user; // cookie already set by backend
     } catch (e) {
       return rejectWithValue(
         e.response?.data?.message ||
@@ -43,7 +43,7 @@ import api from "../api";
       
      const res = await api.put(`/user/follow/${authorId}`)
 
-      return res.data; // { user, token? }
+      return res.data.user // { user, token? }
     } catch (e) {
       return rejectWithValue(
         e.response?.data?.message ||
@@ -68,7 +68,7 @@ const logout = createAsyncThunk("logout/user",async(_,{rejectWithValue})=>{
 const fetchMe= createAsyncThunk("user/data",async(_ ,{   rejectWithValue})=>{
     try{
    let res= await api.get("/user/userAccount")
-    return res.data
+    return res.data.user
     }catch(e){
        return rejectWithValue(
         e.response?.data?.message ||
@@ -80,7 +80,7 @@ const fetchMe= createAsyncThunk("user/data",async(_ ,{   rejectWithValue})=>{
 const fetchSaveBlog= createAsyncThunk("save/data",async(blogId,{rejectWithValue})=>{
   try{
    let res= await api.put(`/user/saveBlog/`,{blogId})
-   return res.data
+   return res.data.user
   }catch(e){
        return rejectWithValue(
         e.response?.data?.message ||

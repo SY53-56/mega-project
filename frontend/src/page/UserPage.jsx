@@ -33,6 +33,7 @@ console.log("userpage",currentBlog)
 
  let userId = user?.id || user?._id
   const isFollowing = user?.following?.includes(authorId);
+
 const isLiked = currentBlog?.like
   ?.map(id => id)
   ?.includes(user?._id);

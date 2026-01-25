@@ -39,7 +39,7 @@ export default function Header() {
         <nav className="hidden lg:flex items-center gap-8">
           {user?.saveBlogs?.length > 0 && (
             <NavLink
-              to={`/saveblog/${user._id}`}
+              to={`/saveblog`}
               className={({ isActive }) =>
                 `font-medium transition-all duration-500 ${
                   isActive
@@ -120,7 +120,7 @@ export default function Header() {
         <div className="px-6 py-4 flex flex-col gap-4 bg-slate-900/90 backdrop-blur-md border-t border-white/10">
           {user?.saveBlogs?.length > 0 && (
             <NavLink
-              to={`/saveblog/${user._id}`}
+              to={`/saveblog`}
               className={({ isActive }) =>
                 `font-medium transition-all duration-500 ${
                   isActive

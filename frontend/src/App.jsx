@@ -1,4 +1,4 @@
-import React, { Suspense, lazy } from "react";
+import React, { Suspense, lazy, useEffect } from "react";
 import { Routes, Route } from "react-router-dom";
 import Layouts from "./Layouts";
 
@@ -13,8 +13,14 @@ const SaveBlog = lazy(() => import("./page/SaveBlog"));
 // Non-lazy pages (small)
 import Login from "./page/Login";
 import CreateAccount from "./page/CreateAccount";
+import { useDispatch } from "react-redux";
+import { fetchMe } from "./features/authThunk";
 
 export default function App() {
+  const disptch = useDispatch()
+  useEffect(()=>{
+    disptch(fetchMe())
+  }, [])
   return (
     <Routes>
       {/* Routes with layout */}
@@ -61,7 +67,7 @@ export default function App() {
           }
         />
         <Route
-          path="/saveBlog/:id"
+          path="/saveBlog"
           element={
             <Suspense fallback={<div className="text-center mt-20">Loading SaveBlog...</div>}>
               <SaveBlog />

@@ -12,7 +12,7 @@ const authSlice = createSlice({
   reducers:{
    logout: (state) => {
       state.user = null;
-      state.token = null;
+   
       state.error = null;
       state.status = "idle";
     },
@@ -26,7 +26,7 @@ const authSlice = createSlice({
       })
       .addCase(fetchSignup.fulfilled, (state, action) => {
         state.status = "succeeded";
-        state.user = action.payload.user;
+        state.user = action.payload
       
       
         state.error = null;
@@ -44,8 +44,8 @@ const authSlice = createSlice({
       })
       .addCase(fetchLogin.fulfilled, (state, action) => {
         state.status = "succeeded";
-        state.user = action.payload.user;
-        state.error = null;
+        state.user = action.payload
+       state.error = null;
      
     
       })
@@ -59,7 +59,7 @@ const authSlice = createSlice({
       })
       .addCase(followUser.fulfilled,(state ,action)=>{
            state.status = "succeeded";
-           state.user = action.payload.user;
+           state.user = action.payload
          
      
               
@@ -70,14 +70,13 @@ const authSlice = createSlice({
     
       .addCase(fetchMe.fulfilled, (state, action) => {
          state.status = "succeeded";
-  state.user = action.payload.user||action.payload
-   state.error = action.payload
+  state.user = action.payload
+  state.error = null;
 
 }).addCase(fetchSaveBlog.fulfilled,(state,action)=>{
   state.status = "succeeded";
-  state.user= action.payload.user
-
-  state.error = action.payload
+  state.user= action.payload
+state.error = null;
 })
 
   },

@@ -144,10 +144,12 @@ export const fetchDelete = createAsyncThunk(
     return rejectWithValue(e.response?.data?.message || e.message || "Failed to delete review");
   }
 })
- export const fetchLike = createAsyncThunk("like/blog",async(blogId,{rejectWithValue})=>{
+ export const fetchLike = createAsyncThunk("like/blog",async(blogId,{ getState,rejectWithValue})=>{
    try{
     const res= await api.put(`/blog/like/${blogId}`)
-    return {blogId , liked: res.data.liked}
+    
+      const userId = getState().auth.user._id
+    return {blogId , liked: res.data.liked,userId}
    }catch(e){
  return rejectWithValue(e.response?.data?.message || e.message || "Failed to like blog");
    }

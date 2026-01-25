@@ -152,12 +152,12 @@ state.uploadPercent= 0
   state.error = action.payload;
 })
 .addCase(fetchLike.fulfilled, (state, action) => {
-  const { blogId, liked } = action.payload;
+  const { blogId, liked ,userId } = action.payload;
 
   // ✅ currentBlog update
   if (state.currentBlog?._id === blogId) {
     if (liked) {
-      state.currentBlog.like.push(state.userId); // optional
+      state.currentBlog.like.push(userId); // optional
     } else {
       state.currentBlog.like = state.currentBlog.like.filter(
         (id) => id !== state.userId
@@ -171,8 +171,8 @@ state.uploadPercent= 0
       ? {
           ...b,
           like: liked
-            ? [...b.like, state.userId]
-            : b.like.filter((id) => id !== state.userId),
+            ? [...b.like, userId]
+            : b.like.filter((id) => id !==userId),
         }
       : b
   );
