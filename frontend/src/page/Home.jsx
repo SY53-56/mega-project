@@ -11,8 +11,7 @@ export default function Home() {
   const {user} = useSelector(state=>state.auth)
 const [filters ,setFilters] =useState("all")
  
-console.log( "sahul",user)
-console.log("blogData",blog)
+
 const filtersData = useMemo(()=>{
    if(!Array.isArray(blog)) return[]
    return blog.filter((items) => {
@@ -37,7 +36,7 @@ const filtersData = useMemo(()=>{
 },[blog,filters])
 
 
-console.log("filter",filters)
+
 useEffect(() => {
   if (!blog?.length) {
     dispatch(fetchGetData());

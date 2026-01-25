@@ -27,7 +27,7 @@ export default function UserPage() {
     (state) => state.blog
   );
   const { user } = useSelector((state) => state.auth);
-console.log("userpage",currentBlog)
+
   const authorId = currentBlog?.author?._id
   const imageLength = currentBlog?.image?.length || 0;
 

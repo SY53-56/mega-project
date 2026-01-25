@@ -137,11 +137,12 @@ const saveBlog = async (req, res) => {
     if (!user)
       return res.status(404).json({ success: false, message: "User not found" });
 
-    // ✅ Works for both IDs & populated objects
-    const isSaved = user.saveBlogs.some((blog) => {
-      const id = blog._id ? blog._id : blog;
-      return id.toString() === blogId.toString();
-    });
+
+       const isSaved = user.saveBlogs.some((blog) =>
+      blog._id
+        ? blog._id.toString() === blogId
+        : blog.toString() === blogId
+    );
 
     const updatedUser = await User.findByIdAndUpdate(
       userId,
