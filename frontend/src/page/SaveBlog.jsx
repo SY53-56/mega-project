@@ -3,6 +3,7 @@ import BlogCard from "../component/BlogCard";
 
 export default function SaveBlog() {
   const { user, status } = useSelector(state => state.auth);
+console.log("saveBlogs raw:", user.saveBlogs);
 
   if (status === "loading" || status === "idle") {
     return <p className="text-center mt-10">Loading saved blogs...</p>;

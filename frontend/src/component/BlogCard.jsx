@@ -2,10 +2,11 @@ import { Link } from "react-router-dom";
 import { BookMarkedIcon, Heart } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchGetSingleBlog, fetchLike } from "../features/BlogThunk";
-import { memo, useCallback} from "react";
-import {   fetchSaveBlog } from "../features/authThunk";
+import {  useCallback} from "react";
+import React from "react";
+//import {   fetchSaveBlog } from "../features/authThunk";
 //import { useEffect } from "react";
-const BlogCard = memo(function BlogCard({ blog }) {
+const BlogCard = React.memo (({ blog })=> {
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
 
@@ -14,8 +15,10 @@ const BlogCard = memo(function BlogCard({ blog }) {
     ? blog?.like?.includes(user._id)
     : false;
 
+console.log("blog",blog)
+console.log("userdata",user)
+//const isSaved = user?.saveBlogs?.some(id => id === blog._id);
 
-const isSaved = user?.saveBlogs?.includes(blog?._id)
 
 
   // ✅ Like handler
@@ -27,16 +30,6 @@ const isSaved = user?.saveBlogs?.includes(blog?._id)
   }, [dispatch, blog._id, user]);
 
   // ✅ Save handler (NO NAVIGATION)
-  const handleSave = useCallback((e) => {
-  e.preventDefault();
-  e.stopPropagation();
-
-  if (!user) return alert("Login first");
-
-  dispatch(fetchSaveBlog(blog._id))
- .then(()=>alert(`${isSaved?"unsave":"Saved"}`))
-  
-}, [dispatch, blog._id, user,isSaved]);
 
 
 
@@ -55,10 +48,10 @@ const isSaved = user?.saveBlogs?.includes(blog?._id)
 
         {/* SAVE BUTTON */}
       <button
-  onClick={handleSave} // pass event properly
+ // onClick={handleSave} // pass event properly
   className="absolute top-3 right-3 cursor-pointer z-20 opacity-0 group-hover:opacity-75 bg-white/90 hover:bg-gray-300 p-2 rounded-md shadow-md transition-all duration-300"
 >
-  {isSaved ? "Saved" : "Save"}
+save
 </button>
 
 
@@ -85,7 +78,7 @@ const isSaved = user?.saveBlogs?.includes(blog?._id)
           />
           <div>
             <p className="text-sm font-semibold text-gray-700">
-              {blog.author?.username || "Unknown"}
+              {blog.author?.username || blog.title || "Unknown"}
             </p>
             <p className="text-xs text-gray-400">
               {new Date(blog.createdAt).toLocaleDateString("en-IN", {

@@ -4,7 +4,7 @@ import { fetchLogin, fetchSignup, followUser, fetchMe, fetchSaveBlog } from "./a
 const authSlice = createSlice({
   name: "auth",
   initialState: {
-    user:  null,
+    user:  JSON.parse(localStorage.getItem("user")) || null,
     
     error: null,
     status: "idle",
@@ -15,6 +15,7 @@ const authSlice = createSlice({
    
       state.error = null;
       state.status = "idle";
+      localStorage.removeItem("user");
     },
     
   },
@@ -30,7 +31,7 @@ const authSlice = createSlice({
       
       
         state.error = null;
-     
+     localStorage.setItem("user", JSON.stringify(action.payload));
         // persist user
    
       })
@@ -46,6 +47,7 @@ const authSlice = createSlice({
         state.status = "succeeded";
         state.user = action.payload
        state.error = null;
+       localStorage.setItem("user", JSON.stringify(action.payload));
      
     
       })
@@ -60,7 +62,7 @@ const authSlice = createSlice({
       .addCase(followUser.fulfilled,(state ,action)=>{
            state.status = "succeeded";
            state.user = action.payload
-         
+         localStorage.setItem("user", JSON.stringify(action.payload));
      
               
         state.error = null;

@@ -3,16 +3,17 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
-
+const errorHandle  = require("./src/middleware/errorHandler")
 const connectDB = require("./src/db/connect");
-
+require("./src/models/blogModel"); 
+require("./src/models/userModel");
+require("./src/models/reviewModel");
 const UserRoutes = require("./src/routes/UserRoutes");
 const BlogRoutes = require("./src/routes/blogRoutes");
 const ReviewRoutes = require("./src/routes/reviewRoutes");
 
 const app = express();
 
-/* ================= CORS ================= */
 app.use(cors({
   origin: [
     "http://localhost:5173",
@@ -30,10 +31,11 @@ app.use(express.urlencoded({ extended: true }));
 app.use("/user", UserRoutes);
 app.use("/blog", BlogRoutes);
 app.use("/review", ReviewRoutes);
-
+app.use(errorHandle)
 app.get("/", (req, res) => {
   res.send("Backend is running");
 });
+console.log("🚀 Backend restarted at", new Date().toISOString());
 
 const PORT = process.env.PORT || 5000;
 

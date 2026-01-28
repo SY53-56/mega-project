@@ -9,16 +9,17 @@ export default function UserAccount() {
   const dispatch = useDispatch();
   const { id } = useParams(); // user ID from route params
 
-  const { blog, userProfile, status, error } = useSelector((state) => state.blog);
+  const { blog, userProfile, userBlog, status, error } = useSelector((state) => state.blog);
   const authUser = useSelector((state) => state.auth.user); // currently logged-in user
   //const {user} =  useSelector((state) => state.auth.user)
 
-
-
+console.log( "userPro",userProfile)
+console.log("userBlog",userBlog)
   useEffect(() => {
     if (id) dispatch(fetchUserAccount(id));
   }, [dispatch, id]);
 
+  console.log("bloguser", blog)
   // handle loading + error
   if (status === "loading") {
     return <div className="text-center mt-10 text-gray-600">Loading user profile...</div>;
@@ -73,9 +74,9 @@ export default function UserAccount() {
         <div className="lg:col-span-3 flex flex-col gap-4">
           <h1 className="text-3xl font-bold mb-4">Posts by {userProfile.username}</h1>
 
-          {blog.length > 0 ? (
+          {userBlog.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              {blog.map((post) => (
+              {userBlog.map((post) => (
                  <BlogCard blog={post}/>
               ))}
             </div>

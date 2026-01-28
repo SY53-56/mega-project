@@ -1,42 +1,50 @@
 const User = require("../models/userModel");
+const Blog = require("../models/blogModel");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const uploadBufferToCloudinary = require("../utils/uploadToCloudinary");
 
-// 🔐 JWT
-const generateToken = (user) => {
+const isProd = process.env.NODE_ENV === "production";
+
+// ================= JWT =================
+const generateToken = (userId) => {
   return jwt.sign(
-    { id: user._id },
+    { id: userId },
     process.env.JWT_SECRET,
     { expiresIn: "7d" }
   );
 };
 
-const isProd = process.env.NODE_ENV === "production";
-
 // ================= SIGNUP =================
 const userSignup = async (req, res) => {
   try {
     const { username, email, password } = req.body;
-    if (!username || !email || !password)
+
+    if (!username || !email || !password) {
       return res.status(400).json({ message: "All fields required" });
+    }
 
     const existUser = await User.findOne({ email });
-    if (existUser)
+    if (existUser) {
       return res.status(400).json({ message: "Email already registered" });
+    }
 
     const hashPassword = await bcrypt.hash(password, 10);
-    const fileImg = req.file ? await uploadBufferToCloudinary(req.file.buffer) : null;
+
+    const fileImg = req.file
+      ? await uploadBufferToCloudinary(req.file.buffer)
+      : null;
 
     const newUser = await User.create({
       username,
       email,
       password: hashPassword,
-      image: fileImg?.secure_url || ""
+      image: fileImg?.secure_url || "",
     });
 
-    const token = generateToken(newUser);
+    const token = generateToken(newUser._id);
 
+    // ✔️ cookie settings for localhost
     res.cookie("token", token, {
       httpOnly: true,
       secure: isProd,
@@ -44,57 +52,64 @@ const userSignup = async (req, res) => {
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
-    const user = await User.findById(newUser._id)
-      .select("-password")
-      .populate({
-        path: "saveBlogs",
-        populate: { path: "author", select: "username image" }
-      });
-
-    res.status(201).json({ user });
-
+    res.status(201).json({
+      _id: newUser._id,
+      username: newUser.username,
+      email: newUser.email,
+      image: newUser.image,
+      saveBlogs: [],
+    });
   } catch (e) {
-    res.status(500).json({ message: e.message });
+    console.error("Signup Error:", e);
+    res.status(500).json({ message: "Server error" });
   }
 };
+
+// ================= LOGIN =================
 const userLogin = async (req, res) => {
   try {
     const { email, password } = req.body;
+    console.log("1. LOGIN ATTEMPT FOR:", email);
 
-    const user = await User.findOne({ email })
-      .select("+password")
-      .populate({
-        path: "saveBlogs",
-        populate: { path: "author", select: "username image" }
-      });
+    // Populate ko temporarily hata kar check karte hain agar crash wahan se hai
+    const user = await User.findOne({ email }).select("+password")
 
-    if (!user) return res.status(400).json({ message: "Invalid credentials" });
+    if (!user) {
+      console.log("2. USER NOT FOUND");
+      return res.status(401).json({ message: "Invalid credentials email" });
+    }
 
+    console.log("3. USER FOUND, COMPARING PASSWORD...");
     const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) return res.status(400).json({ message: "Invalid credentials" });
+    
+    if (!isMatch) {
+      console.log("4. PASSWORD MISMATCH");
+      return res.status(401).json({ message: "Invalid credentials password" });
+    }
 
-    const token = generateToken(user);
-    const savedBlogCount = await Blog.countDocuments({ _id: { $in: user.saveBlogs } });
-    console.log("Saved blogs exist:", savedBlogCount);
+    console.log("5. PASSWORD MATCHED, GENERATING TOKEN...");
+    const token = generateToken(user._id);
 
     res.cookie("token", token, {
       httpOnly: true,
-      secure: isProd,
+      secure: isProd, 
       sameSite: isProd ? "none" : "lax",
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
-    user.password = undefined; // remove password
+    // Password hata kar bacha hua data bhejna sabse safe hai
+    const userResponse = user.toObject();
+    delete userResponse.password;
 
-    // 🔥 RETURN POPULATED USER DIRECTLY
-    res.status(200).json({ user });
+    console.log("6. LOGIN SUCCESSFUL, SENDING DATA");
+    res.status(200).json(userResponse);
 
   } catch (e) {
-    res.status(500).json({ message: e.message });
+    console.error("!!! LOGIN CRASHED !!!", e.message);
+    // Ye line aapko browser console mein batayegi ki asli problem kya hai
+    res.status(500).json({ message: "Backend Error: " + e.message });
   }
 };
-
-
 // ================= LOGOUT =================
 const userLogout = (req, res) => {
   res.clearCookie("token", {
@@ -102,6 +117,7 @@ const userLogout = (req, res) => {
     secure: isProd,
     sameSite: isProd ? "none" : "lax",
   });
+
   res.status(200).json({ success: true, message: "Logged out successfully" });
 };
 
@@ -112,37 +128,33 @@ const userData = async (req, res) => {
 
     const user = await User.findById(userId)
       .select("-password")
-      .populate({
-        path: "saveBlogs",
-        populate: { path: "author", select: "username image" }
-      }).lean()
+      .populate("saveBlogs");
 
-    if (!user)
-      return res.status(404).json({ success: false, message: "User not found" });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
 
-    res.status(200).json({ user });
-
+    res.status(200).json(user);
   } catch (e) {
-    res.status(500).json({ success: false, message: "Server error" });
+    console.error("UserData Error:", e);
+    res.status(500).json({ message: "Server error" });
   }
 };
 
-// ================= SAVE BLOG =================
+// ================= SAVE / UNSAVE BLOG =================
 const saveBlog = async (req, res) => {
   try {
     const userId = req.user.id;
     const { blogId } = req.body;
 
     const user = await User.findById(userId);
-    if (!user)
-      return res.status(404).json({ success: false, message: "User not found" });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
 
-
-       const isSaved = user.saveBlogs.some((blog) =>
-      blog._id
-        ? blog._id.toString() === blogId
-        : blog.toString() === blogId
-    );
+    const isSaved = user.saveBlogs
+      .map((id) => id.toString())
+      .includes(blogId.toString());
 
     const updatedUser = await User.findByIdAndUpdate(
       userId,
@@ -150,27 +162,26 @@ const saveBlog = async (req, res) => {
         ? { $pull: { saveBlogs: blogId } }
         : { $addToSet: { saveBlogs: blogId } },
       { new: true }
-    ).populate({
-      path: "saveBlogs",
-      populate: { path: "author", select: "username image" }
-    });
+    )
+      .select("-password")
+      .populate("saveBlogs");
 
     res.status(200).json({
       success: true,
       message: isSaved ? "Blog unsaved" : "Blog saved",
-      user: updatedUser
+      user: updatedUser,
     });
-
-  } catch (err) {
-    res.status(500).json({ success: false, message: "Server error" });
+  } catch (e) {
+    console.error("SaveBlog Error:", e);
+    res.status(500).json({ message: "Server error" });
   }
 };
 
-// ================= FOLLOW/UNFOLLOW =================
+// ================= FOLLOW / UNFOLLOW =================
 const follower = async (req, res) => {
   try {
-    const userId = req.params.id;   // user to follow
-    const followerId = req.user.id; // logged-in user
+    const userId = req.params.id;
+    const followerId = req.user.id;
 
     if (userId === followerId) {
       return res.status(400).json({ message: "You cannot follow yourself" });
@@ -189,7 +200,6 @@ const follower = async (req, res) => {
       await User.findByIdAndUpdate(userId, {
         $pull: { followers: followerId },
       });
-
       await User.findByIdAndUpdate(followerId, {
         $pull: { following: userId },
       });
@@ -197,7 +207,6 @@ const follower = async (req, res) => {
       await User.findByIdAndUpdate(userId, {
         $addToSet: { followers: followerId },
       });
-
       await User.findByIdAndUpdate(followerId, {
         $addToSet: { following: userId },
       });
@@ -212,29 +221,29 @@ const follower = async (req, res) => {
       followed: !isFollowing,
       user: updatedUser,
     });
-
   } catch (e) {
-    console.error(e);
-    res.status(500).json({ success: false, message: "Server error" });
+    console.error("Follower Error:", e);
+    res.status(500).json({ message: "Server error" });
   }
 };
 
+// ================= GET FOLLOWER DATA =================
 const getFollowerData = async (req, res) => {
   try {
-    const { userid } = req.params;
+    const { id } = req.params;
 
-    const user = await User.findById(userid)
-      .populate("followers", "username image")
-      .populate("following", "username image");
+    const user = await User.findById(id)
+      .select("-password")
+      .populate("followers following", "username image");
 
     if (!user) {
-      return res.status(404).json({ success: false, message: "User not found" });
+      return res.status(404).json({ message: "User not found" });
     }
 
     res.status(200).json({ success: true, user });
-
   } catch (e) {
-    res.status(500).json({ success: false, message: "Server error" });
+    console.error("GetFollowerData Error:", e);
+    res.status(500).json({ message: "Server error" });
   }
 };
 
@@ -244,6 +253,6 @@ module.exports = {
   userLogout,
   userData,
   saveBlog,
+  follower,
   getFollowerData,
-  follower
 };

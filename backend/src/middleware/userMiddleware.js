@@ -1,9 +1,7 @@
 const jwt = require("jsonwebtoken");
-
+const User = require("../models/userModel");
 
 const userMiddleware = async (req, res, next) => {
-  
-
   const token = req.cookies.token;
 
   if (!token) {
@@ -12,10 +10,14 @@ const userMiddleware = async (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-   
 
-    // ✅ FETCH FULL USER (INCLUDING IMAGE)
-    req.user = decoded; // 🔥 FULL USER OBJECT
+    // 🔥 Fetch user from DB
+    const user = await User.findById(decoded.id).select("-password");
+    if (!user) {
+      return res.status(401).json({ message: "User not found" });
+    }
+
+    req.user = user;
     next();
 
   } catch (err) {
@@ -32,19 +34,5 @@ const userMiddleware = async (req, res, next) => {
     });
   }
 };
-module.exports= userMiddleware
-/*
 
 module.exports = userMiddleware;
-
- const userMiddleware1 = (req, res, next) =>{
-
-  const token = req.cookies.token; 
-  if (!token) { return res.status(401).json({ message: "Login required" }); } 
-
-  try { 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET); 
-    console.log("✅ Decoded JWT:", decoded);
-     req.user = decoded;
-      next(); }
-      catch (err) { console.log("❌ JWT Error:", err.message) } }*/

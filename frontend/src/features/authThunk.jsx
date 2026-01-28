@@ -8,7 +8,7 @@ import api from "../api";
     try {
       const res = await api.post("/user/signup",userData);
 
-      return res.data.user
+      return res.data
     } catch (e) {
      return rejectWithValue(
         e.response?.data?.message ||
@@ -24,13 +24,15 @@ import api from "../api";
   async (data, { rejectWithValue }) => {
     try {
       const res = await api.post("/user/login", data);
-      return res.data.user; // cookie already set by backend
+      return res.data // cookie already set by backend
     } catch (e) {
-      return rejectWithValue(
+      console.log(e)
+        const message =
         e.response?.data?.message ||
+        e.response?.data?.error ||
         e.message ||
-        "Failed to follow user"
-      );
+        "Login failed";
+      return  rejectWithValue(message)
     }
   }
 );
@@ -43,7 +45,7 @@ import api from "../api";
       
      const res = await api.put(`/user/follow/${authorId}`)
 
-      return res.data.user // { user, token? }
+      return res.data
     } catch (e) {
       return rejectWithValue(
         e.response?.data?.message ||
@@ -55,7 +57,7 @@ import api from "../api";
 );
 const logout = createAsyncThunk("logout/user",async(_,{rejectWithValue})=>{
  try{
-   let res = api.post("/logout")
+   let res =await api.post("/logout")
    return res.data
  }catch(e){
   return rejectWithValue(
@@ -68,7 +70,7 @@ const logout = createAsyncThunk("logout/user",async(_,{rejectWithValue})=>{
 const fetchMe= createAsyncThunk("user/data",async(_ ,{   rejectWithValue})=>{
     try{
    let res= await api.get("/user/userAccount")
-    return res.data.user
+    return res.data
     }catch(e){
        return rejectWithValue(
         e.response?.data?.message ||

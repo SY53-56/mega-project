@@ -1,4 +1,4 @@
-const Blog = require("../models/blogModel");
+const Blog = require('../models/blogModel')
 const slugify = require("slugify");
 const { nanoid } = require("nanoid");
 const User = require("../models/userModel");
@@ -14,7 +14,7 @@ const getAllBlogs = async (req, res) => {
 
     const [blogs, total] = await Promise.all([
       Blog.find()
-        .select("title description image slug createdAt like author")
+        .select("title description  image slug createdAt like author")
         .populate("author", "username image")
         .sort({ createdAt: -1 })
         .skip(skip)
@@ -61,7 +61,7 @@ const postBlogData = async (req, res) => {
       slug: `${slugify(title, { lower: true, strict: true })}-${nanoid(6)}`,
       image: uploadedImages.map(img => img.secure_url),
       imagePublicId: uploadedImages.map(img => img.public_id),
-      author: req.user.id,
+      author: req.user._id,
     });
 
     res.status(201).json({ success: true, blog });
@@ -88,7 +88,6 @@ const getSingleBlog = async (req, res) => {
   }
 };
 
-/* ================= USER ACCOUNT ================= */
 const userAccount = async (req, res) => {
   try {
     const { id } = req.params;
@@ -105,7 +104,8 @@ const userAccount = async (req, res) => {
     }
 
     const blogs = await Blog.find({ author: id })
-      .select("title description image slug createdAt like")
+      .select("title description image slug createdAt like author") // <-- add author here
+      .populate("author", "username image")
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)

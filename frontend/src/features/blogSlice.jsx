@@ -7,6 +7,7 @@ const blogSlice = createSlice({
     blog: [],
      followers: [],      // ADD THIS
   following: [], 
+  userBlog:[],
     userProfile:null, 
     review:[],        // all blogs or user blogs
     currentBlog: null, // single blog
@@ -47,7 +48,7 @@ state.uploadPercent= 0
       .addCase(fetchGetSingleBlog.fulfilled, (state, action) => {
         state.status = "succeeded";
         state.currentBlog = action.payload.blog || null;
-          state.uploadPercent= 100
+       
       })
       .addCase(fetchGetSingleBlog.rejected, (state, action) => {
         state.status = "failed";
@@ -62,8 +63,8 @@ state.uploadPercent= 0
       })
       .addCase(fetchUserAccount.fulfilled, (state, action) => {
         state.status = "succeeded";
-        state.blog = action.payload.blog || [];
-        state.userProfile = action.payload.user || null
+ state.userProfile = action.payload.user || null;   // user data
+  state.userBlog = action.payload.blogs || [];  
       })
       .addCase(fetchUserAccount.rejected, (state, action) => {
         state.status = "failed";
@@ -160,7 +161,7 @@ state.uploadPercent= 0
       state.currentBlog.like.push(userId); // optional
     } else {
       state.currentBlog.like = state.currentBlog.like.filter(
-        (id) => id !== state.userId
+        (id) => id !== userId
       );
     }
   }

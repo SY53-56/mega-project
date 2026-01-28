@@ -13,7 +13,7 @@ export default function Header() {
   const { user } = useSelector((state) => state.auth); // user is the inner user object
   const dispatch = useDispatch();
   const navigate = useNavigate();
-
+console.log("user",user)
   const handleLogout = async () => {
     try {
       await api.get("/user/logout"); // clears cookie

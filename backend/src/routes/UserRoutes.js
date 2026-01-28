@@ -7,9 +7,9 @@ const routes = express.Router()
 routes.post("/signup",uploads.single("image"), userSignup)
 routes.post("/login",userLogin)
 routes.get("/logout",userLogout)
-routes.get("/userAccount" ,userMiddleware, userData)
+routes.get("/userAccount" , userData)
 routes.put("/follow/:id" ,userMiddleware, follower)
-routes.get("/folowerAccount/:id" , userMiddleware , getFollowerData)
+routes.get("/followerAccount/:id" , userMiddleware , getFollowerData)
 routes.put("/saveBlog", userMiddleware, saveBlog)
 
 module.exports = routes

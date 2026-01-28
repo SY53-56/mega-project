@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import Button from "../component/Button";
 import { useDispatch, useSelector } from "react-redux";
-import {fetchLogin,}  from "../features/authThunk";
+import {fetchLogin}  from "../features/authThunk";
 import { useNavigate,Link, } from "react-router-dom";
 
 export default function Login() {
@@ -10,20 +10,22 @@ export default function Login() {
   const navigate = useNavigate();
   const { error,status} = useSelector((state) => state.auth);
 
+
   const handleForm = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
   };
-
+console.log(error)
   const formHandler = async (e) => {
     e.preventDefault();
     try {
- await dispatch(fetchLogin(form)).unwrap()
- //then(()=>fetchMe())
-     
+  const result =await dispatch(fetchLogin(form)).unwrap()
+console.log("User saveBlogs:", result.saveBlogs);
+
+    console.log("TESTING: LOGIN SUCCESSFUL");
 navigate("/");
-    } catch (err) {
-      console.error("Login failed:", err);
+    }catch(err) {
+     console.log(err)
     }
   };
 

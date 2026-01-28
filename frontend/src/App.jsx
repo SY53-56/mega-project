@@ -20,7 +20,7 @@ export default function App() {
   const disptch = useDispatch()
   useEffect(()=>{
     disptch(fetchMe())
-  }, [])
+  }, [disptch])
   return (
     <Routes>
       {/* Routes with layout */}
