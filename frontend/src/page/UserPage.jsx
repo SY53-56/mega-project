@@ -32,15 +32,23 @@ export default function UserPage() {
   const imageLength = currentBlog?.image?.length || 0;
 
   const userId = user?.id || user?._id;
-  const isFollowing = user?.following?.includes(authorId);
-
+ // const isFollowing = user?.following?.some((u)=> u._id.toString() === authorId)
+const isFollowing = user?.following?.some((u) => {
+  const followId = u._id ? u._id.toString() : u.toString();
+  return followId === authorId?.toString();
+});
+console.log(isFollowing)
   const isLiked = currentBlog?.like?.includes(user?._id);
 
   const followedButton = () => {
     if (!user) return alert("Please login");
     if (userId === authorId) return alert("You cannot follow yourself");
 
-    dispatch(followUser(authorId));
+   try{
+ dispatch(followUser(authorId)).unwrap()
+   }catch(e){
+   console.log(e)
+   }
   };
 
   useEffect(() => {

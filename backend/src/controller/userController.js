@@ -15,6 +15,11 @@ const generateToken = (userId) => {
   );
 };
 
+const sendUserResponse = (user) => {
+  const userObj = user.toObject();
+  delete userObj.password;
+  return userObj;
+};
 // ================= SIGNUP =================
 const userSignup = async (req, res) => {
   try {
@@ -52,13 +57,7 @@ const userSignup = async (req, res) => {
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
-    res.status(201).json({
-      _id: newUser._id,
-      username: newUser.username,
-      email: newUser.email,
-      image: newUser.image,
-      saveBlogs: [],
-    });
+    res.status(201).json(sendUserResponse(newUser));
   } catch (e) {
     console.error("Signup Error:", e);
     res.status(500).json({ message: "Server error" });
@@ -69,26 +68,26 @@ const userSignup = async (req, res) => {
 const userLogin = async (req, res) => {
   try {
     const { email, password } = req.body;
-    console.log("1. LOGIN ATTEMPT FOR:", email);
+
 
     // Populate ko temporarily hata kar check karte hain agar crash wahan se hai
-    const user = await User.findOne({ email }).select("+password")
+    const ExistUser = await User.findOne({ email }).select("+password")
 
-    if (!user) {
-      console.log("2. USER NOT FOUND");
+    if (!ExistUser) {
+   
       return res.status(401).json({ message: "Invalid credentials email" });
     }
 
-    console.log("3. USER FOUND, COMPARING PASSWORD...");
-    const isMatch = await bcrypt.compare(password, user.password);
+    
+    const isMatch = await bcrypt.compare(password, ExistUser.password);
     
     if (!isMatch) {
-      console.log("4. PASSWORD MISMATCH");
+      
       return res.status(401).json({ message: "Invalid credentials password" });
     }
 
-    console.log("5. PASSWORD MATCHED, GENERATING TOKEN...");
-    const token = generateToken(user._id);
+
+    const token = generateToken(ExistUser._id);
 
     res.cookie("token", token, {
       httpOnly: true,
@@ -98,14 +97,11 @@ const userLogin = async (req, res) => {
     });
 
     // Password hata kar bacha hua data bhejna sabse safe hai
-    const userResponse = user.toObject();
-    delete userResponse.password;
 
-    console.log("6. LOGIN SUCCESSFUL, SENDING DATA");
-    res.status(200).json(userResponse);
+    res.status(200).json(sendUserResponse(ExistUser));
 
   } catch (e) {
-    console.error("!!! LOGIN CRASHED !!!", e.message);
+
     // Ye line aapko browser console mein batayegi ki asli problem kya hai
     res.status(500).json({ message: "Backend Error: " + e.message });
   }
@@ -164,70 +160,65 @@ const saveBlog = async (req, res) => {
       { new: true }
     )
       .select("-password")
-      .populate("saveBlogs");
+      .populate("saveBlogs" );
 
     res.status(200).json({
-      success: true,
-      message: isSaved ? "Blog unsaved" : "Blog saved",
-      user: updatedUser,
-    });
+  success: true,
+  saveBlogs: updatedUser.saveBlogs,
+});
+
   } catch (e) {
     console.error("SaveBlog Error:", e);
     res.status(500).json({ message: "Server error" });
   }
 };
 
-// ================= FOLLOW / UNFOLLOW =================
 const follower = async (req, res) => {
   try {
-    const userId = req.params.id;
-    const followerId = req.user.id;
+    const targetUserId = req.params.id; // Jise follow karna hai
+    const myId = req.user.id; // Jo login hai
 
-    if (userId === followerId) {
+    if (targetUserId === myId) {
       return res.status(400).json({ message: "You cannot follow yourself" });
     }
 
-    const user = await User.findById(userId);
-    const followerUser = await User.findById(followerId);
+    const targetUser = await User.findById(targetUserId);
+    const me = await User.findById(myId);
 
-    if (!user || !followerUser) {
+    if (!targetUser || !me) {
       return res.status(404).json({ message: "User not found" });
     }
 
-    const isFollowing = followerUser.following.includes(userId);
+    // Check if already following (ID string comparison)
+    const isFollowing = me.following.some(id => id.toString() === targetUserId);
 
     if (isFollowing) {
-      await User.findByIdAndUpdate(userId, {
-        $pull: { followers: followerId },
-      });
-      await User.findByIdAndUpdate(followerId, {
-        $pull: { following: userId },
-      });
+      // Unfollow
+      await User.findByIdAndUpdate(targetUserId, { $pull: { followers: myId } });
+      const updatedMe = await User.findByIdAndUpdate(
+        myId,
+        { $pull: { following: targetUserId } },
+        { new: true }
+      ).populate("following", "username image"); // Populate taaki frontend ko details milein
+
+      return res.status(200).json(updatedMe);
     } else {
-      await User.findByIdAndUpdate(userId, {
-        $addToSet: { followers: followerId },
-      });
-      await User.findByIdAndUpdate(followerId, {
-        $addToSet: { following: userId },
-      });
+      // Follow
+      await User.findByIdAndUpdate(targetUserId, { $addToSet: { followers: myId } });
+      const updatedMe = await User.findByIdAndUpdate(
+        myId,
+        { $addToSet: { following: targetUserId } },
+        { new: true }
+      ).populate("following", "username image");
+
+      return res.status(200).json(updatedMe);
     }
-
-    const updatedUser = await User.findById(followerId)
-      .select("-password")
-      .populate("followers following", "username image");
-
-    res.status(200).json({
-      success: true,
-      followed: !isFollowing,
-      user: updatedUser,
-    });
   } catch (e) {
-    console.error("Follower Error:", e);
+    console.error("Follow Error:", e);
     res.status(500).json({ message: "Server error" });
   }
 };
 
-// ================= GET FOLLOWER DATA =================
 const getFollowerData = async (req, res) => {
   try {
     const { id } = req.params;
@@ -240,7 +231,7 @@ const getFollowerData = async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    res.status(200).json({ success: true, user });
+    res.status(200).json( user );
   } catch (e) {
     console.error("GetFollowerData Error:", e);
     res.status(500).json({ message: "Server error" });

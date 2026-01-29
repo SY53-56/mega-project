@@ -1,200 +1,200 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { fetchFollowData, fetchReview,fetchAddData,fetchDelete,fetchGetData,fetchGetSingleBlog,fetchReviewDelete,fetchReviewPost,fetchUpdate,fetchUserAccount, fetchLike,} from "./BlogThunk";
-// ------------------- Slice -------------------
+import {
+  fetchFollowData,
+  fetchReview,
+  fetchAddData,
+  fetchDelete,
+  fetchGetData,
+  fetchGetSingleBlog,
+  fetchReviewDelete,
+  fetchReviewPost,
+  fetchUpdate,
+  fetchUserAccount,
+  fetchLike,
+} from "./BlogThunk";
+
 const blogSlice = createSlice({
   name: "blog",
   initialState: {
     blog: [],
-     followers: [],      // ADD THIS
-  following: [], 
-  userBlog:[],
-    userProfile:null, 
-    review:[],        // all blogs or user blogs
-    currentBlog: null, // single blog
-    status: "idle",    // idle | loading | succeeded | failed
+    currentBlog: null,
+
+    userProfile: null,
+    userBlog: [],
+
+    review: [],
+
+    followers: [],
+    following: [],
+
+    blogStatus: "idle",
+    reviewStatus: "idle",
+    followStatus: "idle",
+    likeStatus: "idle",
+
     error: null,
-    uploadPercent:0
+    uploadPercent: 0,
   },
+
   reducers: {
-      setUploadPercent: (state, action) => {
-    state.uploadPercent = action.payload;   //  Step 2
+    setUploadPercent: (state, action) => {
+      state.uploadPercent = action.payload;
+    },
   },
-  },
+
   extraReducers: (builder) => {
     builder
-      // Fetch all blogs
+      // ================= BLOG LIST =================
       .addCase(fetchGetData.pending, (state) => {
-        state.status = "loading";
-        state.error = null;
-        state.uploadPercent= 0
+        state.blogStatus = "loading";
       })
       .addCase(fetchGetData.fulfilled, (state, action) => {
-        state.status = "succeeded";
+        state.blogStatus = "succeeded";
         state.blog = action.payload.blogs || [];
-        state.uploadPercent= 100
       })
       .addCase(fetchGetData.rejected, (state, action) => {
-        state.status = "failed";
+        state.blogStatus = "failed";
         state.error = action.payload;
-state.uploadPercent= 0
       })
 
-      // Fetch single blog
+      // ================= SINGLE BLOG =================
       .addCase(fetchGetSingleBlog.pending, (state) => {
-        state.status = "loading";
-        state.error = null;
-        state.uploadPercent=0
+        state.blogStatus = "loading";
       })
       .addCase(fetchGetSingleBlog.fulfilled, (state, action) => {
-        state.status = "succeeded";
+        state.blogStatus = "succeeded";
         state.currentBlog = action.payload.blog || null;
-       
       })
       .addCase(fetchGetSingleBlog.rejected, (state, action) => {
-        state.status = "failed";
+        state.blogStatus = "failed";
         state.error = action.payload;
-        state.uploadPercent= 0
       })
 
-      // Fetch user blogs
+      // ================= USER ACCOUNT =================
       .addCase(fetchUserAccount.pending, (state) => {
-        state.status = "loading";
-        state.error = null;
+        state.blogStatus = "loading";
       })
       .addCase(fetchUserAccount.fulfilled, (state, action) => {
-        state.status = "succeeded";
- state.userProfile = action.payload.user || null;   // user data
-  state.userBlog = action.payload.blogs || [];  
+        state.blogStatus = "succeeded";
+        state.userProfile = action.payload.user || null;
+        state.userBlog = action.payload.blogs || [];
       })
       .addCase(fetchUserAccount.rejected, (state, action) => {
-        state.status = "failed";
+        state.blogStatus = "failed";
         state.error = action.payload;
       })
 
-      // Add blog
+      // ================= ADD BLOG =================
       .addCase(fetchAddData.pending, (state) => {
-        state.status = "loading";
-        state.error = null;
-        state.uploadPercent =0
+        state.blogStatus = "loading";
+        state.uploadPercent = 0;
       })
       .addCase(fetchAddData.fulfilled, (state, action) => {
-        state.status = "succeeded";
-        if (action.payload.blog) state.blog.unshift(action.payload.blog);
-          state.uploadPercent= 100
+        state.blogStatus = "succeeded";
+        if (action.payload.blog) {
+          state.blog.unshift(action.payload.blog);
+        }
+        state.uploadPercent = 100;
       })
       .addCase(fetchAddData.rejected, (state, action) => {
-        state.status = "failed";
+        state.blogStatus = "failed";
         state.error = action.payload;
+        state.uploadPercent = 0;
       })
 
-      // Update blog
+      // ================= UPDATE BLOG =================
       .addCase(fetchUpdate.fulfilled, (state, action) => {
-        // Update current blog if matches
-        if (state.currentBlog && state.currentBlog._id === action.payload.blog._id) {
-          state.currentBlog = action.payload.blog;
-        }
+        const updatedBlog = action.payload.blog;
 
-        // Update blog in array
-        state.blog = state.blog.map(b =>
-          b._id === action.payload.blog._id ? action.payload.blog : b
+        state.blog = state.blog.map((b) =>
+          b._id === updatedBlog._id ? updatedBlog : b
         );
 
-        state.status = "succeeded";
-        state.error = null;
+        if (state.currentBlog?._id === updatedBlog._id) {
+          state.currentBlog = updatedBlog;
+        }
+
+        state.blogStatus = "succeeded";
       })
 
-      // Delete blog
+      // ================= DELETE BLOG =================
       .addCase(fetchDelete.fulfilled, (state, action) => {
-        // Remove from currentBlog if matches
-        if (state.currentBlog && state.currentBlog._id === action.payload.blogId) {
+        const { blogId } = action.payload;
+
+        state.blog = state.blog.filter((b) => b._id !== blogId);
+
+        if (state.currentBlog?._id === blogId) {
           state.currentBlog = null;
         }
 
-        // Remove from blog array
-        state.blog = state.blog.filter(b => b._id !== action.payload.blogId);
+        state.blogStatus = "succeeded";
+      })
 
-        state.status = "succeeded";
-        state.error = null;
-      })// ------------------- Reviews -------------------
-.addCase(fetchReview.pending, (state) => {
-  state.status = "loading";
-})
-.addCase(fetchReview.fulfilled, (state, action) => {
-  state.status = "succeeded";
-  state.review = action.payload.reviews || []; // store all reviews
-})
-.addCase(fetchReview.rejected, (state, action) => {
-  state.status = "failed";
-  state.error = action.payload;
-})
-.addCase(fetchReviewPost.fulfilled, (state, action) => {
-  state.status = "succeeded";
-  // Add new review at top
-  if (action.payload.review) {
-    state.review.unshift(action.payload.review);
-  }
-})
-.addCase(fetchReviewPost.rejected, (state, action) => {
-  state.status = "failed";
-  state.error = action.payload;
-})
-.addCase(fetchReviewDelete.pending, (state) => {
-  state.status = "loading";
-})
-.addCase(fetchReviewDelete.fulfilled, (state, action) => {
-  state.status = "succeeded";
-  const deletedId = action.payload.reviewId;
-  if (deletedId) {
-    state.review = state.review.filter((r) => r._id !== deletedId);
-  }
-})
-.addCase(fetchReviewDelete.rejected, (state, action) => {
-  state.status = "failed";
-  state.error = action.payload;
-})
-.addCase(fetchLike.fulfilled, (state, action) => {
-  const { blogId, liked ,userId } = action.payload;
+      // ================= REVIEWS =================
+      .addCase(fetchReview.pending, (state) => {
+        state.reviewStatus = "loading";
+      })
+      .addCase(fetchReview.fulfilled, (state, action) => {
+        state.reviewStatus = "succeeded";
+        state.review = action.payload.reviews || [];
+      })
+      .addCase(fetchReview.rejected, (state, action) => {
+        state.reviewStatus = "failed";
+        state.error = action.payload;
+      })
 
-  // ✅ currentBlog update
-  if (state.currentBlog?._id === blogId) {
-    if (liked) {
-      state.currentBlog.like.push(userId); // optional
-    } else {
-      state.currentBlog.like = state.currentBlog.like.filter(
-        (id) => id !== userId
-      );
-    }
-  }
-
-  // ✅ blog list update
-  state.blog = state.blog.map((b) =>
-    b._id === blogId
-      ? {
-          ...b,
-          like: liked
-            ? [...b.like, userId]
-            : b.like.filter((id) => id !==userId),
+      .addCase(fetchReviewPost.fulfilled, (state, action) => {
+        state.reviewStatus = "succeeded";
+        if (action.payload.review) {
+          state.review.unshift(action.payload.review);
         }
-      : b
-  );
+      })
 
-  state.status = "succeeded";
-})
-.addCase(fetchFollowData.pending, (state) => {
-  state.status = "loading";
-})
-.addCase(fetchFollowData.fulfilled, (state, action) => {
-  state.status = "succeeded";
-  state.followers = action.payload.followers || [];
-  state.following = action.payload.following || [];
-})
-.addCase(fetchFollowData.rejected, (state, action) => {
-  state.status = "failed";
-  state.error = action.payload;
-});
+      .addCase(fetchReviewDelete.fulfilled, (state, action) => {
+        const { reviewId } = action.payload;
+        state.review = state.review.filter((r) => r._id !== reviewId);
+        state.reviewStatus = "succeeded";
+      })
 
+      // ================= LIKE =================
+      .addCase(fetchLike.fulfilled, (state, action) => {
+        const { blogId, liked, userId } = action.payload;
+
+        if (state.currentBlog?._id === blogId) {
+          state.currentBlog.like = liked
+            ? [...new Set([...state.currentBlog.like, userId])]
+            : state.currentBlog.like.filter((id) => id !== userId);
+        }
+
+        state.blog = state.blog.map((b) =>
+          b._id === blogId
+            ? {
+                ...b,
+                like: liked
+                  ? [...new Set([...b.like, userId])]
+                  : b.like.filter((id) => id !== userId),
+              }
+            : b
+        );
+
+        state.likeStatus = "succeeded";
+      })
+
+      // ================= FOLLOW =================
+      .addCase(fetchFollowData.pending, (state) => {
+        state.followStatus = "loading";
+      })
+      .addCase(fetchFollowData.fulfilled, (state, action) => {
+        state.followStatus = "succeeded";
+        state.followers = action.payload.user?.followers || [];
+        state.following = action.payload.user?.following || [];
+      })
+      .addCase(fetchFollowData.rejected, (state, action) => {
+        state.followStatus = "failed";
+        state.error = action.payload;
+      });
   },
 });
 
-export const {setUploadPercent} = blogSlice.actions
+export const { setUploadPercent } = blogSlice.actions;
 export default blogSlice.reducer;

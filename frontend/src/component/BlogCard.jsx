@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchGetSingleBlog, fetchLike } from "../features/BlogThunk";
 import {  useCallback} from "react";
 import React from "react";
-//import {   fetchSaveBlog } from "../features/authThunk";
+import {   fetchSaveBlog } from "../features/authThunk";
 //import { useEffect } from "react";
 const BlogCard = React.memo (({ blog })=> {
   const dispatch = useDispatch();
@@ -17,7 +17,9 @@ const BlogCard = React.memo (({ blog })=> {
 
 console.log("blog",blog)
 console.log("userdata",user)
-//const isSaved = user?.saveBlogs?.some(id => id === blog._id);
+const isSaved = user?.saveBlogs?.some(
+  (id) => id.toString() === blog._id.toString()
+);
 
 
 
@@ -31,6 +33,11 @@ console.log("userdata",user)
 
   // ✅ Save handler (NO NAVIGATION)
 
+  const handleSave = useCallback( ()=>{
+    if(!user) return alert("please login")
+      dispatch(fetchSaveBlog({ blogId: blog._id }))
+  
+  },[dispatch , user ,blog._id])
 
 
   return (
@@ -48,10 +55,9 @@ console.log("userdata",user)
 
         {/* SAVE BUTTON */}
       <button
- // onClick={handleSave} // pass event properly
+  onClick={handleSave} // pass event properly
   className="absolute top-3 right-3 cursor-pointer z-20 opacity-0 group-hover:opacity-75 bg-white/90 hover:bg-gray-300 p-2 rounded-md shadow-md transition-all duration-300"
->
-save
+>  {isSaved ? "Saved" : "Save"}
 </button>
 
 

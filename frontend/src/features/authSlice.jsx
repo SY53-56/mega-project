@@ -62,7 +62,7 @@ const authSlice = createSlice({
       .addCase(followUser.fulfilled,(state ,action)=>{
            state.status = "succeeded";
            state.user = action.payload
-         localStorage.setItem("user", JSON.stringify(action.payload));
+        
      
               
         state.error = null;

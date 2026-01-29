@@ -74,8 +74,8 @@ const postBlogData = async (req, res) => {
 const getSingleBlog = async (req, res) => {
   try {
     const blog = await Blog.findById(req.params.id)
-      .select("title description image createdAt like author slug")
-      .populate("author", "username image")
+      .select("title description image createdAt like author slug ")
+      .populate("author", "username image following")
       .lean();
 
     if (!blog) {
