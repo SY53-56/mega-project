@@ -15,11 +15,11 @@ const BlogCard = React.memo (({ blog })=> {
     ? blog?.like?.includes(user._id)
     : false;
 
-console.log("blog",blog)
-console.log("userdata",user)
-const isSaved = user?.saveBlogs?.some(
-  (id) => id.toString() === blog._id.toString()
-);
+
+const isSaved = user?.saveBlogs?.some((s)=>{
+  const saveData =   s._id ? s._id.toString():s.id.toString()
+  return saveData === blog._id.toString();
+});
 
 
 

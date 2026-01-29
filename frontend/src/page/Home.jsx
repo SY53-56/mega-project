@@ -9,7 +9,7 @@ export default function Home() {
   const { user } = useSelector((state) => state.auth);
 
   const [filters, setFilters] = useState("all");
-console.log("sahul user",user)
+
   const filtersData = useMemo(() => {
     if (!Array.isArray(blog)) return [];
     return blog.filter((items) => {
@@ -31,6 +31,7 @@ console.log("sahul user",user)
       return true;
     });
   }, [blog, filters]);
+
 
   useEffect(() => {
     dispatch(fetchGetData());

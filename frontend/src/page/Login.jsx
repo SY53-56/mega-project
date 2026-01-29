@@ -19,8 +19,8 @@ console.log(error)
   const formHandler = async (e) => {
     e.preventDefault();
     try {
-  const result =await dispatch(fetchLogin(form)).unwrap()
-console.log("User saveBlogs:", result.saveBlogs);
+await dispatch(fetchLogin(form)).unwrap()
+
 
     console.log("TESTING: LOGIN SUCCESSFUL");
 navigate("/");

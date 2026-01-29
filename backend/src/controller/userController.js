@@ -124,7 +124,10 @@ const userData = async (req, res) => {
 
     const user = await User.findById(userId)
       .select("-password")
-      .populate("saveBlogs");
+     .populate({
+    path: "saveBlogs",
+    populate: { path: "author", select: "username image" } // Ye line author ka data layegi
+  });
 
     if (!user) {
       return res.status(404).json({ message: "User not found" });
@@ -160,12 +163,9 @@ const saveBlog = async (req, res) => {
       { new: true }
     )
       .select("-password")
-      .populate("saveBlogs" );
+      .populate({path: "saveBlogs", populate: { path: "author", select: "username image" }});
 
-    res.status(200).json({
-  success: true,
-  saveBlogs: updatedUser.saveBlogs,
-});
+    res.status(200).json(updatedUser);
 
   } catch (e) {
     console.error("SaveBlog Error:", e);

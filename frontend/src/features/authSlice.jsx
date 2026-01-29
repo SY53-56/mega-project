@@ -4,7 +4,7 @@ import { fetchLogin, fetchSignup, followUser, fetchMe, fetchSaveBlog } from "./a
 const authSlice = createSlice({
   name: "auth",
   initialState: {
-    user:  JSON.parse(localStorage.getItem("user")) || null,
+    user:  JSON.parse(sessionStorage.getItem("user")) || null,
     
     error: null,
     status: "idle",
@@ -15,7 +15,7 @@ const authSlice = createSlice({
    
       state.error = null;
       state.status = "idle";
-      localStorage.removeItem("user");
+     sessionStorage.removeItem("user");
     },
     
   },
@@ -31,7 +31,7 @@ const authSlice = createSlice({
       
       
         state.error = null;
-     localStorage.setItem("user", JSON.stringify(action.payload));
+   sessionStorage.setItem("user", JSON.stringify(action.payload));
         // persist user
    
       })
@@ -47,7 +47,7 @@ const authSlice = createSlice({
         state.status = "succeeded";
         state.user = action.payload
        state.error = null;
-       localStorage.setItem("user", JSON.stringify(action.payload));
+      sessionStorage.setItem("user", JSON.stringify(action.payload));
      
     
       })
@@ -63,7 +63,7 @@ const authSlice = createSlice({
            state.status = "succeeded";
            state.user = action.payload
         
-     
+     sessionStorage.setItem("user",JSON.stringify(action.payload))
               
         state.error = null;
       
@@ -74,10 +74,12 @@ const authSlice = createSlice({
          state.status = "succeeded";
   state.user = action.payload
   state.error = null;
+   sessionStorage.setItem("user",JSON.stringify(action.payload))
 
 }).addCase(fetchSaveBlog.fulfilled,(state,action)=>{
   state.status = "succeeded";
   state.user= action.payload
+   sessionStorage.setItem("user",JSON.stringify(action.payload))
 state.error = null;
 })
 

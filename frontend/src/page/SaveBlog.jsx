@@ -17,11 +17,11 @@ console.log("sahul ueser",user)
     return <p className="text-center mt-10">No saved blogs yet</p>;
   }
 
-  // 🔥 Filter only populated blogs
+ 
   const populatedBlogs = user.saveBlogs.filter(
-    blog => typeof blog === "object" && blog?._id
-  );
-
+  blog => blog && typeof blog === "object" && blog.author
+);
+ console.log("populate",populatedBlogs)
   if (populatedBlogs.length === 0) {
     return <p className="text-center mt-10">Loading saved blogs...</p>;
   }
