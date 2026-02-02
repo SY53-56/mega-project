@@ -17,7 +17,7 @@ const BlogCard = React.memo (({ blog })=> {
 
 
 const isSaved = user?.saveBlogs?.some((s)=>{
-  const saveData =   s._id ? s._id.toString():s.id.toString()
+  const saveData =   s._id ? s._id : s.id
   return saveData === blog._id.toString();
 });
 

@@ -34,7 +34,7 @@ export default function UserPage() {
   const userId = user?.id || user?._id;
 
 const isFollowing = user?.following?.some((u) => {
-  const followId = u._id ? u._id.toString() : u.toString();
+  const followId = u._id ? u._id : u
   return followId === authorId?.toString();
 });
 
@@ -256,7 +256,7 @@ console.log(isFollowing)
 
                   {userId === rev?.user?._id && (
                     <button
-                      onClick={() => deleteReview(rev._id)}
+                      onClick={() => deleteReview(rev._id , rev.user._id)}
                       className="text-xs bg-red-100 text-red-600 hover:bg-red-200 px-3 py-1 rounded-full transition"
                     >
                       Delete
