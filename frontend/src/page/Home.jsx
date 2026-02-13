@@ -1,17 +1,21 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo ,useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchGetData } from "../features/BlogThunk";
 import BlogCard from "../component/BlogCard";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
 export default function Home() {
   const dispatch = useDispatch();
-  const { blog, blogStatus, error } = useSelector((state) => state.blog);
-  const { user } = useSelector((state) => state.auth);
+  
+  const blog = useSelector((state) => state.blog.blog);
+const blogStatus = useSelector((state) => state.blog.blogStatus);
+const error = useSelector((state) => state.blog.error);
+const user = useSelector((state) => state.auth.user);
  const  location = useLocation()
   const [filters, setFilters] = useState("all");
-
+  const hasShownToast = useRef(false);
+const navigate = useNavigate()
   const filtersData = useMemo(() => {
     if (!Array.isArray(blog)) return [];
     return blog.filter((items) => {
@@ -34,19 +38,24 @@ export default function Home() {
     });
   }, [blog, filters]);
 
-   
-  useEffect(()=>{
-  if(location?.state?.message){
-  toast.success(location.state.message);
-  
-    window.history.replaceState({}, document.title);
+ 
+
+useEffect(() => {
+  if (location.state?.message && !hasShownToast.current) {
+    hasShownToast.current = true;
+
+    toast.success(location.state.message);
+
+    navigate(location.pathname, { replace: true });
   }
-  },[location.state])
+}, [location, navigate]); 
 
-  useEffect(() => {
+ 
+useEffect(() => {
+  if (blogStatus === "idle") {
     dispatch(fetchGetData());
-  }, [dispatch]);
-
+  }
+}, [blogStatus, dispatch]);
   return (
     <div className="min-h-screen bg-[#f8fafc] px-6 py-10">
       <div className="max-w-7xl mx-auto mb-12 flex flex-col md:flex-row md:items-center md:justify-between gap-6">

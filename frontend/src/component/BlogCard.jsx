@@ -5,6 +5,7 @@ import { fetchGetSingleBlog, fetchLike } from "../features/BlogThunk";
 import {  useCallback} from "react";
 import React from "react";
 import {   fetchSaveBlog } from "../features/authThunk";
+import { toast } from "react-toastify";
 //import { useEffect } from "react";
 const BlogCard = React.memo (({ blog })=> {
   const dispatch = useDispatch();
@@ -29,14 +30,15 @@ const isSaved = user?.saveBlogs?.some((s)=>{
 
     dispatch(fetchLike(blog._id))
       .then(() => dispatch(fetchGetSingleBlog(blog._id)));
+    
   }, [dispatch, blog._id, user]);
 
   // ✅ Save handler (NO NAVIGATION)
 
   const handleSave = useCallback( ()=>{
-    if(!user) return alert("please login")
+    if(!user) return toast.error("please login")
       dispatch(fetchSaveBlog({ blogId: blog._id }))
-  
+      toast.success("save bloged")
   },[dispatch , user ,blog._id])
 
 
