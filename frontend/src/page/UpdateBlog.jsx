@@ -8,7 +8,7 @@ export default function UpdateBlog() {
   const { id } = useParams(); // blog ID from URL
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { currentBlog, status, error } = useSelector((state) => state.blog);
+  const { currentBlog, blogStatus, error } = useSelector((state) => state.blog);
 const [file ,setfile] = useState([])
   const [form, setForm] = useState({
     title: "",
@@ -47,7 +47,7 @@ const [file ,setfile] = useState([])
 
     dispatch(fetchUpdate({ id, updateData: formData }))
       .unwrap()
-      .then(() => navigate(`/userpage/${id}`))
+      .then(() => navigate(`/userpage/${id}`,{state:{message:"update successfully"}}))
       .catch((err) => console.error("Update error:", err));
   };
 
@@ -97,9 +97,9 @@ const [file ,setfile] = useState([])
 
           <Button
             type="submit"
-            name={status === "loading" ? "Updating..." : "Update Blog"}
+            name={blogStatus=== "loading" ? "Updating..." : "Update Blog"}
             className="bg-indigo-600 active:scale-95 hover:bg-indigo-700 text-white font-bold py-3 rounded-lg mt-2 transition-colors duration-300"
-            disabled={status === "loading"}
+            disabled={blogStatus=== "loading"}
           />
         </form>
 

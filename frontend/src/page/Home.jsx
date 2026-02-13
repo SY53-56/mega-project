@@ -2,12 +2,14 @@ import { useEffect, useState, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchGetData } from "../features/BlogThunk";
 import BlogCard from "../component/BlogCard";
+import { useLocation } from "react-router-dom";
+import { toast } from "react-toastify";
 
 export default function Home() {
   const dispatch = useDispatch();
-  const { blog, status, error } = useSelector((state) => state.blog);
+  const { blog, blogStatus, error } = useSelector((state) => state.blog);
   const { user } = useSelector((state) => state.auth);
-
+ const  location = useLocation()
   const [filters, setFilters] = useState("all");
 
   const filtersData = useMemo(() => {
@@ -32,6 +34,14 @@ export default function Home() {
     });
   }, [blog, filters]);
 
+   
+  useEffect(()=>{
+  if(location?.state?.message){
+  toast.success(location.state.message);
+  
+    window.history.replaceState({}, document.title);
+  }
+  },[location.state])
 
   useEffect(() => {
     dispatch(fetchGetData());
@@ -72,7 +82,7 @@ export default function Home() {
         </div>
       </div>
 
-      {status === "loading" && (
+      {blogStatus === "loading" && (
         <p className="text-center text-2xl text-gray-500">
           Please wait, server is starting...
         </p>
@@ -87,7 +97,7 @@ export default function Home() {
           ))}
         </div>
       ) : (
-        status !== "loading" && (
+       blogStatus !== "loading" && (
           <p className="text-center text-gray-400 mt-20">No blogs found.</p>
         )
       )}

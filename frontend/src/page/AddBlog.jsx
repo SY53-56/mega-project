@@ -9,7 +9,7 @@ export default function AddBlog() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const { status, error,   uploadPercent } = useSelector((state) => state.blog);
+  const {  error,blogStatus,   uploadPercent } = useSelector((state) => state.blog);
 
   const [form, setForm] = useState({ title: "", description: "" });
   const [files, setFiles] = useState([]);
@@ -50,7 +50,7 @@ export default function AddBlog() {
         fetchAddData({ blogData: formData,})
       ).unwrap();
 
-      navigate("/");
+      navigate("/",{state:{message:"Add post successfully"}});
     } catch (err) {
       console.error(err);
     }
@@ -115,14 +115,14 @@ export default function AddBlog() {
 
           <Button
             type="submit"
-            disabled={status === "loading"}
-            name={status === "loading" ? "Posting..." : "Post Blog"}
+            disabled={ blogStatus === "loading"}
+            name={ blogStatus === "loading" ? "Posting..." : "Post Blog"}
             className="w-full bg-indigo-600 text-white py-3 rounded-lg"
           />
         </form>
 
         {/* Progress Bar */}
-        {status === "loading" && (
+        { blogStatus === "loading" && (
           <div className="mt-4">
             <div className="h-2 bg-gray-200 rounded-lg overflow-hidden">
               <div

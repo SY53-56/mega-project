@@ -22,8 +22,7 @@ console.log(error)
 await dispatch(fetchLogin(form)).unwrap()
 
 
-    console.log("TESTING: LOGIN SUCCESSFUL");
-navigate("/");
+navigate("/",{state:{message:"login successfully"}});
     }catch(err) {
      console.log(err)
     }

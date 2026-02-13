@@ -9,19 +9,18 @@ export default function UserAccount() {
   const dispatch = useDispatch();
   const { id } = useParams(); // user ID from route params
 
-  const { blog, userProfile, userBlog, status, error } = useSelector((state) => state.blog);
+  const {  userProfile, userBlog, blogStatus, error } = useSelector((state) => state.blog);
   const authUser = useSelector((state) => state.auth.user); // currently logged-in user
   //const {user} =  useSelector((state) => state.auth.user)
 
-console.log( "userPro",userProfile)
-console.log("userBlog",userBlog)
+
   useEffect(() => {
     if (id) dispatch(fetchUserAccount(id));
   }, [dispatch, id]);
 
-  console.log("bloguser", blog)
+ 
   // handle loading + error
-  if (status === "loading") {
+  if (blogStatus === "loading") {
     return <div className="text-center mt-10 text-gray-600">Loading user profile...</div>;
   }
 

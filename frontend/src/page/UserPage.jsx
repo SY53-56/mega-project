@@ -14,6 +14,7 @@ import {
 
 import Button from "../component/Button";
 import { followUser } from "../features/authThunk";
+import { toast } from "react-toastify";
 
 export default function UserPage() {
   const dispatch = useDispatch();
@@ -41,15 +42,19 @@ const isFollowing = user?.following?.some((u) => {
 console.log(isFollowing)
   const isLiked = currentBlog?.like?.includes(user?._id);
 
-  const followedButton = () => {
-    if (!user) return alert("Please login");
-    if (userId === authorId) return alert("You cannot follow yourself");
+  const followedButton = async () => {
+    if (!user) return toast.error("Please login");
+    if (userId === authorId)
+      return toast.error("You cannot follow yourself");
 
-   try{
- dispatch(followUser(authorId)).unwrap()
-   }catch(e){
-   console.log(e)
-   }
+    try {
+      await dispatch(followUser(authorId)).unwrap();
+      toast.success(
+        isFollowing ? "Unfollowed successfully" : "Followed successfully"
+      );
+    } catch {
+      toast.error("Something went wrong");
+    }
   };
 
   useEffect(() => {
@@ -78,33 +83,46 @@ console.log(isFollowing)
     setImgIndex((prev) => (prev === 0 ? imageLength - 1 : prev - 1));
   }, [imageLength]);
 
-  const deleteBlog = () => {
-    dispatch(fetchDelete(id))
-      .unwrap()
-      .then(() => navigate("/"));
+ const deleteBlog = async () => {
+    try {
+      await dispatch(fetchDelete(id)).unwrap();
+
+      navigate("/", {
+        state: { message: "Blog deleted successfully!" },
+      });
+    } catch {
+      toast.error("Failed to delete blog");
+    }
   };
 
-  const handleReviewForm = (e) => {
+    const handleReviewForm = async (e) => {
     e.preventDefault();
     if (!comment.trim()) return;
 
-    dispatch(fetchReviewPost({ blogId: id, reviewData: { comment } }))
-      .unwrap()
-      .then(() => {
-        setComment("");
-        dispatch(fetchReview(id));
-      });
+    try {
+      await dispatch(
+        fetchReviewPost({ blogId: id, reviewData: { comment } })
+      ).unwrap();
+
+      setComment("");
+      dispatch(fetchReview(id));
+      toast.success("Comment posted successfully");
+    } catch {
+      toast.error("Failed to post comment");
+    }
   };
 
   const deleteReview = (reviewId, reviewUserId) => {
     if (user?._id !== reviewUserId) return;
 
-    dispatch(fetchReviewDelete(reviewId)).unwrap();
+    dispatch(fetchReviewDelete(reviewId)).unwrap()
+    toast.success("successfully comment delet")
   };
 
   function handleLike() {
-    if (!user) return alert("Please login to like this blog");
+    if (!user) return toast.success("Please login to like this blog");
     dispatch(fetchLike(currentBlog?._id)).unwrap();
+    toast.success("post like")
   }
 
   const isAuthor = userId === authorId;

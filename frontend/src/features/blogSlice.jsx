@@ -118,6 +118,9 @@ const blogSlice = createSlice({
       })
 
       // ================= DELETE BLOG =================
+      .addCase(fetchDelete.pending,(state)=>{
+        state.blogStatus= "loading"
+      })
       .addCase(fetchDelete.fulfilled, (state, action) => {
         const { blogId } = action.payload;
 

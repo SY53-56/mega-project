@@ -33,7 +33,7 @@ export default function CreateAccount() {
      
   await dispatch(fetchSignup(formData));
       
-      navigate("/"); // Redirect after signup
+      navigate("/",{state:{message:"signup successfully"}}); // Redirect after signup
     } catch (err) {
       console.error("Create account failed:", err);
     }
