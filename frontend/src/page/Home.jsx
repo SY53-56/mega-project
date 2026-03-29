@@ -8,7 +8,8 @@ import { toast } from "react-toastify";
 export default function Home() {
   const dispatch = useDispatch();
   
-  const blog = useSelector((state) => state.blog.blog);
+ // const blog = useSelector((state) => state.blog.blog);
+  const {blog} = useSelector(state=> state.blog)
 const blogStatus = useSelector((state) => state.blog.blogStatus);
 const error = useSelector((state) => state.blog.error);
 const user = useSelector((state) => state.auth.user);
@@ -16,6 +17,7 @@ const user = useSelector((state) => state.auth.user);
   const [filters, setFilters] = useState("all");
   const hasShownToast = useRef(false);
 const navigate = useNavigate()
+console.log("blog",blog)
   const filtersData = useMemo(() => {
     if (!Array.isArray(blog)) return [];
     return blog.filter((items) => {
@@ -62,7 +64,7 @@ useEffect(() => {
         <div>
           {user ? (
             <h1 className="text-4xl md:text-5xl font-bold text-gray-900">
-              {user.username}
+              {user?.username}
             </h1>
           ) : (
             <h1 className="text-4xl md:text-5xl font-bold text-gray-900">
@@ -97,11 +99,11 @@ useEffect(() => {
         </p>
       )}
 
-      {error && <p className="text-center text-red-500">{error}</p>}
+      {error?.blog && <p className="text-center text-red-500">{error.blog}}</p>}
 
       {Array.isArray(blog) && blog.length > 0 ? (
         <div className="max-w-7xl mx-auto grid gap-10 sm:grid-cols-2 lg:grid-cols-3">
-          {filtersData.map((item) => (
+          {filtersData?.map((item) => (
             <BlogCard key={item._id} blog={item} />
           ))}
         </div>

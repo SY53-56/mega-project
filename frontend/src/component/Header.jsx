@@ -1,22 +1,21 @@
-import React, { useState } from "react";
+import React, { memo, useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import Button from "./Button";
 import { logout } from "../features/authSlice";
 import api from "../api";
-
-export default function Header() {
+ function Header() {
   const [isOpen, setIsOpen] = useState(false);
   const toggle = () => setIsOpen(!isOpen);
 
-  const { user } = useSelector((state) => state.auth); // user is the inner user object
+  const  user  = useSelector((state) => state.auth.user); // user is the inner user object
   const dispatch = useDispatch();
   const navigate = useNavigate();
-console.log("user",user)
+console.log(user)
   const handleLogout = async () => {
     try {
-      await api.get("/user/logout"); // clears cookie
+      await api.get("/user/logout");
       dispatch(logout());
       setIsOpen(false);
       navigate("/");
@@ -72,12 +71,13 @@ console.log("user",user)
             <div className="flex items-center gap-4">
               <div className="text-right leading-tight">
                 <p className="text-xs text-gray-100">Welcome</p>
-                <p className="font-semibold text-white">{user.username}</p>
+                <p className="font-semibold text-white">{user?.username}</p>
               </div>
 
               <Link to={`/user/${user._id}/blogs`}>
                 <img
-                  src={user.image || "https://via.placeholder.com/40"}
+                  src={`${user.image}?w=80&q=60 ` }
+                 loading="lazy"
                   alt="profile"
                   className="w-10 h-10 rounded-full object-cover ring-2 ring-indigo-400 hover:scale-105 transition"
                 />
@@ -155,6 +155,7 @@ console.log("user",user)
                 <Link to={`/user/${user._id}/blogs`}>
                   <img
                     src={user.image || "https://via.placeholder.com/40"}
+                    loading="lazy"
                     className="w-10 h-10 rounded-full ring-2 ring-indigo-400"
                   />
                 </Link>
@@ -191,3 +192,6 @@ console.log("user",user)
     </header>
   );
 }
+
+
+export default memo(Header)

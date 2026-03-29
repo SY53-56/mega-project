@@ -1,27 +1,29 @@
 import { Link } from "react-router-dom";
 import { BookMarkedIcon, Heart } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchGetSingleBlog, fetchLike } from "../features/BlogThunk";
-import {  useCallback} from "react";
+import {  fetchLike } from "../features/BlogThunk";
+import {  useCallback, useMemo} from "react";
 import React from "react";
 import {   fetchSaveBlog } from "../features/authThunk";
 import { toast } from "react-toastify";
 //import { useEffect } from "react";
 const BlogCard = React.memo (({ blog })=> {
   const dispatch = useDispatch();
-  const { user } = useSelector((state) => state.auth);
+  const  user  = useSelector((state) => state.auth.user);
 
   // ✅ Like check
   const isLike = user
     ? blog?.like?.includes(user._id)
     : false;
 
-
-const isSaved = user?.saveBlogs?.some((s)=>{
+console.log("blogs",blog)
+const isSaved = useMemo(()=>{
+ return user?.saveBlogs?.some((s)=>{
   const saveData =   s._id ? s._id : s.id
   return saveData === blog._id.toString();
 });
 
+},[user , blog._id])
 
 
   // ✅ Like handler
@@ -29,18 +31,20 @@ const isSaved = user?.saveBlogs?.some((s)=>{
     if (!user) return alert("Login first");
 
     dispatch(fetchLike(blog._id))
-      .then(() => dispatch(fetchGetSingleBlog(blog._id)));
+     
     
   }, [dispatch, blog._id, user]);
 
   // ✅ Save handler (NO NAVIGATION)
 
-  const handleSave = useCallback( ()=>{
-    if(!user) return toast.error("please login")
-      dispatch(fetchSaveBlog({ blogId: blog._id }))
-      toast.success("save bloged")
-  },[dispatch , user ,blog._id])
+const handleSave = useCallback(() => {
+  if (!user) return toast.error("please login");
 
+  dispatch(fetchSaveBlog({ blogId: blog._id }))
+    .unwrap()
+    .then(() => toast.success("Blog saved"))
+    .catch(() => toast.error("Failed to save"));
+}, [dispatch, user, blog._id]);
 
   return (
     <div className="bg-white rounded-3xl shadow-md hover:shadow-2xl transition-all duration-300 overflow-hidden group relative">
@@ -49,8 +53,12 @@ const isSaved = user?.saveBlogs?.some((s)=>{
       <div className="relative overflow-hidden">
         <Link to={`/userpage/${blog._id}`}>
           <img
-            src={blog.image?.[0]}
+          loading="lazy"
+          src={`${blog.image?.[0]}?w=400&q=60`}
             alt={blog.title}
+              width="400"
+  height="240"
+            decoding="async"
             className="w-full h-60 object-cover group-hover:scale-110 transition duration-500"
           />
         </Link>
@@ -76,12 +84,15 @@ const isSaved = user?.saveBlogs?.some((s)=>{
 
       {/* CONTENT */}
       <div className="p-5 flex flex-col gap-3">
-
+   
         {/* AUTHOR */}
         <div className="flex items-center gap-3">
           <img
             src={blog.author?.image || "https://via.placeholder.com/150"}
             alt="author"
+             loading="lazy"
+  width="40"
+  height="40"
             className="w-10 h-10 rounded-full object-cover"
           />
           <div>

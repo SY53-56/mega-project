@@ -1,11 +1,11 @@
-import React, { useEffect } from "react";
+import React, { memo, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import  {fetchUserAccount}  from "../features/BlogThunk";
 import { Link, useParams } from "react-router-dom";
 import Button from "../component/Button";
 import BlogCard from "../component/BlogCard";
 
-export default function UserAccount() {
+ function UserAccount() {
   const dispatch = useDispatch();
   const { id } = useParams(); // user ID from route params
 
@@ -13,12 +13,14 @@ export default function UserAccount() {
   const authUser = useSelector((state) => state.auth.user); // currently logged-in user
   //const {user} =  useSelector((state) => state.auth.user)
 
+useEffect(() => {
+  if (!id) return;
 
-  useEffect(() => {
-    if (id) dispatch(fetchUserAccount(id));
-  }, [dispatch, id]);
+  if (!userProfile || userProfile._id !== id) {
+    dispatch(fetchUserAccount(id));
+  }
 
- 
+}, [id, userProfile, dispatch]);
   // handle loading + error
   if (blogStatus === "loading") {
     return <div className="text-center mt-10 text-gray-600">Loading user profile...</div>;
@@ -39,9 +41,10 @@ export default function UserAccount() {
         <div className="bg-white p-6 rounded-xl shadow-md flex h-[400px] flex-col items-center">
           <img
             src={
-              userProfile.image ||
+              userProfile?.image ||
               "https://plus.unsplash.com/premium_photo-1761211108987-c37052604d95?ixlib=rb-4.1.0&auto=format&fit=crop&q=80&w=1915"
             }
+            loading="lazy"
             alt={userProfile.username}
             className="w-32 h-32 bg-amber-400 rounded-full object-cover mb-4"
           />
@@ -75,8 +78,8 @@ export default function UserAccount() {
 
           {userBlog.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              {userBlog.map((post) => (
-                 <BlogCard blog={post}/>
+              {userBlog.slice(0,6).map((post) => (
+                 <BlogCard key={post._id} blog={post}/>
               ))}
             </div>
           ) : (
@@ -87,3 +90,5 @@ export default function UserAccount() {
     </div>
   );
 }
+
+export default memo(UserAccount)

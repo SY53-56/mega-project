@@ -32,6 +32,8 @@ const [file ,setfile] = useState([])
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
   };
+
+  
   const handlefile =(e)=>{
     setfile(Array.from(e.target.files))
   }

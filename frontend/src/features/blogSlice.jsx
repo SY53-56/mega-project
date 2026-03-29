@@ -31,8 +31,12 @@ const blogSlice = createSlice({
     reviewStatus: "idle",
     followStatus: "idle",
     likeStatus: "idle",
-
-    error: null,
+   error:{
+     blog: null,
+  review: null,
+  like: null,
+  follow:null
+   },
     uploadPercent: 0,
   },
 
@@ -54,7 +58,7 @@ const blogSlice = createSlice({
       })
       .addCase(fetchGetData.rejected, (state, action) => {
         state.blogStatus = "failed";
-        state.error = action.payload;
+        state.error.blog = action.payload;
       })
 
       // ================= SINGLE BLOG =================
@@ -67,7 +71,7 @@ const blogSlice = createSlice({
       })
       .addCase(fetchGetSingleBlog.rejected, (state, action) => {
         state.blogStatus = "failed";
-        state.error = action.payload;
+        state.error.blog = action.payload;
       })
 
       // ================= USER ACCOUNT =================
@@ -81,7 +85,7 @@ const blogSlice = createSlice({
       })
       .addCase(fetchUserAccount.rejected, (state, action) => {
         state.blogStatus = "failed";
-        state.error = action.payload;
+        state.error.blog = action.payload;
       })
 
       // ================= ADD BLOG =================
@@ -143,7 +147,7 @@ const blogSlice = createSlice({
       })
       .addCase(fetchReview.rejected, (state, action) => {
         state.reviewStatus = "failed";
-        state.error = action.payload;
+        state.error.review = action.payload;
       })
 
       .addCase(fetchReviewPost.fulfilled, (state, action) => {
@@ -194,7 +198,7 @@ const blogSlice = createSlice({
       })
       .addCase(fetchFollowData.rejected, (state, action) => {
         state.followStatus = "failed";
-        state.error = action.payload;
+        state.error.follow = action.payload;
       });
   },
 });

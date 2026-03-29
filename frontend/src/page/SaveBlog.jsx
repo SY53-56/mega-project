@@ -1,9 +1,11 @@
 import {  useSelector } from "react-redux";
 import BlogCard from "../component/BlogCard";
+import { useMemo } from "react";
 
 export default function SaveBlog() {
-  const { user, status } = useSelector(state => state.auth);
 
+const user = useSelector(state => state.auth.user);
+const status = useSelector(state => state.auth.status);
   if (status=== "loading" || status === "idle") {
     return <p className="text-center mt-10">Loading saved blogs...</p>;
   }
@@ -16,11 +18,13 @@ export default function SaveBlog() {
     return <p className="text-center mt-10">No saved blogs yet</p>;
   }
 
- 
-  const populatedBlogs = user.saveBlogs.filter(
-  blog => blog && typeof blog === "object" && blog.author
-);
- console.log("populate",populatedBlogs)
+const populatedBlogs = useMemo(() => {
+  return user?.saveBlogs?.filter(
+    blog => blog && typeof blog === "object" && blog.author
+  );
+},[user.saveBlogs]);
+
+
   if (populatedBlogs.length === 0) {
     return <p className="text-center mt-10">Loading saved blogs...</p>;
   }

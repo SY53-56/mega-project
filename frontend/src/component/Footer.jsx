@@ -1,7 +1,7 @@
-import React from "react";
+import React , {memo} from "react";
 import { Instagram, Twitter, Facebook, Linkedin, InstagramIcon } from "lucide-react";
 
-export default function Footer() {
+ function Footer() {
   return (
     <footer className="bg-gray-900 text-gray-200 py-10">
       <div className="max-w-6xl mx-auto px-4">
@@ -74,3 +74,5 @@ export default function Footer() {
     </footer>
   );
 }
+
+export default memo(Footer)

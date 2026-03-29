@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams, Link } from "react-router-dom";
 import { ArrowLeft, ArrowRight, Heart } from "lucide-react";
@@ -34,12 +34,13 @@ export default function UserPage() {
 
   const userId = user?.id || user?._id;
 
-const isFollowing = user?.following?.some((u) => {
-  const followId = u._id ? u._id : u
-  return followId === authorId?.toString();
-});
+const isFollowing = useMemo(() => {
+  return user?.following?.some((u) => {
+    const followId = u._id ? u._id : u;
+    return followId === authorId?.toString();
+  });
+}, [user, authorId]);
 
-console.log(isFollowing)
   const isLiked = currentBlog?.like?.includes(user?._id);
 
   const followedButton = async () => {
@@ -63,7 +64,7 @@ console.log(isFollowing)
       dispatch(fetchGetSingleBlog(id));
       dispatch(fetchReview(id));
     }
-  }, [id, currentBlog, dispatch]);
+  }, [id, dispatch]);
 
   useEffect(() => {
     if (imageLength <= 1) return;
@@ -112,16 +113,16 @@ console.log(isFollowing)
     }
   };
 
-  const deleteReview = (reviewId, reviewUserId) => {
+  const deleteReview = async(reviewId, reviewUserId) => {
     if (user?._id !== reviewUserId) return;
 
-    dispatch(fetchReviewDelete(reviewId)).unwrap()
+   await dispatch(fetchReviewDelete(reviewId)).unwrap()
     toast.success("successfully comment delet")
   };
 
-  function handleLike() {
+ async function handleLike() {
     if (!user) return toast.success("Please login to like this blog");
-    dispatch(fetchLike(currentBlog?._id)).unwrap();
+   await dispatch(fetchLike(currentBlog?._id)).unwrap();
     toast.success("post like")
   }
 
@@ -179,7 +180,7 @@ console.log(isFollowing)
                   <div className="w-full">
                     <p className="text-sm text-gray-500">Author</p>
                     <h3 className="font-semibold text-lg">
-                      {currentBlog.author?.username}
+                      {currentBlog?.author?.username}
                     </h3>
                   </div>
                 </div>
