@@ -4,6 +4,7 @@ import { fetchGetData } from "../features/BlogThunk";
 import BlogCard from "../component/BlogCard";
 import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import GenerateBlog from "../component/GenerateBlog";
 
 export default function Home() {
   const dispatch = useDispatch();
@@ -17,7 +18,7 @@ const user = useSelector((state) => state.auth.user);
   const [filters, setFilters] = useState("all");
   const hasShownToast = useRef(false);
 const navigate = useNavigate()
-console.log("blog",blog)
+
   const filtersData = useMemo(() => {
     if (!Array.isArray(blog)) return [];
     return blog.filter((items) => {
@@ -93,6 +94,8 @@ useEffect(() => {
         </div>
       </div>
 
+  
+
       {blogStatus === "loading" && (
         <p className="text-center text-2xl text-gray-500">
           Please wait, server is starting...
@@ -102,7 +105,7 @@ useEffect(() => {
       {error?.blog && <p className="text-center text-red-500">{error.blog}}</p>}
 
       {Array.isArray(blog) && blog.length > 0 ? (
-        <div className="max-w-7xl mx-auto grid gap-10 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="max-w-7xl mx-auto grid gap-10 sm:grid-cols-2 mt-5 lg:grid-cols-3">
           {filtersData?.map((item) => (
             <BlogCard key={item._id} blog={item} />
           ))}

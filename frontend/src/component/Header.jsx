@@ -52,7 +52,21 @@ console.log(user)
           )}
 
           {user && (
-            <NavLink
+            
+         <div className="flex gap-4 items-center">
+             <NavLink
+              to="/generate/Aiblog"
+              className={({ isActive }) =>
+                `font-medium transition-all duration-500 ${
+                  isActive
+                    ? "text-white bg-blue-500 px-3 py-1 rounded-md"
+                    : "text-white hover:text-white"
+                }`
+              }
+            >
+             generate Blog
+            </NavLink>
+              <NavLink
               to="/addblog"
               className={({ isActive }) =>
                 `font-medium transition-all duration-500 ${
@@ -64,6 +78,7 @@ console.log(user)
             >
               Add Blog
             </NavLink>
+         </div>
           )}
 
           {/* AUTH AREA */}

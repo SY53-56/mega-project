@@ -134,7 +134,7 @@ export default function AddBlog() {
           </div>
         )}
 
-        {error && <p className="text-red-500 text-center mt-4">{error}</p>}
+        {error && <p className="text-red-500 text-center mt-4">{error.blog}</p>}
       </div>
     </div>
   );

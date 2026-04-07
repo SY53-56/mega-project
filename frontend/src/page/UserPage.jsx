@@ -139,7 +139,7 @@ const isFollowing = useMemo(() => {
           <div className="animate-pulse h-[400px] bg-gray-200 rounded-xl" />
         )}
 
-        {error && <p className="text-center text-red-500">{error}</p>}
+        {error && <p className="text-center text-red-500">{error.blog}</p>}
 
         {currentBlog && (
           <div className="bg-white rounded-3xl shadow-xl overflow-hidden">

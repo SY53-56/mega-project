@@ -13,7 +13,7 @@ const UserPage = lazy(() => import("./page/UserPage"));
 const UpdateBlog = lazy(() => import("./page/UpdateBlog"));
 const UserAccount = lazy(() => import("./page/UserAccount"));
 const SaveBlog = lazy(() => import("./page/SaveBlog"));
-
+const GenerateAiBlogPage = lazy(()=> import("./page/GenerateAiBlogPage"))
 // Non-lazy pages
 import Login from "./page/Login";
 import CreateAccount from "./page/CreateAccount";
@@ -78,6 +78,12 @@ export default function App() {
               </Suspense>
             }
           />
+          <Route path="/generate/aiblog" element={
+            <Suspense fallback={<div className="text-center mt-20">Loading SaveBlog...</div>}>
+              <GenerateAiBlogPage/>
+            </Suspense>
+          }/>
+
         </Route>
 
         {/* Routes without Layout */}

@@ -15,12 +15,12 @@ import BlogCard from "../component/BlogCard";
 
 useEffect(() => {
   if (!id) return;
-
+console.log("sahul")
   if (!userProfile || userProfile._id !== id) {
     dispatch(fetchUserAccount(id));
   }
 
-}, [id, userProfile, dispatch]);
+}, [id, dispatch]);
   // handle loading + error
   if (blogStatus === "loading") {
     return <div className="text-center mt-10 text-gray-600">Loading user profile...</div>;
