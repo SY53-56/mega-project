@@ -42,6 +42,7 @@ import { setUploadPercent } from "./blogSlice";
     try {
  
       const res = await api.get(`/blog/user/${userId}`);
+      console.log( 'resdatat', res.data)
       return res.data; // { blog: [...] }
     } catch (e) {
       return rejectWithValue(e.response?.data?.message || e.message || "Failed to fetch user blogs");

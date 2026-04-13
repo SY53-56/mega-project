@@ -12,7 +12,7 @@ const uploads = require("../middleware/uploadsImgMiddleware")
 
 
 routes.get("/",getAllBlogs)
-routes.get("/user/:id/",userMiddleware,userAccount)
+routes.get("/user/:id",userAccount)
 routes.get("/:id", getSingleBlog)
 routes.post("/", userMiddleware,uploads.array("images",5),postBlogData)
 routes.put("/:id",userMiddleware,uploads.array("images",5),updateBlogData)

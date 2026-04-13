@@ -15,7 +15,7 @@ const generateAiBlog = async (req, res) => {
      message: "Description is required" 
       });
     }
-console.log("description", description)
+
     // ✅ Check user
     const user = await UserModel.findById(req.user.id);
     if (!user) {
@@ -27,7 +27,7 @@ console.log("description", description)
 
     // 🔥 CALL AI HERE
     const aiContent = await codeRun(` ${description}`);
-    console.log("aiContent",aiContent)
+
 const generatedTitle =aiContent.split(" ").slice(0, 5).join(" ");
     if (!aiContent) {
       return res.status(500).json({

@@ -13,32 +13,36 @@ import {
   fetchLike,
 } from "./BlogThunk";
 
+const initialState = {
+  blog: [],
+  currentBlog: null,
+
+  userProfile: null ,
+  userBlog: [],
+
+  review: [],
+
+  followers: [],
+  following: [],
+
+  blogStatus: "idle",
+  reviewStatus: "idle",
+  followStatus: "idle",
+  likeStatus: "idle",
+
+  error: {
+    blog: null,
+    review: null,
+    like: null,
+    follow: null,
+  },
+
+  uploadPercent: 0,
+};
+
 const blogSlice = createSlice({
   name: "blog",
-  initialState: {
-    blog: [],
-    currentBlog: null,
-
-    userProfile: null,
-    userBlog: [],
-
-    review: [],
-
-    followers: [],
-    following: [],
-
-    blogStatus: "idle",
-    reviewStatus: "idle",
-    followStatus: "idle",
-    likeStatus: "idle",
-   error:{
-     blog: null,
-  review: null,
-  like: null,
-  follow:null
-   },
-    uploadPercent: 0,
-  },
+  initialState,
 
   reducers: {
     setUploadPercent: (state, action) => {
@@ -48,6 +52,7 @@ const blogSlice = createSlice({
 
   extraReducers: (builder) => {
     builder
+
       // ================= BLOG LIST =================
       .addCase(fetchGetData.pending, (state) => {
         state.blogStatus = "loading";
@@ -74,14 +79,17 @@ const blogSlice = createSlice({
         state.error.blog = action.payload;
       })
 
-      // ================= USER ACCOUNT =================
+      // ================= USER ACCOUNT (🔥 FIXED HERE) =================
       .addCase(fetchUserAccount.pending, (state) => {
         state.blogStatus = "loading";
       })
       .addCase(fetchUserAccount.fulfilled, (state, action) => {
         state.blogStatus = "succeeded";
+
         state.userProfile = action.payload.user || null;
-        state.userBlog = action.payload.blogs || [];
+
+        // ✅ IMPORTANT FIX: normalize nested API response
+        state.userBlog = action.payload.blogs
       })
       .addCase(fetchUserAccount.rejected, (state, action) => {
         state.blogStatus = "failed";
@@ -95,14 +103,16 @@ const blogSlice = createSlice({
       })
       .addCase(fetchAddData.fulfilled, (state, action) => {
         state.blogStatus = "succeeded";
+
         if (action.payload.blog) {
           state.blog.unshift(action.payload.blog);
         }
+
         state.uploadPercent = 100;
       })
       .addCase(fetchAddData.rejected, (state, action) => {
         state.blogStatus = "failed";
-        state.error = action.payload;
+        state.error.blog = action.payload;
         state.uploadPercent = 0;
       })
 
@@ -122,8 +132,8 @@ const blogSlice = createSlice({
       })
 
       // ================= DELETE BLOG =================
-      .addCase(fetchDelete.pending,(state)=>{
-        state.blogStatus= "loading"
+      .addCase(fetchDelete.pending, (state) => {
+        state.blogStatus = "loading";
       })
       .addCase(fetchDelete.fulfilled, (state, action) => {
         const { blogId } = action.payload;
@@ -151,10 +161,10 @@ const blogSlice = createSlice({
       })
 
       .addCase(fetchReviewPost.fulfilled, (state, action) => {
-        state.reviewStatus = "succeeded";
         if (action.payload.review) {
           state.review.unshift(action.payload.review);
         }
+        state.reviewStatus = "succeeded";
       })
 
       .addCase(fetchReviewDelete.fulfilled, (state, action) => {
@@ -167,13 +177,27 @@ const blogSlice = createSlice({
       .addCase(fetchLike.fulfilled, (state, action) => {
         const { blogId, liked, userId } = action.payload;
 
+        // update current blog
         if (state.currentBlog?._id === blogId) {
           state.currentBlog.like = liked
             ? [...new Set([...state.currentBlog.like, userId])]
             : state.currentBlog.like.filter((id) => id !== userId);
         }
 
+        // update blog list
         state.blog = state.blog.map((b) =>
+          b._id === blogId
+            ? {
+                ...b,
+                like: liked
+                  ? [...new Set([...b.like, userId])]
+                  : b.like.filter((id) => id !== userId),
+              }
+            : b
+        );
+
+        // ✅ also update userBlog (IMPORTANT FIX)
+        state.userBlog = state.userBlog.map((b) =>
           b._id === blogId
             ? {
                 ...b,

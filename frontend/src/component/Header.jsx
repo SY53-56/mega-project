@@ -12,7 +12,7 @@ import api from "../api";
   const  user  = useSelector((state) => state.auth.user); // user is the inner user object
   const dispatch = useDispatch();
   const navigate = useNavigate();
-console.log(user)
+
   const handleLogout = async () => {
     try {
       await api.get("/user/logout");

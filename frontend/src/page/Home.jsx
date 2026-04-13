@@ -115,6 +115,7 @@ useEffect(() => {
           <p className="text-center text-gray-400 mt-20">No blogs found.</p>
         )
       )}
+
     </div>
   );
 }

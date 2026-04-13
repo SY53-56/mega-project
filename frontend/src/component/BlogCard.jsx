@@ -12,11 +12,12 @@ const BlogCard = React.memo (({ blog })=> {
   const  user  = useSelector((state) => state.auth.user);
 
   // ✅ Like check
-  const isLike = user
+  const isLike = useMemo(()=>{
+  return  user
     ? blog?.like?.includes(user._id)
     : false;
+  },[user,blog.like])
 
-console.log("blogs",blog)
 const isSaved = useMemo(()=>{
  return user?.saveBlogs?.some((s)=>{
   const saveData =   s._id ? s._id : s.id
@@ -87,14 +88,15 @@ const handleSave = useCallback(() => {
    
         {/* AUTHOR */}
         <div className="flex items-center gap-3">
+        {user &&(<Link to={`/user/${user.id}/blogs`}>
           <img
             src={blog.author?.image || "https://via.placeholder.com/150"}
             alt="author"
              loading="lazy"
   width="40"
   height="40"
-            className="w-10 h-10 rounded-full object-cover"
-          />
+            className="w-10 h-10 cursor-pointer rounded-full object-cover"
+          /></Link>)}
           <div>
             <p className="text-sm font-semibold text-gray-700">
               {blog.author?.username || blog.title || "Unknown"}

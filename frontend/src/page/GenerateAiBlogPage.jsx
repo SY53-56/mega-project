@@ -3,23 +3,29 @@ import GenerateBlog from '../component/GenerateBlog'
 import { useDispatch, useSelector } from 'react-redux'
 import { generateAiBlogThunk, getAiBlogPostThunk } from '../features/aiBlogThunk'
 import { toast } from 'react-toastify'
-
+import Button from "../component/Button"
 import { useParams } from 'react-router-dom'
 
 export default function GenerateAiBlogPage() {
   const { aiblog, status,aiblogs } = useSelector(state => state.aiblog)
   const user = useSelector(state => state.auth.user)
   const {id}= useParams()
- console.log(  "generate blog",aiblog)
+
   const [blog, setBlog] = useState("")
   const dispatch = useDispatch()
-console.log( "sahul",aiblogs)
+
  useEffect(()=>{
  if (id) {
     dispatch(getAiBlogPostThunk(id));
   }
 
  },[dispatch , id])
+const handleCopy = () => {
+  if (aiblog?.blogDescription) {
+    navigator.clipboard.writeText(aiblog.blogDescription);
+  toast.success("copy blog")
+  }
+};
 
   const handleGenerateBlog = useCallback(async () => {
     if (!blog.trim()) {
@@ -29,6 +35,7 @@ console.log( "sahul",aiblogs)
 
     if (user) {
       await dispatch(generateAiBlogThunk(blog))
+      setBlog("")
       toast.success("generate")
     } else {
       toast.error("Please login first")
@@ -49,15 +56,16 @@ console.log( "sahul",aiblogs)
         {status ==="loading"? (
           <p className="text-gray-300 text-center">Generating blog...</p>
         ) :    aiblog.blogDescription? (
-          <div className="text-white whitespace-pre-wrap">
-            {aiblog.blogDescription}
+          <div className="text-white flex flex-col items-center justify-center whitespace-pre-wrap">
+           <p> {aiblog.blogDescription}</p>
+           <Button onClick={handleCopy} className='bg-blue-500 mt-3 ' name="copy blog"/>
           </div>
         ) : (
           <p className="text-gray-400 text-center">
             Your generated blog will appear here...
           </p>
         )}
-
+        
       </div>
 
       {/* Input Component */}
