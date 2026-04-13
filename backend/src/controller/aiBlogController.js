@@ -6,16 +6,16 @@ const codeRun = require("../services/blog.api"); // AI function
 
 const generateAiBlog = async (req, res) => {
   try {
-    const { title, description } = req.body;
+    const { description } = req.body;
 
     // ✅ Validation
-    if (!title || !description) {
+    if ( !description) {
       return res.status(400).json({
         success: false,
-        message: "Title and description required",
+     message: "Description is required" 
       });
     }
-
+console.log("description", description)
     // ✅ Check user
     const user = await UserModel.findById(req.user.id);
     if (!user) {
@@ -26,8 +26,9 @@ const generateAiBlog = async (req, res) => {
     }
 
     // 🔥 CALL AI HERE
-    const aiContent = await codeRun(`${title} - ${description}`);
-
+    const aiContent = await codeRun(` ${description}`);
+    console.log("aiContent",aiContent)
+const generatedTitle =aiContent.split(" ").slice(0, 5).join(" ");
     if (!aiContent) {
       return res.status(500).json({
         success: false,
@@ -37,13 +38,13 @@ const generateAiBlog = async (req, res) => {
 
     // ✅ Save blog
     const aiBlogPost = await AiBlogModel.create({
-      user: user._id,
-      blogTitle: title,
-      blogPost: aiContent,
-      slug: `${slugify(title, { lower: true, strict: true })}-${nanoid(6)}`,
+    author: user._id,
+    blogTitle: generatedTitle,
+      blogDescription: aiContent,
+    slug: `${slugify(generatedTitle, { lower: true, strict: true })}-${nanoid(6)}`,
     });
-
-    return res.status(201).json({
+ console.log(aiBlogPost)
+    return res.status(200).json({
       success: true,
       message: "AI blog generated successfully",
       data: aiBlogPost,
@@ -67,7 +68,7 @@ const getaiBlogPost = async(req,res)=>{
       });
     }
 
-        return res.status(201).json({
+        return res.status(200).json({
       success: true,
       message: "AI blog generated successfully",
       data: aiBlogPost,

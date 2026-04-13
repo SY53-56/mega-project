@@ -7,17 +7,17 @@ const aiBlogSchema = new mongoose.Schema(
          ref: "User",
          required: true,
        },
-    blogTitle: {
-      type: String,
-      required: true,
-      unique: true,
-    },
+    blogTitle: {              // ✅ ADD THIS
+    type: String,
+    required: true,
+  },
     blogDescription:{
       type: String,
       required: true,
     },
     slug: {
       type: String,
+      index:true
     },
   },
   {
