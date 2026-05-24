@@ -7,7 +7,7 @@ import Button from "../component/Button"
 import { useParams } from 'react-router-dom'
 
 export default function GenerateAiBlogPage() {
-  const { aiblog, status,aiblogs } = useSelector(state => state.aiblog)
+  const { aiblog, status, } = useSelector(state => state.aiblog)
   const user = useSelector(state => state.auth.user)
   const {id}= useParams()
 

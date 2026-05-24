@@ -12,7 +12,7 @@ export default function Home() {
  // const blog = useSelector((state) => state.blog.blog);
   const {blog} = useSelector(state=> state.blog)
 const blogStatus = useSelector((state) => state.blog.blogStatus);
-const error = useSelector((state) => state.blog.error);
+
 const user = useSelector((state) => state.auth.user);
  const  location = useLocation()
   const [filters, setFilters] = useState("all");
@@ -102,7 +102,7 @@ useEffect(() => {
         </p>
       )}
 
-      {error?.blog && <p className="text-center text-red-500">{error.blog}}</p>}
+   
 
       {Array.isArray(blog) && blog.length > 0 ? (
         <div className="max-w-7xl mx-auto grid gap-10 sm:grid-cols-2 mt-5 lg:grid-cols-3">

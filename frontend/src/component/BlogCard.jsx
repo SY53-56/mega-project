@@ -88,7 +88,7 @@ const handleSave = useCallback(() => {
    
         {/* AUTHOR */}
         <div className="flex items-center gap-3">
-        {user &&(<Link to={`/user/${user.id}/blogs`}>
+        {user &&(<Link to={`/user/${user._id}/blogs`}>
           <img
             src={blog.author?.image || "https://via.placeholder.com/150"}
             alt="author"

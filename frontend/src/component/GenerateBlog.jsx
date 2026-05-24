@@ -2,7 +2,7 @@ import { SearchIcon } from 'lucide-react'
 import React from 'react'
 
 export default function GenerateBlog({blog, setBlog, handleGenerateBlog}) {
-  console.log( blog)
+
   return (
    
       <div className="w-full max-w-2xl px-6">
